@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Event.h"
 #include "../decl.h"
 
 #include <stack>
@@ -22,18 +23,19 @@ namespace sgal
 
 	class SGAL_API Window
 	{
+		bool _open;
 		VideoSettings settings;
-
-		std::stack<void*> events;
 
 	public:
 		Window(VideoSettings videoSettings);
 
 		bool isOpen() const;
-		void Update() const;
+		void close();
 
 		VideoSettings getVideoSettings() const;
 
-		void pushEvent();
+		void Update();
+		void pushEvent(Event  event);
+		bool poll     (Event& event);
 	};
 }

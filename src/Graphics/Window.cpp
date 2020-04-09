@@ -1,5 +1,6 @@
 #include <SGAL/SGAL.h>
 
+static std::stack<sgal::Event> events;
 void makeWindow(unsigned int width, unsigned int height, std::string title, void*& handle, void* window);
 
 #if defined(WIN32) || defined(__WIN32)
@@ -12,14 +13,20 @@ namespace sgal
         settings(VideoSettings)
     {
         makeWindow(settings.width, settings.height, settings.title, settings.handle, this);
+        _open = true;
     }
 
     bool Window::isOpen() const
     {
-        return IsWindow((HWND)settings.handle);
+        return _open;
     }
 
-    void Window::Update() const
+    void Window::close()
+    {
+        _open = false;
+    }
+
+    void Window::Update()
     {
         UpdateWindow((HWND)settings.handle);
     }
@@ -29,8 +36,18 @@ namespace sgal
         return settings;
     }
     
-    void Window::pushEvent()
+    void Window::pushEvent(Event event)
     {
+        events.push(event);
+    }
 
+    bool Window::poll(Event& event)
+    {
+        if (events.size() == 0) return false;
+
+        event = events.top();
+        events.pop();
+
+        return true;
     }
 }

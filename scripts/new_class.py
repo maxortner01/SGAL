@@ -1,4 +1,4 @@
-import os, sys
+import os, sys, datetime
 
 # Default Settings
 DEFAULT_NS  = ""
@@ -116,11 +116,22 @@ if len(directories) > 0:
             
 
 with open(HEADER_LOCATION, 'w') as f:
+    # Documentation
+    f.write("/**\n")
+    f.write(" * @file   " + CLASS_INFORMATION["CLASS_NAME"] + ".h\n")
+    f.write(" * @author Max Ortner\n")
+    f.write(" * @date   " + str(datetime.datetime.now().month) + "-" + str(datetime.datetime.now().day) + "-" + str(datetime.datetime.now().year) +  "\n")
+    f.write(" * \n")
+    f.write(" * Description...\n")
+    f.write(" * \n")
+    f.write(" * @copyright Copyright (c) " + str(datetime.datetime.now().year) + "\n")
+    f.write("**/\n")
+
     f.write("#pragma once\n\n")
-    f.write("namespace " + CLASS_INFORMATION["NAMESPACE"] + "\n{\n\tclass " + CLASS_INFORMATION["CLASS_NAME"])
-    f.write("\n\t{\n")
-    f.write("\n")
-    f.write("\t};\n}")
+    f.write("namespace " + CLASS_INFORMATION["NAMESPACE"] + "\n{\n    class " + CLASS_INFORMATION["CLASS_NAME"])
+    f.write("\n    {\n")
+    f.write("\n\n")
+    f.write("    };\n}")
 
 with open(SOURCE_FILE_LOCATION, 'w') as f:
     f.write("#include <SGAL/SGAL.h>\n\n")

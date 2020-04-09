@@ -10,6 +10,13 @@ int main()
 
     while (window.isOpen())
     {
+        sgal::Event event;
+        while (window.poll(event))
+        {
+            if (event.type == sgal::Event::Closed)
+                window.close();
+        }
+
         window.Update();
     }
 }

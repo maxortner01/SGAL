@@ -2,11 +2,15 @@
 #include <iostream>
 #include <cstring>
 #include <cassert>
+#include <mutex>
+#include <thread>
+#include <stack>
 
 #define MAX_THREADS 3
 
 namespace sgal
 {
+    class Event;
     class Window;
 }
 
@@ -19,10 +23,12 @@ struct ThreadInfo
 
 // Windows API way of collecting the DLL instance and holding its
 static HINSTANCE _MODULE;
-static HANDLE THREADS   [MAX_THREADS];
-static DWORD  THREAD_IDS[MAX_THREADS];
+static std::thread* THREADS [MAX_THREADS];
+//static DWORD  THREAD_IDS[MAX_THREADS];
 static HWND   WINDOWS   [MAX_THREADS];
 static sgal::Window* sWINDOWS[MAX_THREADS];
+
+static std::mutex mtx;
 
 // Forward declaration of the event protocol
 LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lparam);
@@ -34,8 +40,8 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD rfc, LPVOID reserved)
     if (rfc == DLL_PROCESS_ATTACH)
     {
         _MODULE = hModule;
-        ZeroMemory(THREADS,    sizeof(HANDLE) * MAX_THREADS);
-        ZeroMemory(THREAD_IDS, sizeof(DWORD)  * MAX_THREADS);
+        ZeroMemory(THREADS,    sizeof(std::thread*) * MAX_THREADS);
+        //ZeroMemory(THREAD_IDS, sizeof(DWORD)  * MAX_THREADS);
         ZeroMemory(WINDOWS,    sizeof(HWND)   * MAX_THREADS);
         ZeroMemory(sWINDOWS,   sizeof(void*)  * MAX_THREADS);
 
@@ -51,9 +57,12 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD rfc, LPVOID reserved)
     }
     else if (rfc == DLL_PROCESS_DETACH)
     {
-        PostQuitMessage(0);
+        //PostQuitMessage(0);
         for (int i = 0; i < MAX_THREADS; i++)
-            CloseHandle(THREADS[i]);
+        {
+            if (THREADS[i]) THREADS[i]->join();
+            delete THREADS[i];
+        }
     }
 
     return true;
@@ -61,7 +70,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD rfc, LPVOID reserved)
 
 // This thread runs for each window, it creates the window and
 // passes messages along the pipeline
-DWORD WINAPI WindowMessageThread( LPVOID lParam )
+void WindowMessageThread( ThreadInfo* lParam )
 {
     ThreadInfo info;
     std::memcpy(&info, lParam, sizeof(ThreadInfo));
@@ -96,13 +105,14 @@ DWORD WINAPI WindowMessageThread( LPVOID lParam )
         TranslateMessage(&message);
         DispatchMessage(&message);
     }
-
-    return 0;
 }
+
+extern std::stack<sgal::Event> events;
 
 // This is where all the events go
 LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lparam)
 {
+
     sgal::Window* window = nullptr;
     for (int i = 0; i < MAX_THREADS; i++)
         if (WINDOWS[i] == handle)
@@ -116,9 +126,14 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
 
     switch (message)
     {
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        return 0;
+    case WM_CLOSE:
+        {
+            sgal::Event event;
+            event.type = sgal::Event::Closed;
+
+            events.push(event);
+        }
+        return 0;   
 
     default:
         return DefWindowProcW(handle, message, wparam, lparam);
@@ -143,7 +158,7 @@ void makeWindow(unsigned int width, unsigned int height, std::string title, void
             thread_info.height = height;
 
             sWINDOWS[i] = (sgal::Window*)window;
-            THREADS[i] = CreateThread(NULL, 0, WindowMessageThread, &thread_info, 0, &THREAD_IDS[i]);
+            THREADS[i] = new std::thread(WindowMessageThread, &thread_info);
 
             // Make sure the thread was successfully created
             assert(THREADS[i]);
