@@ -6,7 +6,10 @@ int main()
 {
     using namespace sgal;
 
-    std::cout << "yo\n";
+    Window window({ 1280, 720, "Coolio" });
 
-    Window window({ 100, 100 });
+    while (window.isOpen())
+    {
+        window.Update();
+    }
 }

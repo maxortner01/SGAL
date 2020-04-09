@@ -6,3 +6,5 @@ build/
 client/client.exe
 
 lib/
+
+client/libSGAL.dll
