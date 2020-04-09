@@ -2,6 +2,7 @@
 
 #include "../decl.h"
 
+#include <stack>
 #include <string>
 
 namespace sgal
@@ -23,6 +24,8 @@ namespace sgal
 	{
 		VideoSettings settings;
 
+		std::stack<void*> events;
+
 	public:
 		Window(VideoSettings videoSettings);
 
@@ -30,5 +33,7 @@ namespace sgal
 		void Update() const;
 
 		VideoSettings getVideoSettings() const;
+
+		void pushEvent();
 	};
 }
