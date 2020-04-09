@@ -4,3 +4,4 @@ project(SGAL)
 
 add_subdirectory(extern)
 add_subdirectory(src)
+add_subdirectory(client)
