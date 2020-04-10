@@ -10,3 +10,5 @@
 #   endif
 
 #endif
+
+#define IPTR void*

@@ -8,6 +8,7 @@ int main()
 
     Window window({ 1280, 720, "Coolio" });
 
+    Timer clock;
     while (window.isOpen())
     {
         sgal::Event event;
@@ -17,6 +18,11 @@ int main()
                 window.close();
         }
 
-        window.Update();
+        window.clear();
+
+        window.update();
+
+        float fps = 1.f / clock.getElapsed();
+        clock.restart();
     }
 }

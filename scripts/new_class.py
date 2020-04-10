@@ -128,11 +128,12 @@ with open(HEADER_LOCATION, 'w') as f:
     f.write("**/\n")
 
     f.write("#pragma once\n\n")
-    f.write("namespace " + CLASS_INFORMATION["NAMESPACE"] + "\n{\n    class " + CLASS_INFORMATION["CLASS_NAME"])
-    f.write("\n    {\n")
+    f.write("#include <SGAL/decl.h>\n\n")
+    f.write("namespace " + CLASS_INFORMATION["NAMESPACE"] + "\n{\n\tclass SGAL_API " + CLASS_INFORMATION["CLASS_NAME"])
+    f.write("\n\t{\n")
     f.write("\n\n")
-    f.write("    };\n}")
+    f.write("\t};\n}")
 
 with open(SOURCE_FILE_LOCATION, 'w') as f:
     f.write("#include <SGAL/SGAL.h>\n\n")
-    f.write("namespace " + CLASS_INFORMATION["NAMESPACE"] + "\n{\n\n\n}")
+    f.write("namespace " + CLASS_INFORMATION["NAMESPACE"] + "\n{\n\n\n\n}")

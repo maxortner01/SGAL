@@ -83,7 +83,7 @@ void WindowMessageThread( ThreadInfo* lParam )
     HWND window = CreateWindowW( 
         L"SGAL Window Class",
         wTitle.c_str(),
-        WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+        WS_OVERLAPPEDWINDOW,
 
         CW_USEDEFAULT, CW_USEDEFAULT,
         info.width, info.height,
@@ -96,8 +96,6 @@ void WindowMessageThread( ThreadInfo* lParam )
     assert(window);
 
     WINDOWS[info.index] = window;
-
-    ShowWindow(window, SW_SHOWNORMAL);
 
     MSG message = {};
     while (GetMessage(&message, window, 0, 0))
@@ -112,7 +110,6 @@ extern std::stack<sgal::Event> events;
 // This is where all the events go
 LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lparam)
 {
-
     sgal::Window* window = nullptr;
     for (int i = 0; i < MAX_THREADS; i++)
         if (WINDOWS[i] == handle)

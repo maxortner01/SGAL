@@ -1,7 +1,9 @@
 #pragma once
 
+#include <SGAL/decl.h>
+
 #include "Event.h"
-#include "../decl.h"
+#include "Context.h"
 
 #include <stack>
 #include <string>
@@ -23,18 +25,24 @@ namespace sgal
 
 	class SGAL_API Window
 	{
-		bool _open;
+		friend class Context;
+
+		bool          _open;
 		VideoSettings settings;
+		Context       context;
 
 	public:
 		Window(VideoSettings videoSettings);
+		~Window();
 
 		bool isOpen() const;
 		void close();
 
 		VideoSettings getVideoSettings() const;
 
-		void Update();
+		void clear() const;
+		void update();
+
 		void pushEvent(Event  event);
 		bool poll     (Event& event);
 	};
