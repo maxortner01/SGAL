@@ -43,6 +43,9 @@ namespace sgal
 		void clear() const;
 		void update();
 
+		void show() const;
+		void hide() const;
+
 		void pushEvent(Event  event);
 		bool poll     (Event& event);
 	};

@@ -3,10 +3,11 @@
  * @author Max Ortner
  * @date   4-9-2020
  * 
- * Description...
+ * This file contains the class used for handling OpenGL contexts.
  * 
  * @copyright Copyright (c) 2020
 **/
+
 #pragma once
 
 #include <SGAL/decl.h>

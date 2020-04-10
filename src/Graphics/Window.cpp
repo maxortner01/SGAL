@@ -1,7 +1,9 @@
 #include <SGAL/SGAL.h>
 #include <GL/glew.h>
 
+static bool                    OPENGL_INITIALIZED = false;
 static std::stack<sgal::Event> events;
+
 void makeWindow(unsigned int width, unsigned int height, std::string title, void*& handle, void* window);
 
 #if defined(WIN32) || defined(__WIN32)
@@ -42,33 +44,31 @@ namespace sgal
         int pixel_format = ChoosePixelFormat(hdc, &pfd);
 
         // Assert that the pixel format has been registered and set it
-        assert(pixel_format);
-        assert(SetPixelFormat(hdc, pixel_format, &pfd));
+        SG_ASSERT(pixel_format, "Invalid Pixel Format!");
+        SG_ASSERT(SetPixelFormat(hdc, pixel_format, &pfd), "Pixel format failed to set!");
 
         // Create the context and make it current
         context.create(hdc);
 
 #       else // Linux Platforms
-        assert(false);
+        INVALID_OPERATING_SYSTEM;
 #       endif
 
         context.makeCurrent();
 
-        // Initialize glew and flush error stack
-        assert(glewInit() == GLEW_OK);
-        while (glGetError() != GL_NO_ERROR);
+        if (!OPENGL_INITIALIZED)
+        {
+            // Initialize glew and flush error stack
+            SG_ASSERT(glewInit() == GLEW_OK, "GLEW failed to initialize!");
+            while (glGetError() != GL_NO_ERROR);
+            OPENGL_INITIALIZED = true;
+        }
 
         glClearColor(0, 0, 0, 1);
         clear();
 
         // Show the window
-#       ifdef WIN32
-        for (int i = 0; i < MAX_THREADS; i++)
-            if (sWINDOWS[i] == this)
-                ShowWindow(WINDOWS[i], SW_SHOWNORMAL);
-#       else
-        assert(false);
-#       endif
+        show();
         
         _open = true;
     }
@@ -95,10 +95,42 @@ namespace sgal
 
     void Window::update()
     {
-        assert(events.size() < 200);
+        SG_ASSERT(events.size() < 200, "Event maximum reached, are you polling?");
 
         UpdateWindow((HWND)settings.handle);
         context.swapBuffers();
+    }
+
+    void Window::show() const
+    {
+#       ifdef WIN32
+        for (int i = 0; i < MAX_THREADS; i++)
+            if (sWINDOWS[i] == this)
+            {
+                ShowWindow(WINDOWS[i], SW_SHOWNORMAL);
+                return;
+            }
+
+        SG_ASSERT(false, "Something strange happened: Window tried to show but not registered.");
+#       else
+        INVALID_OPERATING_SYSTEM;
+#       endif
+    }
+
+    void Window::hide() const
+    {
+#       ifdef WIN32
+        for (int i = 0; i < MAX_THREADS; i++)
+            if (sWINDOWS[i] == this)
+            {
+                ShowWindow(WINDOWS[i], SW_HIDE);
+                return;
+            }
+
+        SG_ASSERT(false, "Something strange happened: Window tried to hide but not registered.");
+#       else
+        INVALID_OPERATING_SYSTEM;
+#       endif
     }
 
     VideoSettings Window::getVideoSettings() const

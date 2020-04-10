@@ -8,24 +8,60 @@
  * 
  * @copyright Copyright (c) 2020
 **/
+
 #pragma once
+
+#include "../Utility/Keyboard.h"
+#include "../Utility/Mouse.h"
 
 namespace sgal
 {
     class Event
     {
-        
+        struct ResizeEvent
+        {
+            unsigned int width, height;
+        };
+
+        struct PositionEvent
+        {
+            int x, y;
+        };
+
+        struct KeyEvent
+        {
+            KeyState          state;
+            Keyboard::KeyCode code;
+        };
+
+        struct MouseEvent
+        {
+            Mouse::KeyCode code;
+            KeyState       state;
+            int x, y;   
+        };
+
     public:
         enum EventType
         {
-            Closed
+            Closed,
+            Resize,
+            Moving,
+            KeyDown,
+            KeyHeld,
+            KeyUp,
+            MouseDown,
+            MouseUp
         };
 
         EventType type;
 
         union
         {
-            
+            ResizeEvent   size;
+            PositionEvent position;
+            KeyEvent      key;
+            MouseEvent    mouse;
         };
         
     };

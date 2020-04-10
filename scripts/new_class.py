@@ -125,7 +125,7 @@ with open(HEADER_LOCATION, 'w') as f:
     f.write(" * Description...\n")
     f.write(" * \n")
     f.write(" * @copyright Copyright (c) " + str(datetime.datetime.now().year) + "\n")
-    f.write("**/\n")
+    f.write("**/\n\n")
 
     f.write("#pragma once\n\n")
     f.write("#include <SGAL/decl.h>\n\n")

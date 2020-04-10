@@ -1,12 +1,14 @@
 #include <Windows.h>
 #include <iostream>
 #include <cstring>
-#include <cassert>
 #include <mutex>
 #include <thread>
 #include <stack>
 
 #define MAX_THREADS 3
+
+#define INIT_EVENT(event_type) sgal::Event event; event.type = event_type
+#define PUSH_EVENT events.push(event);
 
 namespace sgal
 {
@@ -23,12 +25,19 @@ struct ThreadInfo
 
 // Windows API way of collecting the DLL instance and holding its
 static HINSTANCE _MODULE;
-static std::thread* THREADS [MAX_THREADS];
-//static DWORD  THREAD_IDS[MAX_THREADS];
-static HWND   WINDOWS   [MAX_THREADS];
+static std::thread* THREADS  [MAX_THREADS];
+static HWND   WINDOWS        [MAX_THREADS];
 static sgal::Window* sWINDOWS[MAX_THREADS];
 
-static std::mutex mtx;
+extern std::stack<sgal::Event> events;
+extern bool                    OPENGL_INITIALIZED;
+
+// State information for the key
+enum WIN32_KEY_STATES
+{
+    KEY_HELD = (1 << 30),
+    KEY_UP   = (1 << 31)
+};
 
 // Forward declaration of the event protocol
 LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lparam);
@@ -53,7 +62,7 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD rfc, LPVOID reserved)
         wc.lpfnWndProc   = WindowProc;
         wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
 
-        assert(RegisterClassW(&wc));
+        SG_ASSERT(RegisterClassW(&wc), "Win32 class failed to register!");
     }
     else if (rfc == DLL_PROCESS_DETACH)
     {
@@ -93,7 +102,7 @@ void WindowMessageThread( ThreadInfo* lParam )
         NULL
     );
 
-    assert(window);
+    SG_ASSERT(window, "Window creation failure!");
 
     WINDOWS[info.index] = window;
 
@@ -104,8 +113,6 @@ void WindowMessageThread( ThreadInfo* lParam )
         DispatchMessage(&message);
     }
 }
-
-extern std::stack<sgal::Event> events;
 
 // This is where all the events go
 LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lparam)
@@ -123,14 +130,168 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
 
     switch (message)
     {
+    //
+    // Event for closing the window
+    //
     case WM_CLOSE:
         {
             sgal::Event event;
             event.type = sgal::Event::Closed;
-
             events.push(event);
         }
         return 0;   
+
+    //
+    // Event for changing the size of the window
+    //
+    case WM_SIZING:
+        {
+            RECT* rect = (RECT*)lparam;
+
+            INIT_EVENT(sgal::Event::Resize);
+            event.size.width  = rect->right  - rect->left;
+            event.size.height = rect->bottom - rect->top;
+            PUSH_EVENT;
+
+            // Just to be safe, keep track of OpenGL initialization
+            // Change the viewport to the new size of the window
+            if (OPENGL_INITIALIZED)
+                glViewport(0, 0, event.size.width, event.size.height);
+        }
+        return 1;
+
+    //
+    // Event when the user moves the window
+    //
+    case WM_MOVING:
+        {
+            RECT* rect = (RECT*)lparam;
+
+            INIT_EVENT(sgal::Event::Moving);
+            event.position.x = rect->left;
+            event.position.y = rect->top;
+            PUSH_EVENT;
+        }
+        return 1;
+
+    //
+    // Key down event
+    //
+    case WM_KEYUP:
+    case WM_KEYDOWN:
+        {
+            uint32_t key_flag;
+            std::memcpy(&key_flag, &lparam, 32);
+
+            INIT_EVENT(sgal::Event::KeyDown);
+
+            // Check if the key is held down
+            bool key_held = (key_flag & KEY_HELD) == KEY_HELD;
+            bool key_up   = (key_flag & KEY_UP  ) == KEY_UP; 
+
+            if (key_held)
+            {
+                event.type      = sgal::Event::KeyHeld;
+                event.key.state = sgal::KeyState::KeyHeld;
+            }
+            else
+                event.key.state = sgal::KeyState::KeyDown;
+
+            if (key_up)
+            {
+                event.type      = sgal::Event::KeyUp;
+                event.key.state = sgal::KeyState::KeyUp;
+            }
+                
+            event.key.code = (sgal::Keyboard::KeyCode)wparam;
+
+            PUSH_EVENT;
+        }
+        return 1;
+        
+    case WM_LBUTTONDOWN:
+        {
+            INIT_EVENT(sgal::Event::MouseDown);
+
+            event.mouse.code  = sgal::Mouse::Key_LEFT;
+            event.mouse.state = sgal::KeyState::KeyDown;
+
+            event.mouse.x = LOWORD(lparam);
+            event.mouse.y = HIWORD(lparam);
+
+            PUSH_EVENT;
+        }
+        return 1;
+
+    case WM_RBUTTONDOWN:
+        {
+            INIT_EVENT(sgal::Event::MouseDown);
+
+            event.mouse.code  = sgal::Mouse::Key_RIGHT;
+            event.mouse.state = sgal::KeyState::KeyDown;
+
+            event.mouse.x = LOWORD(lparam);
+            event.mouse.y = HIWORD(lparam);
+
+            PUSH_EVENT;
+        }
+        return 1;
+        
+    case WM_MBUTTONDOWN:
+        {
+            INIT_EVENT(sgal::Event::MouseDown);
+
+            event.mouse.code  = sgal::Mouse::Key_MIDDLE;
+            event.mouse.state = sgal::KeyState::KeyDown;
+
+            event.mouse.x = LOWORD(lparam);
+            event.mouse.y = HIWORD(lparam);
+
+            PUSH_EVENT;
+        }
+        return 1;
+    
+    case WM_LBUTTONUP:
+        {
+            INIT_EVENT(sgal::Event::MouseUp);
+
+            event.mouse.code  = sgal::Mouse::Key_LEFT;
+            event.mouse.state = sgal::KeyState::KeyUp;
+
+            event.mouse.x = LOWORD(lparam);
+            event.mouse.y = HIWORD(lparam);
+
+            PUSH_EVENT;
+        }
+        return 1;
+        
+    case WM_RBUTTONUP:
+        {
+            INIT_EVENT(sgal::Event::MouseUp);
+
+            event.mouse.code  = sgal::Mouse::Key_RIGHT;
+            event.mouse.state = sgal::KeyState::KeyUp;
+
+            event.mouse.x = LOWORD(lparam);
+            event.mouse.y = HIWORD(lparam);
+
+            PUSH_EVENT;
+        }
+        return 1;
+        
+    case WM_MBUTTONUP:
+        {
+            INIT_EVENT(sgal::Event::MouseUp);
+
+            event.mouse.code  = sgal::Mouse::Key_MIDDLE;
+            event.mouse.state = sgal::KeyState::KeyUp;
+
+            event.mouse.x = LOWORD(lparam);
+            event.mouse.y = HIWORD(lparam);
+
+            PUSH_EVENT;
+        }
+        return 1;
 
     default:
         return DefWindowProcW(handle, message, wparam, lparam);
@@ -140,12 +301,11 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
 // Create the window by creating a new messaging thread and passing the handle back to the caller
 void makeWindow(unsigned int width, unsigned int height, std::string title, void*& handle, void* window)
 {
-    assert(!THREADS[MAX_THREADS - 1]);
-
     ThreadInfo thread_info;
     ZeroMemory(&thread_info, sizeof(ThreadInfo));
 
     for (int i = 0; i < MAX_THREADS; i++)
+    {
         if (THREADS[i] == NULL)
         {
             // Populate the thread_info object
@@ -158,7 +318,7 @@ void makeWindow(unsigned int width, unsigned int height, std::string title, void
             THREADS[i] = new std::thread(WindowMessageThread, &thread_info);
 
             // Make sure the thread was successfully created
-            assert(THREADS[i]);
+            SG_ASSERT(THREADS[i], "Window thread failed to initialize!");
 
             // Wait for the thread to open the window,
             // if it never opens an assertion will have failed
@@ -166,6 +326,16 @@ void makeWindow(unsigned int width, unsigned int height, std::string title, void
             while (!WINDOWS[i]);
             handle = WINDOWS[i];
 
+            // Capture keyboard/mouse input on creation
+            SetForegroundWindow(WINDOWS[i]);
+
             break;
         }
+        
+        // If we get here and its the last one, no thread is open.
+        SG_ASSERT(i != MAX_THREADS - 1, "Maximum window count reached!");
+    }
 }
+
+#undef INIT_EVENT
+#undef PUSH_EVENT
