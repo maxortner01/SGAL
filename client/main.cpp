@@ -41,6 +41,8 @@ int main()
 
         window.clear();
 
+        
+
         window.update();
 
         float fps = 1.f / clock.getElapsed();

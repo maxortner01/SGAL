@@ -8,6 +8,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include ${PROJECT_SOURCE_DIR}/extern/g
 
 add_definitions(-DGLEW_STATIC)
 add_definitions(-DSGAL_BUILD)
+add_definitions(-DSGAL_SHARED)
 
 file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 
