@@ -11,12 +11,23 @@ namespace SGL
 {
     Shader::Shader()
     {
-        id = glCreateProgram();
+
     }
 
     Shader::~Shader()
     {
-        glDeleteProgram(id);
+        if (id)
+            glDeleteProgram(id);
+    }
+
+    void Shader::setUniform(const std::string& name, const Texture& value) const
+    {
+        glUniform1i(glGetUniformLocation(id, name.c_str()), value.id);
+    }
+
+    void Shader::setUniform(const std::string& name, Mat4f value) const
+    {
+        glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, &value(0, 0));
     }
 
     void Shader::setUniform(const std::string& name, Vec3f value) const
@@ -41,6 +52,8 @@ namespace SGL
 
     void Shader::loadFile(const std::string& location, ShaderType type)
     {
+        if (!id) id = glCreateProgram();
+
         std::ifstream file(location);
         assert(file);
 
@@ -92,7 +105,9 @@ namespace SGL
     }
 
     void Shader::link() const
-    {
+    {        
+        assert(id);
+        
         glLinkProgram(id);
 
         int success;

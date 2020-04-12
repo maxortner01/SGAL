@@ -13,6 +13,7 @@ namespace SGL::GL
         TexCoords,
         Normals,
         ModelMatrices,
+        NormalMatrices,
         BufferCount
     };
 
@@ -26,6 +27,7 @@ namespace SGL::GL
         VAO(RenderMode mode = Triangles, bool _dynamic = false);
         ~VAO();
 
+        void loadNormalMatrices(const Mat4f* matrices, size_t count) const;
         void loadModelMatrices(const Mat4f* matrices, size_t count) const;
         void loadNormals(const Vec3f* normals, size_t count) const;
         void loadTexCoords(const Vec2f* data, size_t count) const;
@@ -33,7 +35,7 @@ namespace SGL::GL
         void loadVertices(const Vec3f* data, size_t count);
         void loadIndices(const unsigned int* index, size_t count);
 
-        void draw(Shader* shader = nullptr) const override;
+        void draw(const Surface* surface = nullptr, Shader* shader = nullptr, Camera* camera = nullptr) const override;
 
         void bind()   const override;
         void unbind() const override;
@@ -47,6 +49,9 @@ namespace SGL::GL
         unsigned int getVertexCount() const { return vertex_count; }
         unsigned int getIndexCount()  const { return index_count; }
 
+        float getPointSize() const  { return pointSize; }
+        void setPointSize(float ps) { pointSize = ps;   }
+
     protected:
         VBO* vbos[BufferCount];
         unsigned int* indices;
@@ -55,6 +60,7 @@ namespace SGL::GL
     private:
         unsigned int index_count, vertex_count;
 
+        float pointSize;
         bool dynamic;
     };
 }

@@ -149,16 +149,16 @@ namespace SGL
         rot_y.toIdentity();
         rot_z.toIdentity();
 
-        rot_x(0, 0) =  cos(rotation.x);
-        rot_x(0, 2) =  sin(rotation.x);
-        rot_x(2, 0) = -sin(rotation.x);
+        rot_x(1, 1) =  cos(rotation.x);
+        rot_x(1, 2) = -sin(rotation.x);
+        rot_x(2, 1) =  sin(rotation.x);
         rot_x(2, 2) =  cos(rotation.x);
-        
-        rot_y(1, 1) =  cos(rotation.y);
-        rot_y(1, 2) = -sin(rotation.y);
-        rot_y(2, 1) =  sin(rotation.y);
-        rot_y(2, 2) =  cos(rotation.y);
 
+        rot_y(0, 0) =  cos(rotation.y);
+        rot_y(0, 2) =  sin(rotation.y);
+        rot_y(2, 0) = -sin(rotation.y);
+        rot_y(2, 2) =  cos(rotation.y);
+        
         rot_z(0, 0) =  cos(rotation.z);
         rot_z(0, 1) = -sin(rotation.z);
         rot_z(1, 0) =  sin(rotation.z);
@@ -175,6 +175,98 @@ namespace SGL
         ret(0, 0) = scale.x;
         ret(1, 1) = scale.y;
         ret(2, 2) = scale.z;
+
+        return ret;
+    }
+
+    template<typename T, int N>
+    static void getCofactor(const Matrix<T, N, N>& in, Matrix<T, N, N>& temp, int p, int q, int n)
+    {
+        int i = 0, j = 0;
+
+        for (int row = 0; row < n; row++)
+            for (int col = 0; col < n; col++)
+                if (row != p && col != q)
+                {
+                    temp(i, j++) = in(row, col);
+
+                    if (j == n - 1)
+                    {
+                        j = 0;
+                        i++;
+                    }
+                }
+    }
+
+    template<typename T, int N>
+    static double determinant(const Matrix<T, N, N>& matrix, int n)
+    {
+        double D = 0;
+
+        if (n == 1) return (double)matrix(0, 0);
+
+        Matrix<T, N, N> temp;
+        double sign = 1.0;
+
+        for (int f = 0; f < n; f++)
+        {
+            getCofactor(matrix, temp, 0, f, n);
+            D += sign * matrix(0, f) * determinant(temp, n - 1);
+            sign *= -1.0;
+        }
+
+        return D;
+    }
+
+    template<typename T, int N>
+    static Matrix<T, N, N> adjoint(const Matrix<T, N, N>& A)
+    {
+        Matrix<T, N, N> adj;
+
+        if (N == 1) 
+        {
+            adj(0, 0) = 1;
+            return adj;
+        }
+
+        double sign = 1.0;
+        Matrix<T, N, N> temp;
+
+        for (int  i = 0; i < N; i++)
+            for (int j = 0; j < N; j++)
+            {
+                getCofactor(A, temp, i, j, N);
+                sign = ((i + j) % 2 == 0) ? 1.0 : -1.0;
+                adj(j, i) = sign * determinant(temp, N - 1);
+            }
+
+        return adj;
+    }
+
+    template<typename T, int N>
+    static Matrix<T, N, N> inverse(const Matrix<T, N, N>& matrix)
+    {
+        double det = determinant(matrix, N);
+        assert(det);
+
+        Matrix<T, N, N> adj = adjoint(matrix);
+        Matrix<T, N, N> inverse;
+
+        for (int i = 0; i < N; i++)
+            for (int j = 0; j < N; j++)
+                inverse(i, j) = adj(i, j) / det;
+
+        return inverse;
+    }
+    
+    template<typename T, int N>
+    static Matrix<T, N, N> transpose(const Matrix<T, N, N>& matrix)
+    {
+        Matrix<T, N, N> ret;
+
+        for (int i = 0; i < N; i++)
+            for (int j = 0; j < N; j++)
+                ret(i, j) = matrix(j, i);
 
         return ret;
     }

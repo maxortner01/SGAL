@@ -12,3 +12,5 @@
 #include "Graphics/Utility.cpp"
 #include "Graphics/ModelArray.cpp"
 #include "Graphics/Camera.cpp"
+
+#include "Graphics/Text.cpp"

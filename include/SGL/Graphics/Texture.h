@@ -23,6 +23,7 @@ namespace SGL
         ~Texture();
         
         void create(Vec2u _dimensions, TexType type = TexType::Color);
+        void loadFromFile(const std::string& string);
 
         void   bind() const override;
         void unbind() const override;

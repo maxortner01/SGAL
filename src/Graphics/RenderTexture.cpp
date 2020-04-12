@@ -8,12 +8,27 @@ namespace SGL
 {
     RenderBuffer::~RenderBuffer()
     {
-        if (texture) delete texture;
-        glDeleteRenderbuffers(1, &id);
+        if (texture) 
+        {
+            delete texture;
+            texture = nullptr;
+        }
+
+        if (id)
+        {
+            glDeleteRenderbuffers(1, &id);
+            id = 0;
+        }
+    }
+
+    RenderBuffer::RenderBuffer() :
+        texture(nullptr)
+    {
+        id = 0;
     }
     
     void RenderBuffer::create()
-    {   
+    {
         glGenRenderbuffers(1, &id);
     }
 
@@ -27,9 +42,39 @@ namespace SGL
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
     }
 
+    RenderTexture::RenderTexture() :
+        Surface({ 0, 0 }), old_dimensions(new Vec2u(0, 0))
+    {
+
+    }
+
     RenderTexture::RenderTexture(Vec2u size, bool depth_buffer) :
         Surface(size), old_dimensions(new Vec2u(0, 0))
     {   
+        create(size, depth_buffer);
+    }
+
+    RenderTexture::~RenderTexture()
+    {
+        if (id)
+        {
+            glDeleteFramebuffers(1, &id);
+            id = 0;
+        }
+
+        unbind();
+
+        if (old_dimensions)
+        {
+            delete old_dimensions;
+            old_dimensions = nullptr;
+        }
+    }
+
+    void RenderTexture::create(Vec2u size, bool depth_buffer)
+    {
+        setSize(size);
+
         // Create framebuffer
         glGenFramebuffers(1, &id);
 
@@ -38,17 +83,16 @@ namespace SGL
 
         // Create the color texture
         color.create({ size.x, size.y });
-        color.bind();
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color.id, 0);
-        color.unbind();
 
         if (depth_buffer)
         {
-            depth.texture = new Texture(size, TexType::Depth);
+            //depth.texture = new Texture(size, TexType::Depth);
 
             depth.create();
             depth.bind();
             glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, size.x, size.y);
+            depth.unbind();
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth.id);
         }
 
@@ -61,11 +105,6 @@ namespace SGL
 
         // Remove framebuffer
         unbind();
-    }
-
-    RenderTexture::~RenderTexture()
-    {
-        delete old_dimensions;
     }
 
     const Texture& RenderTexture::texture() const
@@ -90,18 +129,20 @@ namespace SGL
     {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        if (old_dimensions->x != 0)
+        if (old_dimensions && old_dimensions->x != 0)
             glViewport(0, 0, old_dimensions->x, old_dimensions->y);
     }
 
-    void RenderTexture::draw(Shader* shader) const
+    void RenderTexture::draw(const Surface* surface, Shader* shader, Camera* camera) const
     {
-        unbind();
+        Clock clock;
 
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDisable(GL_DEPTH_TEST);
 
         glEnable(GL_TEXTURE_2D);
-        texture().bind();
+        glBindTexture(GL_TEXTURE_2D, texture().id);
 
         glBegin(GL_TRIANGLES);
             glTexCoord2f(0, 0);
@@ -117,10 +158,11 @@ namespace SGL
             glVertex2f(-1,  1);
             glTexCoord2f(1, 0);
             glVertex2f( 1, -1);
-        glEnd();
+        glEnd(); 
 
         texture().unbind();
         
+        glDisable(GL_BLEND);
         glEnable(GL_DEPTH_TEST);
     }
 }

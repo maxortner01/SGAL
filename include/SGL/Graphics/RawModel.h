@@ -12,6 +12,8 @@ namespace SGL
     public:
         void loadFromFile(const std::string& location);
 
+        void setColor(const Color& color) const;
+
         void calculateNormals(
             const Vec3f* data, size_t count, const unsigned int* indices = nullptr, size_t index_count = 0) const;
     };

@@ -23,6 +23,6 @@ namespace SGL
         void   remove(unsigned int index);
         Model& get(unsigned int index) const;
 
-        void draw(Shader* shader = nullptr) const override;
+        void draw(const Surface* surface = nullptr, Shader* shader = nullptr, Camera* camera = nullptr) const override;
     };
 }

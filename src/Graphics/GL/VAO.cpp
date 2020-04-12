@@ -4,10 +4,12 @@
 #include <GL/glew.h>
 #include <vector>
 
+#include <iostream>
+
 namespace SGL::GL
 {
     VAO::VAO(RenderMode mode, bool _dynamic) :
-        vertex_count(0), index_count(0), indices(nullptr),  renderMode(mode), dynamic(_dynamic)
+        vertex_count(0), index_count(0), pointSize(1.f), indices(nullptr),  renderMode(mode), dynamic(_dynamic)
     {
         glCreateVertexArrays(1, &id);
         
@@ -30,37 +32,28 @@ namespace SGL::GL
         if (indices) std::free(indices);
     }
 
+    void VAO::loadNormalMatrices(const Mat4f* data, size_t count) const
+    {
+        if (!count) return;
+
+        bind();
+        vbos[NormalMatrices]->loadData(data, sizeof(Mat4f), count, 4 * 4);
+        unbind();
+    }
+
     void VAO::loadModelMatrices(const Mat4f* data, size_t count) const
     {
+        if (!count) return;
+
         bind();
-
-        vbos[ModelMatrices]->bind();
-        glBufferData(GL_ARRAY_BUFFER, count * sizeof(Mat4f), data, GL_DYNAMIC_DRAW);
-        vbos[ModelMatrices]->unbind();
-
-        unsigned int index = ModelMatrices;
-        
-        glEnableVertexAttribArray(index + 0);
-        glEnableVertexAttribArray(index + 1);
-        glEnableVertexAttribArray(index + 2);
-        glEnableVertexAttribArray(index + 3);
-
-        vbos[ModelMatrices]->bind();
-        glVertexAttribPointer(index + 0, 4, GL_FLOAT, GL_FALSE, sizeof(Mat4f), (void*)(0));
-        glVertexAttribPointer(index + 1, 4, GL_FLOAT, GL_FALSE, sizeof(Mat4f), (void*)(sizeof(float) * 4));
-        glVertexAttribPointer(index + 2, 4, GL_FLOAT, GL_FALSE, sizeof(Mat4f), (void*)(sizeof(float) * 8));
-        glVertexAttribPointer(index + 3, 4, GL_FLOAT, GL_FALSE, sizeof(Mat4f), (void*)(sizeof(float) * 12));
-
-        glVertexAttribDivisor(index + 0, 1);
-        glVertexAttribDivisor(index + 1, 1);
-        glVertexAttribDivisor(index + 2, 1);
-        glVertexAttribDivisor(index + 3, 1);
-
+        vbos[ModelMatrices]->loadData(data, sizeof(Mat4f), count, 4 * 4);
         unbind();
     }
 
     void VAO::loadNormals(const Vec3f* data, size_t count) const
     {
+        if (!count) return;
+
         bind();
         vbos[Normals]->loadData(data, sizeof(Vec3f), count, 3);
         unbind();
@@ -68,6 +61,8 @@ namespace SGL::GL
 
     void VAO::loadTexCoords(const Vec2f* data, size_t count) const
     {
+        if (!count) return;
+
         bind();
         vbos[TexCoords]->loadData(data, sizeof(Vec2f), count, 2);
         unbind();
@@ -75,6 +70,8 @@ namespace SGL::GL
 
     void VAO::loadColors(const Color* data, size_t count) const
     {
+        if (!count) return;
+
         bind();
         vbos[Colors]->loadData(data, sizeof(Color), count, 4);
         unbind();
@@ -82,6 +79,8 @@ namespace SGL::GL
 
     void VAO::loadVertices(const Vec3f* data, size_t count)
     {
+        if (!count) return;
+
         bind();
         vbos[Vertices]->loadData(data, sizeof(Vec3f), count, 3);
         unbind();
@@ -109,11 +108,14 @@ namespace SGL::GL
         std::memcpy(indices, index, count * sizeof(unsigned int));
     }
 
-    void VAO::draw(Shader* shader) const
+    void VAO::draw(const Surface* surface, Shader* shader, Camera* camera) const
     {
+        glDisable(GL_BLEND);
         bind();
         
         vbos[Vertices]->bind();
+
+        glPointSize(pointSize);
 
         unsigned int type;
         switch (renderMode)
@@ -123,8 +125,19 @@ namespace SGL::GL
         case Lines:     type = GL_LINES;        break;
         };
 
+        if (shader)
+        {
+            shader->bind();
+            if (camera)
+            {
+                shader->setUniform("view_matrix", camera->getTransformMatrix());
+                shader->setUniform("proj_matrix", camera->getProjectionMatrix());
+            }
+        }
+
         // Draw the array to the context
         glDrawElements(type, index_count, GL_UNSIGNED_INT, indices);
+        glEnable(GL_BLEND);
     }
 
     void VAO::bind() const

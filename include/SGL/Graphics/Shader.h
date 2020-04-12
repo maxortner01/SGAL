@@ -6,6 +6,8 @@
 
 namespace SGL
 {
+    class Texture;
+
     enum class ShaderType
     {
         Vertex,
@@ -21,6 +23,8 @@ namespace SGL
         Shader();
         ~Shader();
 
+        void setUniform(const std::string& name, const Texture& texture) const;
+        void setUniform(const std::string& name, Mat4f value) const;
         void setUniform(const std::string& name, Vec3f value) const;
         void setUniform(const std::string& name, Vec2f value) const;
         void setUniform(const std::string& name, float value) const;

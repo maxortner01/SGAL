@@ -64,5 +64,12 @@ namespace SGL
         Vec3f getRotation() const { return rotation; }
         Vec3f getPosition() const { return position; }
         Vec3f getScale()    const { return scale;    }
+
+        Mat4f getTransformMatrix() const
+        {
+            return makeTranslationMatrix(getPosition()) *
+                makeRotationMatrix(getRotation()) *
+                makeScaleMatrix(getScale());
+        }
     };
 }

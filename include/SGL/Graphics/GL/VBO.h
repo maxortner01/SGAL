@@ -9,7 +9,7 @@ namespace SGL::GL
         VBO(unsigned int _index);
         ~VBO();
 
-        virtual void loadData(const void* data, size_t size, size_t count, size_t members) const;
+        virtual void loadData(const void* data, size_t size, size_t count, size_t members);
         virtual void bind() const override;
 
         void unbind() const override;
@@ -17,12 +17,7 @@ namespace SGL::GL
         bool dynamic;
 
     protected:
+        bool data_bound;
         unsigned int index;
-    };
-
-    struct IndexBuffer : VBO
-    {
-        void loadData(const void* data, size_t size, size_t count, size_t members) const;
-        void bind() const override;
     };
 }

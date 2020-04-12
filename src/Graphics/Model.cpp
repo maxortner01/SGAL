@@ -6,23 +6,14 @@ namespace SGL
         rawModel(rm)
     {   }
 
-    void Model::draw(Shader* shader) const
+    void Model::draw(const Surface* surface, Shader* shader, Camera* camera) const
     {
-        // Set uniforms for location
-        if (shader)
-        {
-            shader->setUniform("model_scale", getScale());
-            shader->setUniform("model_rot", getRotation());
-            shader->setUniform("model_trans", getPosition());
-        }
+        Mat4f modelMatrix = getTransformMatrix();
+        Mat4f normMatrix  = makeRotationMatrix(getRotation());
 
-        rawModel->draw(shader);
-        
-        if (shader)
-        {
-            shader->setUniform("model_scale", 1.f);
-            shader->setUniform("model_rot", Vec3f(0, 0, 0));
-            shader->setUniform("model_trans", Vec3f(0, 0, 0));
-        }
+        rawModel->loadModelMatrices(&modelMatrix, 1);
+        rawModel->loadNormalMatrices(&normMatrix, 1);
+
+        rawModel->draw(surface, shader, camera);
     }
 }

@@ -10,3 +10,5 @@
 #include "Graphics/Camera.h"
 
 #include "Graphics/Utility.h"
+
+#include "Graphics/Text.h"

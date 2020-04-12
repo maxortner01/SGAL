@@ -3,6 +3,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <iostream>
+
 namespace SGL
 {
     Surface::Surface(Vec2u dimensions) :
@@ -27,7 +29,7 @@ namespace SGL
         unbind();
     }
 
-    void Surface::draw(const Drawable& drawable, Shader* shader) const
+    void Surface::draw(const Drawable& drawable, Shader* shader, Camera* camera) const
     {
         glEnable(GL_DEPTH_TEST);
         // Bind the correct shader
@@ -35,7 +37,7 @@ namespace SGL
         else            shader->bind();
 
         bind();
-        drawable.draw(shader);
+        drawable.draw(this, shader, camera);
         unbind();
     }
 }

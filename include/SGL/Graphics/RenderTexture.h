@@ -10,6 +10,7 @@ namespace SGL
     {   
         Texture* texture;
 
+        RenderBuffer();
         ~RenderBuffer();
 
         void create();
@@ -26,15 +27,18 @@ namespace SGL
         RenderBuffer depth;
 
     public:
+        RenderTexture();
         RenderTexture(Vec2u size, bool depth_buffer = false);
         ~RenderTexture();
+
+        void create(Vec2u size, bool depth_buffer = false);
 
         const Texture& texture() const;
 
         void   bind() const override;
         void unbind() const override;
 
-        void draw(Shader* shader = nullptr) const override;
+        void draw(const Surface* surface = nullptr, Shader* shader = nullptr, Camera* camera = nullptr) const override;
         using Surface::draw;
     };  
 }

@@ -92,6 +92,16 @@ namespace SGL
             loadTexCoords(&tex[0], tex.size());
     }
 
+    void RawModel::setColor(const Color& color) const
+    {
+        if (!getVertexCount()) return;
+
+        std::vector<Color> colors(getVertexCount());
+        for (int i = 0; i < colors.size(); i++)
+            colors[i] = color;
+        loadColors(&colors[0], colors.size());
+    }
+
     void RawModel::calculateNormals(const Vec3f* data, size_t count, const unsigned int* indices, size_t index_count) const
     {
         std::vector<Vec3f> normals(count);

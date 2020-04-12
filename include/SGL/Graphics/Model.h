@@ -13,6 +13,6 @@ namespace SGL
     public:
         Model(RawModel const* rm);
 
-        void draw(Shader* shader = nullptr) const override;
+        void draw(const Surface* surface = nullptr, Shader* shader = nullptr, Camera* camera = nullptr) const override;
     };
 }

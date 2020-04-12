@@ -6,28 +6,24 @@ namespace SGL
 {
     void ModelArray::loadModelMatrices() const
     {
-        std::vector<Mat4f> modelMatrices;
+        std::vector<Mat4f> modelMatrices, normMatrices;
         modelMatrices.reserve(models.size());
+        normMatrices.reserve(models.size());
 
         for (int i = 0; i < models.size(); i++)
         {
-            Mat4f modelMatrix = 
-                makeScaleMatrix(models[i]->getScale()) *
-                makeRotationMatrix(models[i]->getRotation()) *
-                makeTranslationMatrix(models[i]->getPosition());
+            //Mat4f modelMatrix = 
+            //    makeScaleMatrix(models[i]->getScale()) *
+            //    makeRotationMatrix(models[i]->getRotation()) *
+            //    makeTranslationMatrix(models[i]->getPosition());
 
-            modelMatrices.push_back(modelMatrix);
-            
-            /*
-            for (int r = 0; r < modelMatrix.getRows(); r++)
-            {
-                for (int c = 0; c < modelMatrix.getColumns(); c++)
-                    std::cout << modelMatrix(r, c) << " ";
-                std::cout << "\n";
-            } */
+            //modelMatrices.push_back(modelMatrix);
+            modelMatrices.push_back(models[i]->getTransformMatrix());
+            normMatrices.push_back(makeRotationMatrix(models[i]->getRotation()));
         }
         
         rawModel->loadModelMatrices(&modelMatrices[0], modelMatrices.size());
+        rawModel->loadNormalMatrices(&normMatrices[0], normMatrices.size());
     }
 
     ModelArray::ModelArray(RawModel const* rm, bool _static_render) :
@@ -56,12 +52,22 @@ namespace SGL
         return *models[index];
     }
 
-    void ModelArray::draw(Shader* shader) const
+    void ModelArray::draw(const Surface* surface, Shader* shader, Camera* camera) const
     {
         if (!static_render)
             loadModelMatrices();
 
-        shader->bind();
+        if (shader)
+        {
+            shader->bind();
+
+            if (camera)
+            {
+                shader->setUniform("proj_matrix", camera->getProjectionMatrix());
+                shader->setUniform("view_matrix", camera->getTransformMatrix());
+            }
+        }
+
         rawModel->bind();
         
         rawModel->vbos[GL::Vertices]->bind();
