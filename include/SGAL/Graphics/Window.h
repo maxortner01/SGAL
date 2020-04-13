@@ -4,6 +4,7 @@
 
 #include "Event.h"
 #include "Context.h"
+#include "Sizable.h"
 
 #include <stack>
 #include <string>
@@ -12,24 +13,25 @@ namespace sgal
 {
 	struct VideoSettings
 	{
-		unsigned int width;
-		unsigned int height;
+		unsigned int width, height;
 		std::string title;
 
-		void* handle;
+		HWND_PTR handle;
 
 		VideoSettings(unsigned int _width, unsigned int _height, const std::string& t = "") :
 			width(_width), height(_height), title(t), handle(nullptr)
 		{   }
 	};
 
-	class SGAL_API Window
+	class SGAL_API Window : public Sizable
 	{
 		friend class Context;
 
 		bool          _open;
 		VideoSettings settings;
 		Context       context;
+
+		std::stack<sgal::Event> events;
 
 	public:
 		Window(VideoSettings videoSettings);
@@ -40,7 +42,6 @@ namespace sgal
 
 		VideoSettings getVideoSettings() const;
 
-		void clear() const;
 		void update();
 
 		void show() const;
@@ -48,5 +49,7 @@ namespace sgal
 
 		void pushEvent(Event  event);
 		bool poll     (Event& event);
+
+		HWND_PTR getHandle() const;
 	};
 }

@@ -1,22 +1,19 @@
 #include <SGAL/SGAL.h>
 
+#include <GL/glew.h>
+
 namespace sgal
 {
 
-    Surface::Surface(Vec2u dimensions) :
-        size(dimensions)
+    void Surface::clear(Color color) const
     {
-
+        glClearColor((float)color.r / 255.f, (float)color.g / 255.f, (float)color.b / 255.f, (float)color.a / 255.f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
-    Vec2u Surface::getSize() const
+    void Surface::draw(const Drawable& object, const RenderContext* context) const
     {
-        return size;
-    }
-
-    void Surface::draw(const Drawable& object) const
-    {
-        object.draw(this);
+        object.draw(this, context);
     }
 
 }

@@ -16,16 +16,16 @@ namespace sgal
 {
 	class SGAL_API Context
 	{
-		IPTR handle;
-		IPTR hdc;
+		GLRC_PTR handle;
+		HDC_PTR  hdc;
 
 	public:
 		Context();
-		Context(IPTR _hdc);
+		Context(HDC_PTR _hdc);
 
 		~Context();
 
-		void create(IPTR _hdc);
+		void create(HDC_PTR _hdc);
 
 		void makeCurrent() const;
 		void swapBuffers() const;

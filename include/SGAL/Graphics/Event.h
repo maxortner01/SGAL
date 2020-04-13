@@ -41,6 +41,11 @@ namespace sgal
             int x, y;   
         };
 
+        struct WheelEvent
+        {
+            int delta;
+        };
+
     public:
         enum EventType
         {
@@ -51,7 +56,8 @@ namespace sgal
             KeyHeld,
             KeyUp,
             MouseDown,
-            MouseUp
+            MouseUp,
+            WheelMove
         };
 
         EventType type;
@@ -62,6 +68,7 @@ namespace sgal
             PositionEvent position;
             KeyEvent      key;
             MouseEvent    mouse;
+            WheelEvent    wheel;
         };
         
     };

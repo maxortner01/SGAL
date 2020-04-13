@@ -1,8 +1,7 @@
 #include <SGAL/SGAL.h>
 #include <GL/glew.h>
 
-static bool                    OPENGL_INITIALIZED = false;
-static std::stack<sgal::Event> events;
+static bool OPENGL_INITIALIZED = false;
 
 void makeWindow(unsigned int width, unsigned int height, std::string title, void*& handle, void* window);
 
@@ -12,10 +11,10 @@ void makeWindow(unsigned int width, unsigned int height, std::string title, void
 
 namespace sgal
 {
-    Window::Window(VideoSettings VideoSettings) :
-        settings(VideoSettings)
+    Window::Window(VideoSettings videoSettings) :
+        Sizable({ videoSettings.width, videoSettings.height }), settings(videoSettings)
     {
-        makeWindow(settings.width, settings.height, settings.title, settings.handle, this);
+        makeWindow(settings.width, settings.height, settings.title, (void*&)settings.handle, this);
         
         // Initialize OpenGL with the window handle
 #       ifdef WIN32
@@ -40,7 +39,7 @@ namespace sgal
         };
 
         // Get the hdc for use in the context
-        HDC hdc = GetDC((HWND)settings.handle);
+        HDC hdc = GetDC(settings.handle);
         int pixel_format = ChoosePixelFormat(hdc, &pfd);
 
         // Assert that the pixel format has been registered and set it
@@ -64,9 +63,6 @@ namespace sgal
             OPENGL_INITIALIZED = true;
         }
 
-        glClearColor(0, 0, 0, 1);
-        clear();
-
         // Show the window
         show();
         
@@ -88,16 +84,14 @@ namespace sgal
         _open = false;
     }
 
-    void Window::clear() const
-    {
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    }
-
     void Window::update()
     {
         SG_ASSERT(events.size() < 200, "Event maximum reached, are you polling?");
 
-        UpdateWindow((HWND)settings.handle);
+#       ifdef WIN32
+        UpdateWindow(settings.handle);
+#       endif
+
         context.swapBuffers();
     }
 
@@ -127,7 +121,7 @@ namespace sgal
                 return;
             }
 
-        SG_ASSERT(false, "Something strange happened: Window tried to hide but not registered.");
+        SG_ASSERT(false, "Something strange happened: Window tried to hide but it's not registered.");
 #       else
         INVALID_OPERATING_SYSTEM;
 #       endif
@@ -150,6 +144,19 @@ namespace sgal
         event = events.top();
         events.pop();
 
+        // In the case of a resize, we need to change the
+        // size of the Sizable associated with the window
+        if (event.type == Event::Resize)
+        {
+            size.x = event.size.width;
+            size.y = event.size.height;
+        }
+
         return true;
+    }
+
+    HWND_PTR Window::getHandle() const
+    {
+        return settings.handle;
     }
 }

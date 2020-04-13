@@ -10,12 +10,22 @@
 
 #pragma once
 
+#include "Camera.h"
+#include "Shader.h"
+
 namespace sgal
 {
 	class Surface;
 
+	// Storage for scene information (camera, shader, etc).
+	struct RenderContext
+	{
+		Shader const* shader = nullptr;
+		Camera const* camera = nullptr;
+	};
+
 	struct Drawable
 	{
-		virtual void draw(const Surface* surface) const = 0;
+		virtual void draw(const Surface* surface, const RenderContext* context = nullptr) const = 0;
 	};
 }

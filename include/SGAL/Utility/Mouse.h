@@ -12,8 +12,13 @@
 
 #include <SGAL/decl.h>
 
+#include "../Graphics/Math.h"
+
 namespace sgal
 {
+	// Since Mouse.h is included in Window.h through Event.h
+	class Window;
+
 	struct MouseState
 	{
 		bool left, right, middle;
@@ -32,5 +37,8 @@ namespace sgal
 		};
 
 		static MouseState getState();
+
+		static Vec2i getPosition();
+		static Vec2i getPosition(const Window& window);
 	};
 }

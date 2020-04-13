@@ -12,21 +12,17 @@
 
 #include <SGAL/decl.h>
 
+#include "../Utility.h"
+
 #include "Math/Vec.h"
 #include "Drawable.h"
+#include "Sizable.h"
 
 namespace sgal
 {
-	class SGAL_API Surface
+	struct SGAL_API Surface
 	{
-		Vec2u size;
-
-	public:
-		Surface(Vec2u dimensions);
-
-		Vec2u  getSize()     const;
-		double aspectRatio() const;
-
-		void draw(const Drawable& object) const;
+		void clear(Color color = Color(0, 0, 0, 255)) const;
+		void draw(const Drawable& object, const RenderContext* context = nullptr) const;
 	};
 }

@@ -1,11 +1,5 @@
 #include <SGAL/SGAL.h>
 
-#include <GL/glew.h>
-
-#ifdef WIN32
-#   include <Windows.h>
-#endif
-
 namespace sgal
 {
 
@@ -15,7 +9,7 @@ namespace sgal
 
     }
 
-    Context::Context(IPTR _hdc) :
+    Context::Context(HDC_PTR _hdc) :
         handle(nullptr), hdc(_hdc)
     {
         create(_hdc);
@@ -25,14 +19,26 @@ namespace sgal
     {
         if (handle)
         {
-            wglMakeCurrent((HDC)hdc, NULL);
-            wglDeleteContext((HGLRC)handle);
+#           ifdef WIN32
+            wglMakeCurrent(hdc, NULL);
+            wglDeleteContext(handle);
+#           else
+            INVALID_OPERATING_SYSTEM;
+#           endif
+
+            handle = nullptr;
         }
     }
 
-    void Context::create(IPTR _hdc)
+    void Context::create(HDC_PTR _hdc)
     {
-        HGLRC context = wglCreateContext((HDC)_hdc);
+        GLRC_PTR context = nullptr;
+        
+#       ifdef WIN32
+        context = wglCreateContext(_hdc);
+#       else
+        INVALID_OPERATING_SYSTEM;
+#       endif
 
         handle = context;
         hdc    = _hdc;
@@ -40,12 +46,12 @@ namespace sgal
 
     void Context::makeCurrent() const
     {
-        wglMakeCurrent((HDC)hdc, (HGLRC)handle);
+        wglMakeCurrent(hdc, handle);
     }
 
     void Context::swapBuffers() const
     {
-        SwapBuffers((HDC)hdc);
+        SwapBuffers(hdc);
     }
 
 }

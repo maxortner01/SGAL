@@ -1,20 +1,16 @@
 #include <Windows.h>
-#include <iostream>
 #include <cstring>
 #include <mutex>
 #include <thread>
 #include <stack>
 
+#include <SGAL/SGAL.h>
+#include <GL/glew.h>
+
 #define MAX_THREADS 3
 
 #define INIT_EVENT(event_type) sgal::Event event; event.type = event_type
-#define PUSH_EVENT events.push(event);
-
-namespace sgal
-{
-    class Event;
-    class Window;
-}
+#define PUSH_EVENT window->pushEvent(event);
 
 // Structure for storing the information needed to create a window
 struct ThreadInfo
@@ -29,7 +25,6 @@ static std::thread* THREADS  [MAX_THREADS];
 static HWND   WINDOWS        [MAX_THREADS];
 static sgal::Window* sWINDOWS[MAX_THREADS];
 
-extern std::stack<sgal::Event> events;
 extern bool                    OPENGL_INITIALIZED;
 
 // State information for the key
@@ -38,44 +33,6 @@ enum WIN32_KEY_STATES
     KEY_HELD = (1 << 30),
     KEY_UP   = (1 << 31)
 };
-
-// Forward declaration of the event protocol
-LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lparam);
-
-// This is run when the dll is attached/detatched and collects
-// the instance and stores it for use in the window creation
-bool APIENTRY DllMain(HMODULE hModule, DWORD rfc, LPVOID reserved)
-{
-    if (rfc == DLL_PROCESS_ATTACH)
-    {
-        _MODULE = hModule;
-        ZeroMemory(THREADS,    sizeof(std::thread*) * MAX_THREADS);
-        //ZeroMemory(THREAD_IDS, sizeof(DWORD)  * MAX_THREADS);
-        ZeroMemory(WINDOWS,    sizeof(HWND)   * MAX_THREADS);
-        ZeroMemory(sWINDOWS,   sizeof(void*)  * MAX_THREADS);
-
-        WNDCLASSW wc;
-        ZeroMemory(&wc, sizeof(WNDCLASS));
-
-        wc.lpszClassName = L"SGAL Window Class";
-        wc.hInstance     = _MODULE;
-        wc.lpfnWndProc   = WindowProc;
-        wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-
-        SG_ASSERT(RegisterClassW(&wc), "Win32 class failed to register!");
-    }
-    else if (rfc == DLL_PROCESS_DETACH)
-    {
-        //PostQuitMessage(0);
-        for (int i = 0; i < MAX_THREADS; i++)
-        {
-            if (THREADS[i]) THREADS[i]->join();
-            delete THREADS[i];
-        }
-    }
-
-    return true;
-}
 
 // This thread runs for each window, it creates the window and
 // passes messages along the pipeline
@@ -135,9 +92,8 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
     //
     case WM_CLOSE:
         {
-            sgal::Event event;
-            event.type = sgal::Event::Closed;
-            events.push(event);
+            INIT_EVENT(sgal::Event::Closed);
+            PUSH_EVENT;
         }
         return 0;   
 
@@ -158,7 +114,7 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
             if (OPENGL_INITIALIZED)
                 glViewport(0, 0, event.size.width, event.size.height);
         }
-        return 1;
+        return 0;
 
     //
     // Event when the user moves the window
@@ -172,7 +128,7 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
             event.position.y = rect->top;
             PUSH_EVENT;
         }
-        return 1;
+        return 0;
 
     //
     // Key down event
@@ -207,7 +163,18 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
 
             PUSH_EVENT;
         }
-        return 1;
+        return 0;
+
+    //
+    // The many mouse events
+    //
+    case WM_MOUSEWHEEL:
+        {
+            INIT_EVENT(sgal::Event::WheelMove);
+            event.wheel.delta = HIWORD(wparam);
+            PUSH_EVENT;
+        }
+        return 0;
         
     case WM_LBUTTONDOWN:
         {
@@ -216,12 +183,12 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
             event.mouse.code  = sgal::Mouse::Key_LEFT;
             event.mouse.state = sgal::KeyState::KeyDown;
 
-            event.mouse.x = LOWORD(lparam);
-            event.mouse.y = HIWORD(lparam);
+            event.mouse.x = GET_X_LPARAM(lparam);
+            event.mouse.y = GET_Y_LPARAM(lparam);
 
             PUSH_EVENT;
         }
-        return 1;
+        return 0;
 
     case WM_RBUTTONDOWN:
         {
@@ -230,12 +197,12 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
             event.mouse.code  = sgal::Mouse::Key_RIGHT;
             event.mouse.state = sgal::KeyState::KeyDown;
 
-            event.mouse.x = LOWORD(lparam);
-            event.mouse.y = HIWORD(lparam);
+            event.mouse.x = GET_X_LPARAM(lparam);
+            event.mouse.y = GET_Y_LPARAM(lparam);
 
             PUSH_EVENT;
         }
-        return 1;
+        return 0;
         
     case WM_MBUTTONDOWN:
         {
@@ -244,12 +211,12 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
             event.mouse.code  = sgal::Mouse::Key_MIDDLE;
             event.mouse.state = sgal::KeyState::KeyDown;
 
-            event.mouse.x = LOWORD(lparam);
-            event.mouse.y = HIWORD(lparam);
+            event.mouse.x = GET_X_LPARAM(lparam);
+            event.mouse.y = GET_Y_LPARAM(lparam);
 
             PUSH_EVENT;
         }
-        return 1;
+        return 0;
     
     case WM_LBUTTONUP:
         {
@@ -258,12 +225,12 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
             event.mouse.code  = sgal::Mouse::Key_LEFT;
             event.mouse.state = sgal::KeyState::KeyUp;
 
-            event.mouse.x = LOWORD(lparam);
-            event.mouse.y = HIWORD(lparam);
+            event.mouse.x = GET_X_LPARAM(lparam);
+            event.mouse.y = GET_Y_LPARAM(lparam);
 
             PUSH_EVENT;
         }
-        return 1;
+        return 0;
         
     case WM_RBUTTONUP:
         {
@@ -272,12 +239,12 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
             event.mouse.code  = sgal::Mouse::Key_RIGHT;
             event.mouse.state = sgal::KeyState::KeyUp;
 
-            event.mouse.x = LOWORD(lparam);
-            event.mouse.y = HIWORD(lparam);
+            event.mouse.x = GET_X_LPARAM(lparam);
+            event.mouse.y = GET_Y_LPARAM(lparam);
 
             PUSH_EVENT;
         }
-        return 1;
+        return 0;
         
     case WM_MBUTTONUP:
         {
@@ -286,12 +253,12 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
             event.mouse.code  = sgal::Mouse::Key_MIDDLE;
             event.mouse.state = sgal::KeyState::KeyUp;
 
-            event.mouse.x = LOWORD(lparam);
-            event.mouse.y = HIWORD(lparam);
+            event.mouse.x = GET_X_LPARAM(lparam);
+            event.mouse.y = GET_Y_LPARAM(lparam);
 
             PUSH_EVENT;
         }
-        return 1;
+        return 0;
 
     default:
         return DefWindowProcW(handle, message, wparam, lparam);
@@ -335,6 +302,40 @@ void makeWindow(unsigned int width, unsigned int height, std::string title, void
         // If we get here and its the last one, no thread is open.
         SG_ASSERT(i != MAX_THREADS - 1, "Maximum window count reached!");
     }
+}
+
+// This is run when the dll is attached/detatched and collects
+// the instance and stores it for use in the window creation
+bool APIENTRY DllMain(HMODULE hModule, DWORD rfc, LPVOID reserved)
+{
+    if (rfc == DLL_PROCESS_ATTACH)
+    {
+        _MODULE = hModule;
+        ZeroMemory(THREADS,  sizeof(std::thread*) * MAX_THREADS);
+        ZeroMemory(WINDOWS,  sizeof(HWND)         * MAX_THREADS);
+        ZeroMemory(sWINDOWS, sizeof(void*)        * MAX_THREADS);
+
+        WNDCLASSW wc;
+        ZeroMemory(&wc, sizeof(WNDCLASS));
+
+        wc.lpszClassName = L"SGAL Window Class";
+        wc.hInstance     = _MODULE;
+        wc.lpfnWndProc   = WindowProc;
+        wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+
+        SG_ASSERT(RegisterClassW(&wc), "Win32 class failed to register!");
+    }
+    else if (rfc == DLL_PROCESS_DETACH)
+    {
+        //PostQuitMessage(0);
+        for (int i = 0; i < MAX_THREADS; i++)
+        {
+            if (THREADS[i]) THREADS[i]->join();
+            delete THREADS[i];
+        }
+    }
+
+    return true;
 }
 
 #undef INIT_EVENT
