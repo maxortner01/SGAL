@@ -22,17 +22,21 @@ namespace sgal
 	{
 		const Sizable* const surface;
 		float FOV;
+		bool  orbit;
 		Vec2f near_far;
 
 	public:
 		Camera(float fov, const Sizable& _surface);
 
-		Mat4f getProjectionMatrix() const;
+		Mat4f getPerspectiveMatrix() const;
+		Mat4f getProjectionMatrix()  const;
 
 		void setZNear(float _near);
 		void setZFar (float _far);
 
 		float getZNear() const;
 		float getZFar()  const;
+
+		void setOribitTransform(bool _orbit);
 	};
 }

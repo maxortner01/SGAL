@@ -65,7 +65,7 @@ int main()
         }
 
         Vec2i mouse_delta = Mouse::getPosition(window) - Vec2i(window.getSize().x / 2, window.getSize().y / 2);
-        camera.addRotation({ (float)mouse_delta.y / 50.f, -(float)mouse_delta.x / 50.f, 0 });
+        camera.addRotation({ (float)mouse_delta.y / 50.f, (float)mouse_delta.x / 50.f, 0 });
 
         Mouse::setPosition({ (int)(window.getSize().x / 2), (int)(window.getSize().y / 2) }, window);
 

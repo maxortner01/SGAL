@@ -29,7 +29,7 @@ namespace sgal
                 
                 if (rc->camera)
                 {
-                    rc->shader->setUniform("view_matrix", rc->camera->getTransformMatrix());
+                    rc->shader->setUniform("view_matrix", rc->camera->getPerspectiveMatrix());
                     rc->shader->setUniform("proj_matrix", rc->camera->getProjectionMatrix());
                 }
                 else

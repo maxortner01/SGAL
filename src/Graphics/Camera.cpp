@@ -6,10 +6,21 @@ namespace sgal
 {
 
     Camera::Camera(float fov, const Sizable& _surface) :
-        surface(&_surface), FOV(fov)
+        surface(&_surface), FOV(fov), orbit(false)
     {
         setZNear(0.001f);
         setZFar(1000.f);
+    }
+
+    Mat4f Camera::getPerspectiveMatrix() const
+    {
+        if (!orbit)
+        {
+            return makeRotationMatrix(getRotation()) *
+                makeTranslationMatrix(getPosition());
+        }
+
+        return getTransformMatrix();
     }
 
     Mat4f Camera::getProjectionMatrix() const
@@ -46,6 +57,11 @@ namespace sgal
     float Camera::getZFar() const
     {
         return near_far.y;
+    }
+
+    void Camera::setOribitTransform(bool _orbit)
+    {
+        orbit = _orbit;
     }
 
 }
