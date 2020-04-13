@@ -159,4 +159,14 @@ namespace sgal
     {
         return settings.handle;
     }
+
+    void Window::setPosition(Vec2i pos) 
+    {
+        position = pos;
+    }
+
+    Vec2i Window::getPosition() const
+    {
+        return position;
+    }
 }

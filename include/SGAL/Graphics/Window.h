@@ -27,6 +27,7 @@ namespace sgal
 	{
 		friend class Context;
 
+		Vec2i         position;
 		bool          _open;
 		VideoSettings settings;
 		Context       context;
@@ -51,5 +52,8 @@ namespace sgal
 		bool poll     (Event& event);
 
 		HWND_PTR getHandle() const;
+
+		void  setPosition(Vec2i pos);
+		Vec2i getPosition() const;
 	};
 }

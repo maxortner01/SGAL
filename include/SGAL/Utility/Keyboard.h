@@ -103,5 +103,6 @@ namespace sgal
 #		endif
 		};
 
+		static bool isKeyPressed(KeyCode key);
 	};
 }

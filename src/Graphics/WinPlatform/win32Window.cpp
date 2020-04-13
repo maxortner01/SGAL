@@ -127,6 +127,8 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
             event.position.x = rect->left;
             event.position.y = rect->top;
             PUSH_EVENT;
+
+            window->setPosition({ (int)rect->left, (int)rect->top });
         }
         return 0;
 
@@ -292,6 +294,11 @@ void makeWindow(unsigned int width, unsigned int height, std::string title, void
             // and this will break.
             while (!WINDOWS[i]);
             handle = WINDOWS[i];
+
+            // Set the window position to the current position on the screen
+            RECT rect;
+            SG_ASSERT(GetWindowRect(WINDOWS[i], &rect), "Error getting the window size!");
+            sWINDOWS[i]->setPosition({ (int)rect.left, (int)rect.top });
 
             // Capture keyboard/mouse input on creation
             SetForegroundWindow(WINDOWS[i]);

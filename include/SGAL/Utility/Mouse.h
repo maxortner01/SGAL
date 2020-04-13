@@ -38,7 +38,12 @@ namespace sgal
 
 		static MouseState getState();
 
+		static void showCursor(bool show);
+
 		static Vec2i getPosition();
 		static Vec2i getPosition(const Window& window);
+
+		static void setPosition(Vec2i position);
+		static void setPosition(Vec2i position, const Window& window);
 	};
 }
