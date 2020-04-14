@@ -11,3 +11,4 @@
 #include "./Graphics/ModelArray.cpp"
 #include "./Graphics/Shader.cpp"
 #include "./Graphics/Camera.cpp"
+#include "./Graphics/Texture.cpp"

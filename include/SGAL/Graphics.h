@@ -15,3 +15,4 @@
 #include "./Graphics/ModelArray.h"
 #include "./Graphics/Shader.h"
 #include "./Graphics/Camera.h"
+#include "./Graphics/Texture.h"

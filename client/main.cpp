@@ -14,16 +14,17 @@ int main()
     //    vertices.push_back(Vec3f( (float)(rand() % 1000) / 500.f - 1.f, (float)(rand() % 1000) / 500.f - 1.f, (float)(rand() % 1000) / 500.f - 1.f ));
 
     RawModel rawModel;
-    rawModel.fromFile("res/models/syd.obj");
+    rawModel.fromFile("res/models/B_NtSrCompC_0_001.obj");
+    //rawModel.fromFile("res/models/syd.obj");
     //rawModel.loadVertices(&vertices[0], vertices.size());
     //rawModel.calculateNormals(&vertices[0], vertices.size());
 
     rawModel.setRenderMode(GL::Triangles);
 
-    Model model(&rawModel);
-    model.setScale({ -10.f, 10.f, 10.f });
+    ModelArray model(&rawModel);
+    //model.setScale({ -10.f, 10.f, 10.f });
 
-    /*
+    
     for (int i = -50; i <= 50; i++)
     {
         Model& md = model.makeModel();
@@ -37,7 +38,7 @@ int main()
         md.setPosition({ i * 20.f, 0, -100.f });
     }
 
-    model.loadMatrices(); */
+    model.loadMatrices(); 
 
     //model.setScale({ 20.f, 20.f, 20.f });
 
@@ -119,7 +120,7 @@ int main()
 
         camera.step(delta);
         
-        model.addRotation({ 0, 0.001f, 0 });
+        //model.addRotation({ 0, 0.001f, 0 });
 
         //camera.addPosition(delta);
 
