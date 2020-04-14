@@ -10,12 +10,16 @@ int main()
     DrawWindow window({ 1780, 920, "Coolio" });
 
     Light main_light;
-    main_light.position  = Vec3f(0, 0.5f, -50.f);
+    main_light.position  = Vec3f(0, 0.5f, 1.f);
     main_light.color     = Color(255, 255, 255, 255);
-    main_light.type      = Light::Point;
-    main_light.intensity = 10.f;
+    main_light.type      = Light::Directional;
 
     LightArray lights;
+    lights.push(main_light);
+    
+    main_light.color     = Color(255, 0, 0, 255);
+    main_light.type      = Light::Point;
+    main_light.intensity = 10.f;
     lights.push(main_light);
     
     //std::vector<Vec3f> vertices;
@@ -130,9 +134,9 @@ int main()
         if (Keyboard::isKeyPressed(Keyboard::Key_LCTRL))
             delta.y -= speed;
 
-        lights[0].position = camera.getPosition();
-
         camera.step(delta);
+
+        lights[1].position = camera.getPosition();
 
         window.clear();
 

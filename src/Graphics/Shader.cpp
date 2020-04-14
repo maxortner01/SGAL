@@ -22,6 +22,7 @@ namespace sgal
 
     void Shader::setUniform(const Light* lights, const size_t count) const
     {
+        setUniform("light_count", (int)count);
         for (int i = 0; i < count; i++)
             setUniform(*(lights + i), i);
     }
@@ -200,7 +201,9 @@ namespace sgal
             fragment_contents += "};\n";
             
             fragment_contents += "uniform mat4 view_matrix;\n";
+            
             fragment_contents += "uniform Light lights[" + std::to_string(SG_MAX_LIGHTS) + "];\n";
+            fragment_contents += "uniform int   light_count;\n";
 
             fragment_contents += "out vec4 color;\n";
             fragment_contents += "in  vec4 position;\n";
@@ -208,10 +211,16 @@ namespace sgal
             fragment_contents += "in  mat4 model_matrix;\n";
 
             fragment_contents += "void main() {\n";
-            fragment_contents += "    vec4 light_pos = vec4(lights[0].position, 1);\n";
-            fragment_contents += "    if (lights[0].type == 1) { light_pos = light_pos - position; } // If point light\n";
-            fragment_contents += "    color = vec4(1, 1, 1, 1) * max(dot(normalize(light_pos), normalize(normal)), 0.0) * vec4(lights[0].color.xyz, 1.0) / max(length(light_pos) / lights[0].intensity, 1.0);\n";
-            fragment_contents += "    color.w = 1;\n";
+            fragment_contents += "    vec4 output_color = vec4(0.0);\n";
+
+            fragment_contents += "    for (int i = 0; i < light_count; i++)\n";
+            fragment_contents += "    {\n";
+            fragment_contents += "        vec4 light_pos = vec4(lights[i].position, 1);\n";
+            fragment_contents += "        if (lights[i].type == 1) { light_pos = light_pos - position; } // If point light\n";
+            fragment_contents += "        output_color += vec4(1, 1, 1, 1) * max(dot(normalize(light_pos), normalize(normal)), 0.0) * vec4(lights[i].color.xyz, 1.0) / max(length(light_pos) / lights[i].intensity, 1.0);\n";
+            fragment_contents += "    }\n";
+
+            fragment_contents += "    color = vec4(output_color.xyz, 1.0);\n";
             fragment_contents += "}\n";
             
             default3D = new Shader();
