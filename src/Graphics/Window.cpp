@@ -150,9 +150,22 @@ namespace sgal
         {
             size.x = event.size.width;
             size.y = event.size.height;
+            glViewport(0, 0, size.x, size.y);
         }
 
         return true;
+    }
+
+    void Window::setTitle(const std::string& text) const
+    {
+#   ifdef WIN32
+        std::wstring wTitle(text.length(), L' ');
+        std::copy(text.begin(), text.end(), wTitle.begin());
+
+        SG_ASSERT(SetWindowTextW(getHandle(), wTitle.c_str()), "Error setting window text!");
+#   else
+        INVALID_OPERATING_SYSTEM;
+#   endif
     }
 
     HWND_PTR Window::getHandle() const

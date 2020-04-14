@@ -20,6 +20,30 @@ namespace sgal
         rawModel->loadModelMatrices(&modelMatrix);
         rawModel->loadNormalMatrices(&normalMatrix);
 
+        setRenderContext(rc);
+
+        glEnable(GL_DEPTH_TEST);
+        glDisable(GL_BLEND);
+        rawModel->bind();
+
+        (*rawModel)[GL::Vertices].bind();
+
+        unsigned int type;
+        switch (rawModel->getRenderMode())
+        {
+        case GL::Triangles: type = GL_TRIANGLES;    break;
+        case GL::Points:    type = GL_POINTS;       break;
+        case GL::Lines:     type = GL_LINES;        break;
+        }
+
+        glDrawElements(type, rawModel->indexCount(), GL_UNSIGNED_INT, rawModel->indices);
+
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+    }
+
+    void Model::setRenderContext(const RenderContext* rc)
+    {
         if (rc)
         {
             // If there's a shader
@@ -42,23 +66,6 @@ namespace sgal
             else
                 Shader::useDefault();
         }
-
-        glDisable(GL_BLEND);
-        rawModel->bind();
-
-        (*rawModel)[GL::Vertices].bind();
-
-        unsigned int type;
-        switch (rawModel->getRenderMode())
-        {
-        case GL::Triangles: type = GL_TRIANGLES;    break;
-        case GL::Points:    type = GL_POINTS;       break;
-        case GL::Lines:     type = GL_LINES;        break;
-        }
-
-        glDrawElements(type, rawModel->indexCount(), GL_UNSIGNED_INT, rawModel->indices);
-
-        glEnable(GL_BLEND);
     }
 
 }

@@ -146,17 +146,31 @@ namespace sgal
         {
             std::string vertex_contents = "#version 330 core\n";
             vertex_contents += "layout (location = " + std::to_string(GL::Vertices) + ") in vec3 vertex;\n";
+            vertex_contents += "layout (location = " + std::to_string(GL::Normals) + ") in vec3 in_normal;\n";
             vertex_contents += "layout (location = " + std::to_string(GL::ModelMatrices) + ") in mat4 modelMatrix;\n";
+            vertex_contents += "layout (location = " + std::to_string(GL::ModelMatrices + 4) + ") in mat4 normalMatrix;\n";
+
             vertex_contents += "uniform mat4 view_matrix;\n";
             vertex_contents += "uniform mat4 proj_matrix;\n";
+            
+            vertex_contents += "out vec4 normal;\n";
+
             vertex_contents += "void main() {\n";
             vertex_contents += "    gl_Position = vec4(vertex, 1.0) * modelMatrix * view_matrix * proj_matrix;\n";
+            vertex_contents += "    normal = vec4(in_normal, 1.0) * normalMatrix;\n";
             vertex_contents += "}\n";
             
             std::string fragment_contents = "#version 330 core\n";
+
             fragment_contents += "out vec4 color;\n";
+            fragment_contents += "in  vec4 normal;\n";
+
             fragment_contents += "void main() {\n";
-            fragment_contents += "    color = vec4(1, 1, 1, 1);\n";
+            fragment_contents += "    vec4 light_pos = vec4(0, 0.5, 1, 1);\n";
+            fragment_contents += "    color = vec4(1, 1, 1, 1) * max(dot(normalize(light_pos), normalize(normal)), 0.0);\n";
+            fragment_contents += "    color.w = 1;\n";
+            //fragment_contents += "    color = vec4(normal.xyz, 1);\n";
+            //fragment_contents += "    //color = vec4(1, 1, 1, 1);\n";
             fragment_contents += "}\n";
 
             default3D = new Shader();

@@ -26,7 +26,9 @@ namespace sgal
 		Vec2f near_far;
 
 	public:
-		Camera(float fov, const Sizable& _surface);
+		Camera(const float fov, const Sizable& _surface);
+
+		void step(Vec3f direction);
 
 		Mat4f getPerspectiveMatrix() const;
 		Mat4f getProjectionMatrix()  const;

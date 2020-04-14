@@ -98,7 +98,7 @@ namespace GL
         }
     }
 
-    void ArrayObject::loadNormals(const Vec3f* normals, const size_t count)
+    void ArrayObject::loadNormals(const Vec3f* normals, const size_t count) const
     {
         if (!count) return;
 

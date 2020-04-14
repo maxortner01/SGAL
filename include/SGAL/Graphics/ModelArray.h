@@ -24,12 +24,15 @@ namespace sgal
 
 		std::vector<Model> models;
 
-		void loadMatrices() const;
+		bool static_render;
 
 	public:
-		ModelArray(RawModel const* rm);
+		ModelArray(RawModel const* rm, bool _static = false);
 
 		Model& makeModel();
+
+		void loadMatrices() const;
+		void setStaticRender(bool _static);
 
 		void   remove(const unsigned int index);
 		Model& get(const unsigned int index);

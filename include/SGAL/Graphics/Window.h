@@ -51,6 +51,7 @@ namespace sgal
 		void pushEvent(Event  event);
 		bool poll     (Event& event);
 
+		void setTitle(const std::string& text) const;
 		HWND_PTR getHandle() const;
 
 		void  setPosition(Vec2i pos);

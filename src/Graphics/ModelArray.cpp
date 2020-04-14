@@ -5,12 +5,22 @@
 namespace sgal
 {
 
+    ModelArray::ModelArray(RawModel const* rm, bool _static) :
+        rawModel(rm), static_render(_static)
+    {   }
+
+    Model& ModelArray::makeModel()
+    {
+        models.push_back(Model(rawModel));
+        return models[models.size() - 1];
+    }
+
     void ModelArray::loadMatrices() const
     {
         std::vector<Mat4f> modelMatrices (models.size());
         std::vector<Mat4f> normalMatrices(models.size());
 
-        for (int i = 0; i < modelMatrices.size(); i++)
+        for (int i = 0; i < models.size(); i++)
         {
             modelMatrices [i] = models[i].getTransformMatrix();
             normalMatrices[i] = makeRotationMatrix(models[i].getRotation());
@@ -20,14 +30,9 @@ namespace sgal
         rawModel->loadNormalMatrices(&normalMatrices[0], normalMatrices.size());
     }
 
-    ModelArray::ModelArray(RawModel const* rm) :
-        rawModel(rm)
-    {   }
-
-    Model& ModelArray::makeModel()
+    void ModelArray::setStaticRender(bool _static)
     {
-        models.push_back(Model(rawModel));
-        return models[models.size() - 1];
+        static_render = _static;
     }
 
     void ModelArray::remove(const unsigned int index)
@@ -44,31 +49,13 @@ namespace sgal
     {
         if (rawModel->vertexCount() == 0) return;
 
-        loadMatrices();
+        if (!static_render)
+            loadMatrices();
 
-        if (rc)
-        {
-            if (rc->shader)
-            {
-                rc->shader->bind();
-                if (rc->camera)
-                {
-                    rc->shader->setUniform("view_matrix", rc->camera->getPerspectiveMatrix());
-                    rc->shader->setUniform("proj_matrix", rc->camera->getProjectionMatrix());
-                }
-                else
-                {
-                    Mat4f identity; identity.toIdentity();
-                    rc->shader->setUniform("view_matrix", identity);
-                    rc->shader->setUniform("proj_matrix", identity);
-                }
-            }
-            else
-                Shader::useDefault();
-        }
+        Model::setRenderContext(rc);
 
+        glEnable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
-
         rawModel->bind();
 
         (*rawModel)[GL::Vertices].bind();
@@ -81,8 +68,9 @@ namespace sgal
         case GL::Lines:     type = GL_LINES;     break;
         };
 
-        glDrawElementsInstanced(type, models.size(), GL_UNSIGNED_INT, rawModel->indices, rawModel->indexCount());
+        glDrawElementsInstanced(type, rawModel->indexCount(), GL_UNSIGNED_INT, rawModel->indices, models.size());
 
+        glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
     }
 

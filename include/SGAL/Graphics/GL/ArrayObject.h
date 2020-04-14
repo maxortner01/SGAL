@@ -55,7 +55,7 @@ namespace GL
 
 		void loadIndices (const unsigned int* _indices, const size_t count = 1);
 		void loadVertices(const Vec3f* vertices, const size_t count = 1);
-		void loadNormals (const Vec3f* normals, const size_t count = 1);
+		void loadNormals (const Vec3f* normals, const size_t count = 1) const;
 
 		void setRenderMode(RenderMode mode);
 		void setDynamic(bool dynamic) const;

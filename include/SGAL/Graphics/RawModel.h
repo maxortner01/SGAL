@@ -23,5 +23,9 @@ namespace sgal
 
 	public:
 		RawModel();
+
+		void fromFile(const std::string& filename);
+
+		void calculateNormals(const Vec3f* vertices, const size_t vertexCount, const unsigned int* indices = nullptr, const size_t indexCount = 0) const;
 	};
 }

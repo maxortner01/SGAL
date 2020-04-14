@@ -7,18 +7,39 @@ int main()
 {
     using namespace sgal;
 
-    DrawWindow window({ 1280, 720, "Coolio" });
+    DrawWindow window({ 1780, 920, "Coolio" });
     
-    std::vector<Vec3f> vertices;
-    for (int i = 0; i < 1000; i++)
-        vertices.push_back(Vec3f( (float)(rand() % 1000) / 500.f - 1.f, (float)(rand() % 1000) / 500.f - 1.f, (float)(rand() % 1000) / 500.f - 1.f ));
+    //std::vector<Vec3f> vertices;
+    //for (int i = 0; i < 1000; i++)
+    //    vertices.push_back(Vec3f( (float)(rand() % 1000) / 500.f - 1.f, (float)(rand() % 1000) / 500.f - 1.f, (float)(rand() % 1000) / 500.f - 1.f ));
 
     RawModel rawModel;
-    rawModel.loadVertices(&vertices[0], vertices.size());
-    rawModel.setRenderMode(GL::Points);
+    rawModel.fromFile("res/models/syd.obj");
+    //rawModel.loadVertices(&vertices[0], vertices.size());
+    //rawModel.calculateNormals(&vertices[0], vertices.size());
+
+    rawModel.setRenderMode(GL::Triangles);
 
     Model model(&rawModel);
-    model.setScale({ 20.f, 20.f, 20.f });
+    model.setScale({ -10.f, 10.f, 10.f });
+
+    /*
+    for (int i = -50; i <= 50; i++)
+    {
+        Model& md = model.makeModel();
+        md.setPosition({ i * 20.f, 0, 0 });
+        md.setRotation({ 0, 3.14159f, 0 });
+    }
+    
+    for (int i = -50; i <= 50; i++)
+    {
+        Model& md = model.makeModel();
+        md.setPosition({ i * 20.f, 0, -100.f });
+    }
+
+    model.loadMatrices(); */
+
+    //model.setScale({ 20.f, 20.f, 20.f });
 
     Camera camera(3.14159f / 2.f, window);
     
@@ -69,23 +90,38 @@ int main()
 
         Mouse::setPosition({ (int)(window.getSize().x / 2), (int)(window.getSize().y / 2) }, window);
 
-        float speed = 0.01f;
+        float speed = 0.1f;
+
+        if (Keyboard::isKeyPressed(Keyboard::Key_LEFT))
+            camera.addRotation({ 0, 0.008f, 0});
+        if (Keyboard::isKeyPressed(Keyboard::Key_RIGHT))
+            camera.addRotation({ 0, -0.008f, 0});
+        if (Keyboard::isKeyPressed(Keyboard::Key_UP))
+            camera.addRotation({ 0.008f, 0, 0});
+        if (Keyboard::isKeyPressed(Keyboard::Key_DOWN))
+            camera.addRotation({ -0.008f, 0, 0});
+
+
         if (Keyboard::isKeyPressed(Keyboard::Key_LSHIFT))
             speed *= 2.f;
         if (Keyboard::isKeyPressed(Keyboard::Key_A))
-            delta.x += speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_D))
             delta.x -= speed;
+        if (Keyboard::isKeyPressed(Keyboard::Key_D))
+            delta.x += speed;
         if (Keyboard::isKeyPressed(Keyboard::Key_W))
-            delta.z -= speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_S))
             delta.z += speed;
+        if (Keyboard::isKeyPressed(Keyboard::Key_S))
+            delta.z -= speed;
         if (Keyboard::isKeyPressed(Keyboard::Key_SPACE))
-            delta.y -= speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_LCTRL))
             delta.y += speed;
+        if (Keyboard::isKeyPressed(Keyboard::Key_LCTRL))
+            delta.y -= speed;
+
+        camera.step(delta);
         
-        camera.addPosition(delta);
+        model.addRotation({ 0, 0.001f, 0 });
+
+        //camera.addPosition(delta);
 
         window.clear();
 
@@ -97,5 +133,8 @@ int main()
 
         float fps = 1.f / clock.getElapsed();
         clock.restart();
+
+        window.setTitle("Coolio     FPS: " + std::to_string((int)fps));
+        //std::cout << fps << "             \r";
     }
 }

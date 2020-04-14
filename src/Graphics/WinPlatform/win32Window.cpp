@@ -108,11 +108,6 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
             event.size.width  = rect->right  - rect->left;
             event.size.height = rect->bottom - rect->top;
             PUSH_EVENT;
-
-            // Just to be safe, keep track of OpenGL initialization
-            // Change the viewport to the new size of the window
-            if (OPENGL_INITIALIZED)
-                glViewport(0, 0, event.size.width, event.size.height);
         }
         return 0;
 

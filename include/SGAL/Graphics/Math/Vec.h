@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <math.h>
+
 namespace sgal
 {
 	template<typename T>
@@ -71,6 +73,11 @@ namespace sgal
 			return Vec3<T>(x * scalar, y * scalar, z * scalar);
 		}
 
+		Vec3<T> operator/(const T scalar) const
+		{
+			return Vec3<T>(x / scalar, y / scalar, z / scalar);
+		}
+
 		Vec3<T> operator-(const Vec3<T>& vec) const
 		{
 			return vec + (*this) * -1.f;
@@ -79,6 +86,11 @@ namespace sgal
 		void operator+=(const Vec3<T>& vec)
 		{
 			(*this) = (*this) + vec;
+		}
+
+		bool operator==(const Vec3<T>& vec) const
+		{
+			return ((x == vec.x) && (y == vec.y) && (z == vec.z));
 		}
 	};
 

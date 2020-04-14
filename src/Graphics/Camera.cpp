@@ -1,15 +1,37 @@
 #include <SGAL/SGAL.h>
 
+#include <iostream>
 #include <math.h>
 
 namespace sgal
 {
 
-    Camera::Camera(float fov, const Sizable& _surface) :
+    Camera::Camera(const float fov, const Sizable& _surface) :
         surface(&_surface), FOV(fov), orbit(false)
     {
         setZNear(0.001f);
         setZFar(1000.f);
+    }
+
+    void Camera::step(Vec3f direction)
+    {
+        if (direction == Vec3f(0, 0, 0)) return;
+
+        Matrix<float, 1, 4> position;
+        position(0, 0) = direction.x;
+        position(0, 1) = direction.y;
+        position(0, 2) = direction.z;
+        position(0, 3) = 1.f;
+
+        Vec3f adj_rotation = Vec3f(0, getRotation().y, 0);
+        Matrix<float, 1, 4> rotated = position * makeRotationMatrix(adj_rotation);
+        
+        Vec3f rotated_vec;
+        rotated_vec.x = rotated(0, 0);
+        rotated_vec.y = rotated(0, 1);
+        rotated_vec.z = rotated(0, 2);
+
+        addPosition({ rotated_vec.x, direction.y, rotated_vec.z });
     }
 
     Mat4f Camera::getPerspectiveMatrix() const
@@ -17,7 +39,7 @@ namespace sgal
         if (!orbit)
         {
             return makeRotationMatrix(getRotation()) *
-                makeTranslationMatrix(getPosition());
+                makeTranslationMatrix(getPosition() * -1);
         }
 
         return getTransformMatrix();
