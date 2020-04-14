@@ -12,6 +12,7 @@
 
 #include "Camera.h"
 #include "Shader.h"
+#include "LightArray.h"
 
 namespace sgal
 {
@@ -20,8 +21,9 @@ namespace sgal
 	// Storage for scene information (camera, shader, etc).
 	struct RenderContext
 	{
-		Shader const* shader = nullptr;
-		Camera const* camera = nullptr;
+		Shader     const* shader = nullptr;
+		Camera     const* camera = nullptr;
+		LightArray const* lights = nullptr;
 	};
 
 	struct Drawable

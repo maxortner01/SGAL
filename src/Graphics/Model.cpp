@@ -62,6 +62,11 @@ namespace sgal
                     rc->shader->setUniform("view_matrix", identity);
                     rc->shader->setUniform("proj_matrix", identity);
                 }
+
+                if (rc->lights)
+                {
+                    rc->shader->setUniform(&(*rc->lights)[0], rc->lights->size());
+                }
             }
             else
                 Shader::useDefault();

@@ -16,3 +16,4 @@
 #include "./Graphics/Shader.h"
 #include "./Graphics/Camera.h"
 #include "./Graphics/Texture.h"
+#include "./Graphics/LightArray.h"

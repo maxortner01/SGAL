@@ -12,3 +12,4 @@
 #include "./Graphics/Shader.cpp"
 #include "./Graphics/Camera.cpp"
 #include "./Graphics/Texture.cpp"
+#include "./Graphics/LightArray.cpp"

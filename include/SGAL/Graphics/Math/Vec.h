@@ -92,6 +92,12 @@ namespace sgal
 		{
 			return ((x == vec.x) && (y == vec.y) && (z == vec.z));
 		}
+
+		template<typename F>
+		operator Vec3<F>() const
+		{
+			return Vec3<F>((F)x, (F)y, (F)z);
+		}
 	};
 
 	typedef Vec2<unsigned int> Vec2u;

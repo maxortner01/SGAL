@@ -8,6 +8,15 @@ int main()
     using namespace sgal;
 
     DrawWindow window({ 1780, 920, "Coolio" });
+
+    Light main_light;
+    main_light.position  = Vec3f(0, 0.5f, -50.f);
+    main_light.color     = Color(255, 255, 255, 255);
+    main_light.type      = Light::Point;
+    main_light.intensity = 10.f;
+
+    LightArray lights;
+    lights.push(main_light);
     
     //std::vector<Vec3f> vertices;
     //for (int i = 0; i < 1000; i++)
@@ -47,6 +56,9 @@ int main()
     RenderContext rc;
     rc.shader = &Shader::Default3D();
     rc.camera = &camera;
+    rc.lights = &lights;
+
+    unsigned int frame = 0;
 
     Timer clock;
     while (window.isOpen())
@@ -94,11 +106,11 @@ int main()
         float speed = 0.1f;
 
         if (Keyboard::isKeyPressed(Keyboard::Key_LEFT))
-            camera.addRotation({ 0, 0.008f, 0});
+            camera.addRotation({ 0,  0.008f, 0});
         if (Keyboard::isKeyPressed(Keyboard::Key_RIGHT))
             camera.addRotation({ 0, -0.008f, 0});
         if (Keyboard::isKeyPressed(Keyboard::Key_UP))
-            camera.addRotation({ 0.008f, 0, 0});
+            camera.addRotation({  0.008f, 0, 0});
         if (Keyboard::isKeyPressed(Keyboard::Key_DOWN))
             camera.addRotation({ -0.008f, 0, 0});
 
@@ -118,15 +130,11 @@ int main()
         if (Keyboard::isKeyPressed(Keyboard::Key_LCTRL))
             delta.y -= speed;
 
-        camera.step(delta);
-        
-        //model.addRotation({ 0, 0.001f, 0 });
+        lights[0].position = camera.getPosition();
 
-        //camera.addPosition(delta);
+        camera.step(delta);
 
         window.clear();
-
-        //model.addRotation({ 0.0001f, 0.0001f, 0 });
 
         window.draw(model, &rc);
 
@@ -136,6 +144,6 @@ int main()
         clock.restart();
 
         window.setTitle("Coolio     FPS: " + std::to_string((int)fps));
-        //std::cout << fps << "             \r";
+        frame++;
     }
 }

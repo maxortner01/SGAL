@@ -15,6 +15,7 @@
 
 #include "GL.h"
 #include "Math.h"
+#include "LightArray.h"
 
 namespace sgal
 {
@@ -35,11 +36,15 @@ namespace sgal
 		Shader();
 		~Shader();
 
+		void setUniform(const Light* lights, const size_t count = 1) const;
+		void setUniform(const Light& light, const unsigned int index = 0) const;
         void setUniform(const std::string& name, Mat4f value) const;
+        void setUniform(const std::string& name, Color value) const;
         void setUniform(const std::string& name, Vec3f value) const;
         void setUniform(const std::string& name, Vec2f value) const;
         void setUniform(const std::string& name, float value) const;
         void setUniform(const std::string& name, bool  value) const;
+        void setUniform(const std::string& name, int   value) const;
 
 		void fromFile  (const std::string& filename, ShaderType type);
 		void fromString(const std::string& contents, ShaderType type);
