@@ -11,9 +11,6 @@ namespace sgal
 
     LightArray::~LightArray()
     {
-        for (int i = 0; i < count; i++)
-            delete (lights + i);
-
         std::free(lights);
         lights = nullptr;
     }

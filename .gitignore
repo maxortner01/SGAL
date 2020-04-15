@@ -8,3 +8,5 @@ client/client.exe
 lib/
 
 client/libSGAL.dll
+
+client/libstdc\+\+-6.dll
