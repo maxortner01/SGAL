@@ -17,3 +17,4 @@
 #include "./Graphics/Camera.h"
 #include "./Graphics/Texture.h"
 #include "./Graphics/LightArray.h"
+#include "./Graphics/DrawTexture.h"

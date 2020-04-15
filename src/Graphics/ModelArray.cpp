@@ -45,6 +45,11 @@ namespace sgal
         return models[index];
     }
 
+    unsigned int ModelArray::size() const
+    {
+        return models.size();
+    }
+
     void ModelArray::draw(const Surface* surface, const RenderContext* rc) const
     {
         if (rawModel->vertexCount() == 0) return;
@@ -52,7 +57,7 @@ namespace sgal
         if (!static_render)
             loadMatrices();
 
-        Model::setRenderContext(rc);
+        rawModel->setRenderContext(rc);
 
         glEnable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);

@@ -10,9 +10,10 @@ int main()
     DrawWindow window({ 1780, 920, "Coolio" });
 
     Light main_light;
-    main_light.position  = Vec3f(0, 0.5f, 1.f);
-    main_light.color     = Color(255, 255, 255, 255);
-    main_light.type      = Light::Directional;
+    main_light.position  = Vec3f(100, 100, -50.f);
+    main_light.color     = Color(0, 255, 0, 255);
+    main_light.type      = Light::Point;
+    main_light.intensity = 40.f;
 
     LightArray lights;
     lights.push(main_light);
@@ -20,6 +21,12 @@ int main()
     main_light.color     = Color(255, 0, 0, 255);
     main_light.type      = Light::Point;
     main_light.intensity = 10.f;
+    lights.push(main_light);
+    
+    main_light.position  = Vec3f(-100, 100, -50.f);
+    main_light.color     = Color(0, 0, 255, 255);
+    main_light.type      = Light::Point;
+    main_light.intensity = 100.f;
     lights.push(main_light);
     
     //std::vector<Vec3f> vertices;
@@ -52,6 +59,8 @@ int main()
     }
 
     model.loadMatrices(); 
+    
+    std::cout << rawModel.vertexCount() * model.size() << "\n";
 
     //model.setScale({ 20.f, 20.f, 20.f });
 
@@ -78,28 +87,6 @@ int main()
             if (event.type == Event::KeyDown)
                 if (event.key.code == Keyboard::Key_ESCAPE)
                     window.close();
-
-            /*
-            {
-                if (event.type == Event::Resize)
-                    std::cout << "resize " << event.size.width << " x " << event.size.height << "\n";
-
-                if (event.type == Event::Moving)
-                    std::cout << "move to " << event.position.x << " x " << event.position.y << "\n";
-
-                if (event.type == Event::KeyDown)
-                    std::cout << "Key Down: " << (char)event.key.code << "\n";
-                
-                if (event.type == Event::KeyUp)
-                    std::cout << "Key Up: " << (char)event.key.code << "\n";
-
-                if (event.type == Event::MouseDown)
-                    std::cout << "Mouse Down: " << event.mouse.code << " at " << event.mouse.x << " x " << event.mouse.y << "\n";
-                    
-                if (event.type == Event::MouseUp)
-                    std::cout << "Mouse Up: " << event.mouse.code << " at " << event.mouse.x << " x " << event.mouse.y << "\n";
-            }
-            */
         }
 
         Vec2i mouse_delta = Mouse::getPosition(window) - Vec2i(window.getSize().x / 2, window.getSize().y / 2);
@@ -107,7 +94,7 @@ int main()
 
         Mouse::setPosition({ (int)(window.getSize().x / 2), (int)(window.getSize().y / 2) }, window);
 
-        float speed = 0.1f;
+        float speed = 0.5f;
 
         if (Keyboard::isKeyPressed(Keyboard::Key_LEFT))
             camera.addRotation({ 0,  0.008f, 0});

@@ -18,11 +18,19 @@
 #include "Drawable.h"
 #include "Sizable.h"
 
+#define SURFACE_BINDS protected:\
+	void bindSurface() const override;\
+	void unbindSurface() const override;
+
 namespace sgal
 {
 	struct SGAL_API Surface
 	{
 		void clear(Color color = Color(0, 0, 0, 255)) const;
 		void draw(const Drawable& object, const RenderContext* context = nullptr) const;
+
+	protected:
+		virtual void   bindSurface() const = 0;
+		virtual void unbindSurface() const = 0;
 	};
 }

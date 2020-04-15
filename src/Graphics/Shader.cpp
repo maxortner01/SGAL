@@ -177,6 +177,7 @@ namespace sgal
             vertex_contents += "layout (location = " + std::to_string(GL::ModelMatrices) + ") in mat4 modelMatrix;\n";
             vertex_contents += "layout (location = " + std::to_string(GL::ModelMatrices + 4) + ") in mat4 normalMatrix;\n";
 
+            vertex_contents += "uniform mat4 vp_matrix;\n";
             vertex_contents += "uniform mat4 view_matrix;\n";
             vertex_contents += "uniform mat4 proj_matrix;\n";
             
@@ -188,7 +189,7 @@ namespace sgal
             vertex_contents += "    position     = vec4(vertex, 1.0) * modelMatrix;\n";
             vertex_contents += "    normal       = vec4(in_normal, 1.0) * normalMatrix;\n";
             vertex_contents += "    model_matrix = modelMatrix;\n";
-            vertex_contents += "    gl_Position  = position * view_matrix * proj_matrix;\n";
+            vertex_contents += "    gl_Position  = position * vp_matrix;\n";
             vertex_contents += "}\n";
             
             std::string fragment_contents = "#version 330 core\n";

@@ -19,6 +19,10 @@ namespace sgal
 {
 	class SGAL_API DrawWindow : public Window, public Surface
 	{
+	protected:
+		void   bindSurface() const override;
+		void unbindSurface() const override;
+
 	public:
 		BASE_CONSTRUCTOR(Window);
 	};

@@ -13,7 +13,9 @@ namespace sgal
 
     void Surface::draw(const Drawable& object, const RenderContext* context) const
     {
+        bindSurface();
         object.draw(this, context);
+        unbindSurface();
     }
 
 }

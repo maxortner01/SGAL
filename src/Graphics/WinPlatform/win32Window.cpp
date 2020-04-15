@@ -329,7 +329,6 @@ bool APIENTRY DllMain(HMODULE hModule, DWORD rfc, LPVOID reserved)
     }
     else if (rfc == DLL_PROCESS_DETACH)
     {
-        //PostQuitMessage(0);
         for (int i = 0; i < MAX_THREADS; i++)
         {
             if (THREADS[i]) THREADS[i]->join();

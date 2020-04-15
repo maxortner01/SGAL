@@ -20,7 +20,7 @@ namespace sgal
         rawModel->loadModelMatrices(&modelMatrix);
         rawModel->loadNormalMatrices(&normalMatrix);
 
-        setRenderContext(rc);
+        rawModel->setRenderContext(rc);
 
         glEnable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
@@ -40,37 +40,6 @@ namespace sgal
 
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
-    }
-
-    void Model::setRenderContext(const RenderContext* rc)
-    {
-        if (rc)
-        {
-            // If there's a shader
-            if (rc->shader)
-            {
-                rc->shader->bind();
-                
-                if (rc->camera)
-                {
-                    rc->shader->setUniform("view_matrix", rc->camera->getPerspectiveMatrix());
-                    rc->shader->setUniform("proj_matrix", rc->camera->getProjectionMatrix());
-                }
-                else
-                {
-                    Mat4f identity; identity.toIdentity();
-                    rc->shader->setUniform("view_matrix", identity);
-                    rc->shader->setUniform("proj_matrix", identity);
-                }
-
-                if (rc->lights)
-                {
-                    rc->shader->setUniform(&(*rc->lights)[0], rc->lights->size());
-                }
-            }
-            else
-                Shader::useDefault();
-        }
     }
 
 }

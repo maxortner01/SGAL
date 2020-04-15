@@ -26,7 +26,5 @@ namespace sgal
 		Model(RawModel const* rm);
 
 		void draw(const Surface* surface, const RenderContext* rc = nullptr) const override;
-
-		static void setRenderContext(const RenderContext* rc);
 	};
 }

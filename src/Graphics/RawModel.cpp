@@ -10,7 +10,7 @@ namespace sgal
 {
 
     RawModel::RawModel() :
-        GL::ArrayObject(GL::Triangles)
+        GL::ArrayObject(GL::Triangles), use_textures(false)
     {   }
 
     void RawModel::fromFile(const std::string& filename)
@@ -144,6 +144,42 @@ namespace sgal
             normals[i] = normalize(normals[i]);
 
         loadNormals(&normals[0], normals.size());
+    }
+
+    
+    void RawModel::setRenderContext(const RenderContext* rc) const
+    {
+        if (rc)
+        {
+            // If there's a shader
+            if (rc->shader)
+            {
+                rc->shader->bind();
+
+                rc->shader->setUniform("use_textures", use_textures);
+                
+                if (rc->camera)
+                {
+                    rc->shader->setUniform("vp_matrix",   rc->camera->getProjectionMatrix() * rc->camera->getPerspectiveMatrix());
+                    rc->shader->setUniform("view_matrix", rc->camera->getPerspectiveMatrix());
+                    rc->shader->setUniform("proj_matrix", rc->camera->getProjectionMatrix());
+                }
+                else
+                {
+                    Mat4f identity; identity.toIdentity();
+                    rc->shader->setUniform("vp_matrix",   identity);
+                    rc->shader->setUniform("view_matrix", identity);
+                    rc->shader->setUniform("proj_matrix", identity);
+                }
+
+                if (rc->lights)
+                {
+                    rc->shader->setUniform(&(*rc->lights)[0], rc->lights->size());
+                }
+            }
+            else
+                Shader::useDefault();
+        }
     }
 
 }
