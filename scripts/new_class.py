@@ -1,3 +1,12 @@
+#
+# Little utility for generating the a new class for this project.
+# It generates the files and adds the associated includes to make
+# the project hierarchy work and be consistent.
+#
+# Author: Max Ortner
+# Date:   04-09-2020
+#
+
 import os, sys, datetime
 
 # Default Settings

@@ -79,6 +79,11 @@ namespace GL
     {
         if (!count) return;
 
+        std::vector<Color> colors(count);
+
+        for (int i = 0; i < colors.size(); i++)
+            colors[i] = Color(255, 255, 255, 255);
+
         // Bind the buffer and load the data into the GPU
         bind();
         vbos[Vertices]->loadData(vertices, sizeof(Vec3f), count, 3);
@@ -104,6 +109,15 @@ namespace GL
 
         bind();
         vbos[Normals]->loadData(normals, sizeof(Vec3f), count, 3);
+        unbind();
+    }
+
+    void ArrayObject::loadColors(const Color* colors, const size_t count) const
+    {
+        if (!count) return;
+
+        bind();
+        vbos[Colors]->loadData(colors, sizeof(Color), count, 4);
         unbind();
     }
 

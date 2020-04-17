@@ -94,6 +94,22 @@ namespace sgal
 
         //if (tex.size() > 0)
         //    loadTexCoords(&tex[0], tex.size());
+
+        std::vector<Color> colors(vertices.size());
+        for (int i = 0; i < colors.size(); i++)
+            colors[i] = Color(255, 255, 255, 255);
+
+        loadColors(&colors[0], colors.size());
+    }
+
+    void RawModel::calculateNormals() const
+    {
+        Vec3f* const vertices = (Vec3f*)(*this)[GL::Vertices].readData();
+        if (!vertices) return;
+
+        calculateNormals(vertices, vertexCount(), indices, indexCount());
+
+        std::free(vertices);
     }
 
     void RawModel::calculateNormals(const Vec3f* vertices, const size_t vertexCount, const unsigned int* indices, const size_t indexCount) const
@@ -126,16 +142,15 @@ namespace sgal
 
             if (indices)
             {
-                normals[indices[i + 0]] += cross(rel_v3, rel_v2);
-                normals[indices[i + 1]] += cross(rel_v3, rel_v2);
-                normals[indices[i + 2]] += cross(rel_v3, rel_v2);
-                
+                normals[indices[i + 0]] += cross(rel_v2, rel_v3);
+                normals[indices[i + 1]] += cross(rel_v2, rel_v3);
+                normals[indices[i + 2]] += cross(rel_v2, rel_v3);
             }
             else
             {
-                normals[i + 0] += cross(rel_v3, rel_v2);
-                normals[i + 1] += cross(rel_v3, rel_v2);
-                normals[i + 2] += cross(rel_v3, rel_v2);
+                normals[i + 0] += cross(rel_v2, rel_v3);
+                normals[i + 1] += cross(rel_v2, rel_v3);
+                normals[i + 2] += cross(rel_v2, rel_v3);
             }
             
         }
@@ -145,41 +160,39 @@ namespace sgal
 
         loadNormals(&normals[0], normals.size());
     }
-
     
     void RawModel::setRenderContext(const RenderContext* rc) const
     {
-        if (rc)
+        if (!rc) return;
+        
+        // Since we are in a RawModel, the default shader should be the built in 3D shader
+        const Shader* const shader = (rc->shader)?(rc->shader):(&Shader::Default3D());
+
+        shader->bind();
+
+        shader->setUniform("use_textures", use_textures);
+        shader->setUniform("use_lighting", rc->use_lighting);
+        shader->setUniform("turn_to_camera", rc->turn_to_camera);
+        
+        if (rc->camera)
         {
-            // If there's a shader
-            if (rc->shader)
-            {
-                rc->shader->bind();
-
-                rc->shader->setUniform("use_textures", use_textures);
-                
-                if (rc->camera)
-                {
-                    rc->shader->setUniform("vp_matrix",   rc->camera->getProjectionMatrix() * rc->camera->getPerspectiveMatrix());
-                    rc->shader->setUniform("view_matrix", rc->camera->getPerspectiveMatrix());
-                    rc->shader->setUniform("proj_matrix", rc->camera->getProjectionMatrix());
-                }
-                else
-                {
-                    Mat4f identity; identity.toIdentity();
-                    rc->shader->setUniform("vp_matrix",   identity);
-                    rc->shader->setUniform("view_matrix", identity);
-                    rc->shader->setUniform("proj_matrix", identity);
-                }
-
-                if (rc->lights)
-                {
-                    rc->shader->setUniform(&(*rc->lights)[0], rc->lights->size());
-                }
-            }
-            else
-                Shader::useDefault();
+            shader->setUniform("vp_matrix",   rc->camera->getProjectionMatrix() * rc->camera->getPerspectiveMatrix());
+            shader->setUniform("view_matrix", rc->camera->getPerspectiveMatrix());
+            shader->setUniform("proj_matrix", rc->camera->getProjectionMatrix());
         }
+        else
+        {
+            Mat4f identity; identity.toIdentity();
+            shader->setUniform("vp_matrix",   identity);
+            shader->setUniform("view_matrix", identity);
+            shader->setUniform("proj_matrix", identity);
+        }
+
+        if (rc->lights)
+        {
+            shader->setUniform(&(*rc->lights)[0], rc->lights->size());
+        }
+        
     }
 
 }

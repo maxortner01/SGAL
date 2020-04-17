@@ -126,7 +126,7 @@ namespace sgal
 
     void DrawTexture::draw(const Surface* surface, const RenderContext* rc) const
     {
-
+        
     }
 
     void DrawTexture::bindSurface() const

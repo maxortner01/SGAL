@@ -8,7 +8,7 @@ namespace GL
 {
 
     BufferObject::BufferObject(const unsigned int _index) :
-        index(_index), dynamic(false), data_bound(false)
+        index(_index), dynamic(false), data_bound(false), byte_size(0)
     {
         glGenBuffers(1, &id);
     }
@@ -18,10 +18,16 @@ namespace GL
         glDeleteBuffers(1, &id);
     }
 
+    unsigned int BufferObject::getByteSize() const
+    {
+        return byte_size;
+    }
+
     void BufferObject::loadData(const IPTR data, const size_t size, const size_t count, const size_t members) 
     {
         bind();
 
+        byte_size = size * count;
         glBufferData(GL_ARRAY_BUFFER, size * count, data, (dynamic)?GL_DYNAMIC_DRAW:GL_STATIC_DRAW);
 
         if (data_bound) return;
@@ -52,6 +58,21 @@ namespace GL
         }
 
         data_bound = true;
+    }
+
+    void* BufferObject::readData() const
+    {
+        if (!byte_size) return nullptr;
+
+        void* data_ptr = std::malloc(byte_size);
+
+        if (!data_ptr) return nullptr;
+
+        bind();
+        glGetBufferSubData(GL_ARRAY_BUFFER, 0, byte_size, data_ptr);
+        unbind();
+
+        return data_ptr;
     }
 
     void BufferObject::bind() const

@@ -16,14 +16,16 @@
 
 namespace sgal
 {
-	class Surface;
+	struct Surface;
 
 	// Storage for scene information (camera, shader, etc).
 	struct RenderContext
 	{
-		Shader     const* shader = nullptr;
-		Camera     const* camera = nullptr;
-		LightArray const* lights = nullptr;
+		bool       turn_to_camera = false;
+		bool       use_lighting   = true;
+		Shader     const* shader  = nullptr;
+		Camera     const* camera  = nullptr;
+		LightArray const* lights  = nullptr;
 	};
 
 	struct Drawable

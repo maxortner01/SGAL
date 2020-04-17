@@ -3,6 +3,11 @@
 
 #include <SGAL/SGAL.h>
 
+struct Vector
+{
+    float angle, magnitude;
+};
+
 int main()
 {
     using namespace sgal;
@@ -10,9 +15,10 @@ int main()
     DrawWindow window({ 1780, 920, "Coolio" });
 
     Light main_light;
-    main_light.position  = Vec3f(100, 100, -50.f);
-    main_light.color     = Color(0, 255, 0, 255);
-    main_light.type      = Light::Point;
+    //main_light.position  = Vec3f(0.25f, 1, -1);
+    main_light.position  = Vec3f(1, 0, 0);
+    main_light.color     = Color(255, 255, 255);
+    main_light.type      = Light::Directional;
     main_light.intensity = 40.f;
 
     LightArray lights;
@@ -20,30 +26,24 @@ int main()
     
     main_light.color     = Color(255, 0, 0, 255);
     main_light.type      = Light::Point;
-    main_light.intensity = 10.f;
-    lights.push(main_light);
+    main_light.intensity = 100.f;
+    //lights.push(main_light);
     
     main_light.position  = Vec3f(-100, 100, -50.f);
     main_light.color     = Color(0, 0, 255, 255);
     main_light.type      = Light::Point;
     main_light.intensity = 100.f;
-    lights.push(main_light);
-    
-    //std::vector<Vec3f> vertices;
-    //for (int i = 0; i < 1000; i++)
-    //    vertices.push_back(Vec3f( (float)(rand() % 1000) / 500.f - 1.f, (float)(rand() % 1000) / 500.f - 1.f, (float)(rand() % 1000) / 500.f - 1.f ));
+    //lights.push(main_light);
 
     RawModel rawModel;
-    rawModel.fromFile("res/models/B_NtSrCompC_0_001.obj");
-    //rawModel.fromFile("res/models/syd.obj");
-    //rawModel.loadVertices(&vertices[0], vertices.size());
-    //rawModel.calculateNormals(&vertices[0], vertices.size());
+    rawModel.fromFile("res/models/low poly buildings.obj");
+    rawModel.calculateNormals();
 
-    rawModel.setRenderMode(GL::Triangles);
+    Model model(&rawModel);
 
+
+    /*
     ModelArray model(&rawModel);
-    //model.setScale({ -10.f, 10.f, 10.f });
-
     
     for (int i = -50; i <= 50; i++)
     {
@@ -58,11 +58,7 @@ int main()
         md.setPosition({ i * 20.f, 0, -100.f });
     }
 
-    model.loadMatrices(); 
-    
-    std::cout << rawModel.vertexCount() * model.size() << "\n";
-
-    //model.setScale({ 20.f, 20.f, 20.f });
+    model.loadMatrices();  */
 
     Camera camera(3.14159f / 2.f, window);
     
@@ -85,8 +81,17 @@ int main()
                 window.close();
 
             if (event.type == Event::KeyDown)
-                if (event.key.code == Keyboard::Key_ESCAPE)
+            {
+                /**/ if (event.key.code == Keyboard::Key_ESCAPE)
                     window.close();
+                else if (event.key.code == Keyboard::Key_TAB)
+                {
+                    if (rawModel.getRenderMode() == GL::Triangles)
+                        rawModel.setRenderMode(GL::Lines);
+                    else
+                        rawModel.setRenderMode(GL::Triangles);
+                }
+            }       
         }
 
         Vec2i mouse_delta = Mouse::getPosition(window) - Vec2i(window.getSize().x / 2, window.getSize().y / 2);
@@ -105,7 +110,6 @@ int main()
         if (Keyboard::isKeyPressed(Keyboard::Key_DOWN))
             camera.addRotation({ -0.008f, 0, 0});
 
-
         if (Keyboard::isKeyPressed(Keyboard::Key_LSHIFT))
             speed *= 2.f;
         if (Keyboard::isKeyPressed(Keyboard::Key_A))
@@ -123,11 +127,12 @@ int main()
 
         camera.step(delta);
 
-        lights[1].position = camera.getPosition();
+        //lights[1].position = camera.getPosition();
 
         window.clear();
 
         window.draw(model, &rc);
+        model.drawNormals(window, &rc);
 
         window.update();
 

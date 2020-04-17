@@ -22,6 +22,7 @@ namespace GL
 	{
 		friend class ArrayObject;
 
+		unsigned int byte_size;
 		unsigned int index;
 		bool         dynamic, data_bound;
 
@@ -29,7 +30,10 @@ namespace GL
 		BufferObject(const unsigned int _index);
 		~BufferObject();
 
-		void loadData(const IPTR data, const size_t size, const size_t count, const size_t members);
+		unsigned int getByteSize() const;
+
+		void  loadData(const IPTR data, const size_t size, const size_t count, const size_t members);
+		void* readData() const;
 
 		void  bind()  const override;
 		void unbind() const override;

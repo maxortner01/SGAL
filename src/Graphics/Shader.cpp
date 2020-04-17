@@ -43,7 +43,7 @@ namespace sgal
 
     void Shader::setUniform(const std::string& name, Color value) const
     {
-        glUniform4f(glGetUniformLocation(id, name.c_str()), (float)value.r / 255.f, (float)value.g / 255.f, (float)value.b / 255.f, (float)value.a / 255.f);
+        glUniform4f(glGetUniformLocation(id, name.c_str()), value.r, value.g, value.b, value.a);
     }
 
     void Shader::setUniform(const std::string& name, Vec3f value) const
@@ -174,13 +174,16 @@ namespace sgal
             std::string vertex_contents = "#version 330 core\n";
             vertex_contents += "layout (location = " + std::to_string(GL::Vertices) + ") in vec3 vertex;\n";
             vertex_contents += "layout (location = " + std::to_string(GL::Normals) + ") in vec3 in_normal;\n";
+            vertex_contents += "layout (location = " + std::to_string(GL::Colors) + ") in vec4 in_color;\n";
             vertex_contents += "layout (location = " + std::to_string(GL::ModelMatrices) + ") in mat4 modelMatrix;\n";
             vertex_contents += "layout (location = " + std::to_string(GL::ModelMatrices + 4) + ") in mat4 normalMatrix;\n";
-
+            
+            vertex_contents += "uniform bool turn_to_camera;\n";
             vertex_contents += "uniform mat4 vp_matrix;\n";
             vertex_contents += "uniform mat4 view_matrix;\n";
             vertex_contents += "uniform mat4 proj_matrix;\n";
             
+            vertex_contents += "out vec4 vert_color;\n";
             vertex_contents += "out vec4 position;\n";
             vertex_contents += "out vec4 normal;\n";
             vertex_contents += "out mat4 model_matrix;\n";
@@ -189,6 +192,7 @@ namespace sgal
             vertex_contents += "    position     = vec4(vertex, 1.0) * modelMatrix;\n";
             vertex_contents += "    normal       = vec4(in_normal, 1.0) * normalMatrix;\n";
             vertex_contents += "    model_matrix = modelMatrix;\n";
+            vertex_contents += "    vert_color   = in_color;\n";
             vertex_contents += "    gl_Position  = position * vp_matrix;\n";
             vertex_contents += "}\n";
             
@@ -205,23 +209,35 @@ namespace sgal
             
             fragment_contents += "uniform Light lights[" + std::to_string(SG_MAX_LIGHTS) + "];\n";
             fragment_contents += "uniform int   light_count;\n";
+            fragment_contents += "uniform bool  use_lighting;\n";
 
             fragment_contents += "out vec4 color;\n";
             fragment_contents += "in  vec4 position;\n";
             fragment_contents += "in  vec4 normal;\n";
+            fragment_contents += "in  vec4 vert_color;\n";
             fragment_contents += "in  mat4 model_matrix;\n";
 
-            fragment_contents += "void main() {\n";
+            fragment_contents += "vec4 getOutputColor() {\n";
             fragment_contents += "    vec4 output_color = vec4(0.0);\n";
 
             fragment_contents += "    for (int i = 0; i < light_count; i++)\n";
             fragment_contents += "    {\n";
             fragment_contents += "        vec4 light_pos = vec4(lights[i].position, 1);\n";
             fragment_contents += "        if (lights[i].type == 1) { light_pos = light_pos - position; } // If point light\n";
-            fragment_contents += "        output_color += vec4(1, 1, 1, 1) * max(dot(normalize(light_pos), normalize(normal)), 0.0) * vec4(lights[i].color.xyz, 1.0) / max(length(light_pos) / lights[i].intensity, 1.0);\n";
+            
+            fragment_contents += "        vec4 n_normal  = (length(normal.xyz) == 0.0)?(normalize(light_pos)):(normalize(normal));\n";
+
+            fragment_contents += "        output_color += vec4(lights[i].color.xyz, 1.0) * max(dot(normalize(light_pos), normalize(n_normal)) * 2.0 - 1.0, 0.0) / max(length(light_pos) / lights[i].intensity, 1.0);\n";
             fragment_contents += "    }\n";
 
+            fragment_contents += "    return vert_color * output_color;\n";
+            fragment_contents += "}\n";
+
+            fragment_contents += "void main() {\n";
+            fragment_contents += "    vec4 output_color = (use_lighting)?(getOutputColor()):(vert_color);\n";
+
             fragment_contents += "    color = vec4(output_color.xyz, 1.0);\n";
+            //fragment_contents += "    color = vec4((normal.xyz + 1) / 2, 1.0);\n";
             fragment_contents += "}\n";
             
             default3D = new Shader();

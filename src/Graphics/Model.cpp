@@ -8,8 +8,66 @@ namespace sgal
 {
 
     Model::Model(RawModel const* rm) :
-        rawModel(rm)
+        rawModel(rm), normalsModel(nullptr), normalsRawModel(nullptr)
     {   }
+
+    Model::~Model()
+    {
+        if (normalsRawModel)
+        {
+            delete normalsRawModel;
+            normalsRawModel = nullptr;
+        }
+
+        if (normalsModel)
+        {
+            delete normalsModel;
+            normalsModel = nullptr;
+        }
+    }
+
+    void Model::drawNormals(const Surface& surface, RenderContext* rc)
+    {
+        if (!(*rawModel)[GL::Normals].getByteSize()) return;
+
+        if (!normalsRawModel || !normalsModel)
+        {
+            normalsRawModel = new RawModel();
+
+            Vec3f* const vertices = (Vec3f*)(*rawModel)[GL::Vertices].readData();
+            Vec3f* const normals  = (Vec3f*)(*rawModel)[GL::Normals ].readData();
+
+            std::vector<Color> colors(rawModel->vertexCount() * 2);
+            std::vector<Vec3f> normalsVertices(rawModel->vertexCount() * 2);
+            for (int i = 0; i < normalsVertices.size(); i += 2)
+            {
+                normalsVertices[i + 0] = *(vertices + (i / 2));
+                normalsVertices[i + 1] = normalsVertices[i] + *(normals + (i / 2));
+
+                colors[i + 0] = Color(255, 0, 0);
+                colors[i + 1] = Color(255, 0, 0);
+            }
+
+            normalsRawModel->loadVertices(&normalsVertices[0], normalsVertices.size());
+            normalsRawModel->loadColors(&colors[0], colors.size());
+            normalsRawModel->setRenderMode(GL::Lines);
+
+            std::free(vertices);
+            std::free(normals);
+
+            normalsModel = new Model(normalsRawModel);
+        }
+
+        normalsModel->setPosition(getPosition());
+        normalsModel->setRotation(getRotation());
+        normalsModel->setScale(getScale());
+
+        bool before = rc->use_lighting;
+        rc->use_lighting = false;
+        surface.draw(*normalsModel, rc);
+
+        rc->use_lighting = before;
+    }
 
     void Model::draw(const Surface* surface, const RenderContext* rc) const
     {

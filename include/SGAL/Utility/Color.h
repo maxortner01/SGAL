@@ -16,10 +16,18 @@ namespace sgal
 {
 	struct SGAL_API Color
 	{
-		uint8_t r, g, b, a;
+		float r, g, b, a;
 
-		Color(uint8_t _r = 255, uint8_t _g = 255, uint8_t _b = 255, uint8_t _a = 255) :
+		Color(unsigned char _r, unsigned char _g, unsigned char _b, unsigned char _a = 255) :
+			r((float)_r / 255.f), g((float)_g / 255.f), b((float)_b / 255.f), a((float)_a / 255.f) 
+		{	}
+
+		explicit Color(float _r = 255, float _g = 255, float _b = 255, float _a = 255) :
 			r(_r), g(_g), b(_b), a(_a) 
+		{	}
+		
+		explicit Color(int _r, int _g, int _b, int _a = 255) :
+			Color((unsigned char)_r, (unsigned char)_g, (unsigned char)_b, (unsigned char)_a)
 		{	}
 	};
 }
