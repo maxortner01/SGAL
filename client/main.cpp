@@ -41,7 +41,6 @@ int main()
 
     Model model(&rawModel);
 
-
     /*
     ModelArray model(&rawModel);
     

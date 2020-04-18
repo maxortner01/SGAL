@@ -42,6 +42,6 @@ namespace sgal
 
 		void drawNormals(const Surface* surface, const RenderContext* rc = nullptr);
 
-		void setRenderContext(const RenderContext* rc) const;
+		void setRenderContext(const RenderContext* rc, const Shader* default_shader = nullptr) const;
 	};
 }

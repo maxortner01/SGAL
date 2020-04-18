@@ -54,6 +54,8 @@ namespace sgal
 		void unbind() const override;
 
 		static void useDefault();
+
+		static Shader& DefaultUI();
 		static Shader& Default3D();
 	};
 

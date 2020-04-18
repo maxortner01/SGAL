@@ -14,3 +14,5 @@
 #include "./Graphics/Texture.cpp"
 #include "./Graphics/LightArray.cpp"
 #include "./Graphics/DrawTexture.cpp"
+#include "./Graphics/UI.cpp"
+#include "./Graphics/UI.cpp"

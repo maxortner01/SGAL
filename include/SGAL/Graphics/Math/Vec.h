@@ -47,6 +47,12 @@ namespace sgal
 		{
 			(*this) = (*this) + vec;
 		}
+
+		template<typename F>
+		operator Vec2<F>() const
+		{
+			return Vec2<F>((F)x, (F)y);
+		}
 	};
 
 	template<typename T>

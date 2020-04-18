@@ -161,14 +161,16 @@ namespace sgal
         loadNormals(&normals[0], normals.size());
     }
     
-    void RawModel::setRenderContext(const RenderContext* rc) const
+    void RawModel::setRenderContext(const RenderContext* rc, const Shader* default_shader) const
     {
         if (!rc) return;
         
         // Since we are in a RawModel, the default shader should be the built in 3D shader
-        const Shader* const shader = (rc->shader)?(rc->shader):(&Shader::Default3D());
+        const Shader* const shader = (rc->shader)?(rc->shader):( (!default_shader)?(&Shader::Default3D()):(default_shader) );
 
         shader->bind();
+
+        if (default_shader != (Shader* const)Shader::Default3D) return;
 
         shader->setUniform("use_textures", use_textures);
         shader->setUniform("use_lighting", rc->use_lighting);
@@ -189,9 +191,7 @@ namespace sgal
         }
 
         if (rc->lights)
-        {
             shader->setUniform(&(*rc->lights)[0], rc->lights->size());
-        }
         
     }
 

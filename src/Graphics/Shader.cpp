@@ -8,7 +8,7 @@
 namespace sgal
 {
     static Shader* default3D = nullptr;
-
+    static Shader* defaultUI = nullptr;
 
     Shader::Shader()
     {
@@ -167,14 +167,44 @@ namespace sgal
         glUseProgram(0);
     }
 
+    Shader& Shader::DefaultUI()
+    {
+        if (!defaultUI)
+        {
+            std::string vertex_contents = "#version 330 core\n";
+            vertex_contents += "layout (location = " + std::to_string(GL::Vertices) + ") in vec3 vertex;\n";
+            vertex_contents += "layout (location = " + std::to_string(GL::Colors)   + ") in vec4 in_color;\n";
+            
+            vertex_contents += "uniform vec2 screen_size;\n";
+
+            vertex_contents += "out vec4 vert_color;\n";
+
+            vertex_contents += "void main() {\n";
+            vertex_contents += "    vert_color   = in_color;\n";
+            vertex_contents += "    gl_Position  = vec4((vertex / screen_size * 2.0) - 1.0, 1.0);\n";
+            vertex_contents += "}\n";
+            
+            std::string fragment_contents = "#version 330 core\n";
+
+
+
+            defaultUI = new Shader();
+            defaultUI->fromString(vertex_contents,   Shader::Vertex);
+            defaultUI->fromString(fragment_contents, Shader::Fragment);
+            defaultUI->link();
+        }
+
+        return *defaultUI;
+    }
+
     Shader& Shader::Default3D()
     {
         if (!default3D)
         {
             std::string vertex_contents = "#version 330 core\n";
             vertex_contents += "layout (location = " + std::to_string(GL::Vertices) + ") in vec3 vertex;\n";
-            vertex_contents += "layout (location = " + std::to_string(GL::Normals) + ") in vec3 in_normal;\n";
-            vertex_contents += "layout (location = " + std::to_string(GL::Colors) + ") in vec4 in_color;\n";
+            vertex_contents += "layout (location = " + std::to_string(GL::Normals)  + ") in vec3 in_normal;\n";
+            vertex_contents += "layout (location = " + std::to_string(GL::Colors)   + ") in vec4 in_color;\n";
             vertex_contents += "layout (location = " + std::to_string(GL::ModelMatrices) + ") in mat4 modelMatrix;\n";
             vertex_contents += "layout (location = " + std::to_string(GL::ModelMatrices + 4) + ") in mat4 normalMatrix;\n";
             
