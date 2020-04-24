@@ -37,6 +37,8 @@ namespace sgal
 
 		void fromFile(const std::string& filename);
 
+		void setColor(const Color& color) const;
+
 		void calculateNormals() const;
 		void calculateNormals(const Vec3f* vertices, const size_t vertexCount, const unsigned int* indices = nullptr, const size_t indexCount = 0) const;
 

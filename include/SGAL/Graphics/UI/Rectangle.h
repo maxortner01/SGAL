@@ -21,12 +21,14 @@ namespace sgal
 {
 namespace UI
 {
-	class SGAL_API Rectangle : public UI::Element, public Transform, public Sizable
+	class SGAL_API Rectangle : public UI::Element
 	{
-		RawModel* rawModel;
-		Model    model;
+		static RawModel* rawModel;
+		/****/ Model*    model;
 
 		Color color;
+		Vec2f size;
+		float radius;
 
 	public:
 		Rectangle();
@@ -36,6 +38,14 @@ namespace UI
 
 		void  setColor(const Color& color);
 		Color getColor() const;
+
+		void  setSize(const Vec2f& size);
+		Vec2f getSize() const;
+
+		void  setRadius(float r);
+		float getRadius() const;
+
+		Vec2f getRootPosition() const;
 	};
 }
 }

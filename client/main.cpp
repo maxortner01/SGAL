@@ -1,78 +1,129 @@
-#include <iostream>
-#include <vector>
-
 #include <SGAL/SGAL.h>
+#include <iostream>
 
-struct Vector
+#include "SimplexNoise.h"
+#include "SimplexNoise.cpp"
+
+struct SingleModel : sgal::Drawable
 {
-    float angle, magnitude;
+    SingleModel() :
+        model(&rawModel)
+    {   }
+
+    void draw(const sgal::Surface* surface, const sgal::RenderContext* rc = nullptr) const override
+    {
+        surface->draw(model, rc);
+    }
+
+    sgal::RawModel rawModel;
+    sgal::Model    model;
+};
+
+struct Map : sgal::Drawable
+{
+    Map()
+    {
+        generate();
+    }
+
+    void update()
+    {
+        for (int i = 0; i < water_points.size(); i++)
+            water_points[i] = water_points[i] + (shore_normals[i].second * -0.0001f);
+
+        waterModel.rawModel.loadVertices(&water_points[0], water_points.size());   
+    }
+
+    void draw(const sgal::Surface* surface, const sgal::RenderContext* rc = nullptr) const override
+    {
+        surface->draw(landModel, rc);
+        surface->draw(normalModel, rc);
+        surface->draw(waterModel, rc);
+    }
+
+private:
+    SingleModel landModel;
+    SingleModel normalModel;
+    SingleModel waterModel;
+
+    std::vector<sgal::Vec3f> water_points;
+
+    std::vector<std::pair<sgal::Vec3f, sgal::Vec3f>> shore_normals;
+
+    void generate()
+    {
+        using namespace sgal;
+
+        SimplexNoise noise;
+
+        const unsigned int resolution = 1000;
+        const float        radius     = 1.f;
+        const float        step       = 3.14159f * 2.f / (float)resolution;
+        std::vector<Vec3f> points;
+
+        for (float angle = 0.f; angle <= 3.14159f * 2.f; angle += step)
+        {
+            const float noise_radius = radius + noise.fractal(5, cos(angle), sin(angle)) / 10.f + noise.fractal(3, cos(angle) / 2.f, sin(angle) / 2.f) / 2.f;
+
+            const Vec3f point = Vec3f(cos(angle) * noise_radius, sin(angle) * noise_radius, 0.f);
+            points.push_back(point);
+        }
+
+        landModel.rawModel.loadVertices(&points[0], points.size());
+        landModel.rawModel.setColor(Color(255, 255, 255));
+        landModel.rawModel.setRenderMode(GL::Lines);
+
+
+        std::vector<Vec3f> normal_lines(points.size() * 2);
+
+        for (int i = 0; i < points.size(); i++)
+        {
+            Vec3f normal = cross(points[i], points[(i + 1) % points.size()]);
+            Vec3f p2 = points[i] - points[(i + 1) % points.size()];
+            Vec3f final_normal = normalize(cross(p2, normal));
+
+            normal_lines.push_back(points[i]);
+            normal_lines.push_back(points[i] + final_normal);
+
+            shore_normals.push_back(std::pair<sgal::Vec3f, sgal::Vec3f>(points[i], final_normal));
+        }
+
+        normalModel.rawModel.loadVertices(&normal_lines[0], normal_lines.size());
+        normalModel.rawModel.setColor(Color(255, 0, 0));
+        normalModel.rawModel.setRenderMode(GL::Lines);
+
+        const float distance = 2.f;
+        for (int i = 0; i < shore_normals.size(); i++)
+        {
+            const Vec3f shore_point = shore_normals[i].first;
+            const Vec3f normal      = shore_normals[i].second;
+
+            const Vec3f start_point = shore_point + normal * distance;
+            water_points.push_back(start_point);
+        }
+        waterModel.rawModel.setDynamic(true);
+        waterModel.rawModel.loadVertices(&water_points[0], water_points.size());
+        waterModel.rawModel.setColor(Color(255, 255, 255));
+        waterModel.rawModel.setRenderMode(GL::Points);
+    }
 };
 
 int main()
 {
     using namespace sgal;
 
-    DrawWindow window({ 1780, 920, "Coolio" });
+    DrawWindow window({ 1720, 920, "2D Test" });
 
-    Light main_light;
-    //main_light.position  = Vec3f(0.25f, 1, -1);
-    main_light.position  = Vec3f(1, 0, 0);
-    main_light.color     = Color(255, 255, 255);
-    main_light.type      = Light::Directional;
-    main_light.intensity = 40.f;
+    Map map;
 
-    LightArray lights;
-    lights.push(main_light);
-    
-    main_light.color     = Color(255, 0, 0, 255);
-    main_light.type      = Light::Point;
-    main_light.intensity = 100.f;
-    //lights.push(main_light);
-    
-    main_light.position  = Vec3f(-100, 100, -50.f);
-    main_light.color     = Color(0, 0, 255, 255);
-    main_light.type      = Light::Point;
-    main_light.intensity = 100.f;
-    //lights.push(main_light);
-
-    RawModel rawModel;
-    rawModel.fromFile("res/models/low poly buildings.obj");
-    rawModel.calculateNormals();
-
-    Model model(&rawModel);
-
-    /*
-    ModelArray model(&rawModel);
-    
-    for (int i = -50; i <= 50; i++)
-    {
-        Model& md = model.makeModel();
-        md.setPosition({ i * 20.f, 0, 0 });
-        md.setRotation({ 0, 3.14159f, 0 });
-    }
-    
-    for (int i = -50; i <= 50; i++)
-    {
-        Model& md = model.makeModel();
-        md.setPosition({ i * 20.f, 0, -100.f });
-    }
-
-    model.loadMatrices();  */
-
-    Camera camera(3.14159f / 2.f, window);
-    
+    Camera camera(90.f, window);
     RenderContext rc;
-    rc.shader = &Shader::Default3D();
     rc.camera = &camera;
-    rc.lights = &lights;
+    rc.shader = &Shader::Default2D();
 
-    unsigned int frame = 0;
-
-    Timer clock;
+    unsigned int index = 0;
     while (window.isOpen())
     {
-        Vec3f delta;
-
         Event event;
         while (window.poll(event))
         {
@@ -80,65 +131,16 @@ int main()
                 window.close();
 
             if (event.type == Event::KeyDown)
-            {
-                /**/ if (event.key.code == Keyboard::Key_ESCAPE)
+                if (event.key.code == Keyboard::Key_ESCAPE)
                     window.close();
-                else if (event.key.code == Keyboard::Key_TAB)
-                {
-                    if (rawModel.getRenderMode() == GL::Triangles)
-                        rawModel.setRenderMode(GL::Lines);
-                    else
-                        rawModel.setRenderMode(GL::Triangles);
-                }
-            }       
         }
-
-        Vec2i mouse_delta = Mouse::getPosition(window) - Vec2i(window.getSize().x / 2, window.getSize().y / 2);
-        camera.addRotation({ (float)mouse_delta.y / 50.f, (float)mouse_delta.x / 50.f, 0 });
-
-        Mouse::setPosition({ (int)(window.getSize().x / 2), (int)(window.getSize().y / 2) }, window);
-
-        float speed = 0.5f;
-
-        if (Keyboard::isKeyPressed(Keyboard::Key_LEFT))
-            camera.addRotation({ 0,  0.008f, 0});
-        if (Keyboard::isKeyPressed(Keyboard::Key_RIGHT))
-            camera.addRotation({ 0, -0.008f, 0});
-        if (Keyboard::isKeyPressed(Keyboard::Key_UP))
-            camera.addRotation({  0.008f, 0, 0});
-        if (Keyboard::isKeyPressed(Keyboard::Key_DOWN))
-            camera.addRotation({ -0.008f, 0, 0});
-
-        if (Keyboard::isKeyPressed(Keyboard::Key_LSHIFT))
-            speed *= 2.f;
-        if (Keyboard::isKeyPressed(Keyboard::Key_A))
-            delta.x -= speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_D))
-            delta.x += speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_W))
-            delta.z += speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_S))
-            delta.z -= speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_SPACE))
-            delta.y += speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_LCTRL))
-            delta.y -= speed;
-
-        camera.step(delta);
-
-        //lights[1].position = camera.getPosition();
 
         window.clear();
 
-        window.draw(model, &rc);
-        model.drawNormals(window, &rc);
+        map.update();
+        window.draw(map, &rc);
 
         window.update();
-
-        float fps = 1.f / clock.getElapsed();
-        clock.restart();
-
-        window.setTitle("Coolio     FPS: " + std::to_string((int)fps));
-        frame++;
+        index++;
     }
 }

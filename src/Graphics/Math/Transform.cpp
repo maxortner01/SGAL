@@ -51,7 +51,7 @@ namespace sgal
         scale += delta;
     }
 
-    void Transform::setScale(float x, float y, float z)
+    void Transform::setScale(float x, float y, float z = 0.f)
     { setScale({ x, y, z }); }
     void Transform::setScale(Vec3f sc)
     {

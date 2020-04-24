@@ -57,6 +57,7 @@ namespace sgal
 
 		static Shader& DefaultUI();
 		static Shader& Default3D();
+		static Shader& Default2D();
 	};
 
 

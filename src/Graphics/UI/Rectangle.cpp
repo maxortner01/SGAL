@@ -4,13 +4,12 @@ namespace sgal
 {
 namespace UI
 {
-    // Make it one static VAO with 1 x 1, then pass model matrix in to specify size. 
-    // Width  = getSize().x * getScale().x
-    // Height = getSize().y * getScale().y
-    Rectangle::Rectangle() :
-        rawModel(new RawModel()), model(rawModel), Sizable({ 0, 0 })
+    RawModel* Rectangle::rawModel = nullptr;
+
+    static void generateRawModel(RawModel** rm)
     {
-        rawModel->setDynamic(true);
+        *rm = new RawModel();
+        RawModel* rawModel = *rm;
 
         std::vector<unsigned int> indices(6);
         indices[0] = 0;
@@ -21,27 +20,43 @@ namespace UI
         indices[4] = 3;
         indices[5] = 0;
         rawModel->loadIndices(&indices[0], indices.size());
+
+        std::vector<Vec3f> points(4);
+        points[0] = Vec3f(0,  0, 0);
+        points[1] = Vec3f(1,  0, 0);
+        points[2] = Vec3f(1, -1, 0);
+        points[3] = Vec3f(0, -1, 0);
+        rawModel->loadVertices(&points[0], points.size());
+    }
+
+    Rectangle::Rectangle() :
+        size({ 0.f, 0.f }), color(255, 255, 255, 255), radius(0)
+    {
+        if (!rawModel) generateRawModel(&rawModel);
+
+        model = new Model(rawModel);
     }
 
     Rectangle::~Rectangle()
     {
-        if (rawModel)
+        if (model)
         {
-            delete rawModel;
-            rawModel = nullptr;
+            delete model;
+            model = nullptr;
         }
     }
 
     void Rectangle::draw(const SizableSurface* surface) const
     {
-        std::vector<Vec3f> points(4);
-        points[0] = Vec3f(getPosition().x              , getPosition().y              , 0.f);
-        points[1] = Vec3f(getPosition().x + getSize().x, getPosition().y              , 0.f);
-        points[2] = Vec3f(getPosition().x + getSize().x, getPosition().y + getSize().y, 0.f);
-        points[3] = Vec3f(getPosition().x              , getPosition().y + getSize().y, 0.f);
-        rawModel->loadVertices(&points[0], points.size());
+        RenderContext rc;
+        rc.depth_testing   = false;
+        rc.contxt_override = false;
 
-        surface->draw(model);
+        Shader::DefaultUI().setUniform("size", size);
+        Shader::DefaultUI().setUniform("radius", radius);
+
+        rawModel->setColor(getColor());
+        surface->draw(*model, &rc);
     }
 
     void Rectangle::setColor(const Color& color)
@@ -57,6 +72,31 @@ namespace UI
     Color Rectangle::getColor() const
     {
         return color;
+    }
+
+    void Rectangle::setSize(const Vec2f& size)
+    {
+        this->size = size;
+    }
+
+    Vec2f Rectangle::getSize() const
+    {
+        return size;
+    }
+
+    void Rectangle::setRadius(float r)
+    {
+        radius = r;
+    }
+
+    float Rectangle::getRadius() const
+    {
+        return radius;
+    }
+
+    Vec2f Rectangle::getRootPosition() const
+    {
+        return Vec2f(getPosition().x + radius, getPosition().y + radius);
     }
 
 }

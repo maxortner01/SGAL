@@ -10,3 +10,11 @@ lib/
 client/libSGAL.dll
 
 client/libstdc\+\+-6.dll
+
+client/main_graph.cpp
+
+client/main - Copy.cpp
+
+client/SimplexNoise.cpp
+
+client/SimplexNoise.h

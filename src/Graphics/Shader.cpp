@@ -8,6 +8,7 @@
 namespace sgal
 {
     static Shader* default3D = nullptr;
+    static Shader* default2D = nullptr;
     static Shader* defaultUI = nullptr;
 
     Shader::Shader()
@@ -172,21 +173,62 @@ namespace sgal
         if (!defaultUI)
         {
             std::string vertex_contents = "#version 330 core\n";
-            vertex_contents += "layout (location = " + std::to_string(GL::Vertices) + ") in vec3 vertex;\n";
-            vertex_contents += "layout (location = " + std::to_string(GL::Colors)   + ") in vec4 in_color;\n";
+            vertex_contents += "layout (location = " + std::to_string(GL::Vertices)      + ") in vec3 vertex;\n";
+            vertex_contents += "layout (location = " + std::to_string(GL::Colors)        + ") in vec4 in_color;\n";
             
             vertex_contents += "uniform vec2 screen_size;\n";
+            vertex_contents += "uniform vec2 size; // size of the object\n";
+            vertex_contents += "uniform mat4 transform_mat;\n";
 
             vertex_contents += "out vec4 vert_color;\n";
+            vertex_contents += "out vec2 coords;\n";
 
             vertex_contents += "void main() {\n";
-            vertex_contents += "    vert_color   = in_color;\n";
-            vertex_contents += "    gl_Position  = vec4((vertex / screen_size * 2.0) - 1.0, 1.0);\n";
-            vertex_contents += "}\n";
+            vertex_contents += "    vert_color    = in_color;\n";
+            vertex_contents += "    vec4 position = vec4(vertex, 1.0);\n";
+            vertex_contents += "    position.x = position.x * (size.x);\n";
+            vertex_contents += "    position.y = position.y * (-size.y);\n";
+            vertex_contents += "    coords   = position.xy;\n";
+            vertex_contents += "    position = position * transform_mat;\n";
+
+            vertex_contents += "    position.x = (position.x / screen_size.x *  2.0) - 1.0;\n";
+            vertex_contents += "    position.y = (position.y / screen_size.y * -2.0) + 1.0;\n";
+            vertex_contents += "    gl_Position = vec4(position.xy, 0.0, 1.0);\n";
+            vertex_contents += "}";
             
             std::string fragment_contents = "#version 330 core\n";
+            
+            fragment_contents += "in  vec2 coords;\n";
+            fragment_contents += "in  vec4 vert_color;\n";
+            fragment_contents += "out vec4 FragColor;\n";
+            
+            fragment_contents += "uniform vec2 size;\n";
+            fragment_contents += "uniform float radius;\n";
 
+            fragment_contents += "void main() {\n";
 
+            // Top left corner
+            fragment_contents += "    if (radius > 0 && coords.x < radius && coords.y < radius && length(coords - vec2(radius)) > radius) {\n";
+            fragment_contents += "        discard;\n";
+            fragment_contents += "    }\n";
+            
+            // Top right corner
+            fragment_contents += "    if (radius > 0 && coords.x > size.x - radius && coords.y < radius && length(coords - vec2(size.x - radius, radius)) > radius) {\n";
+            fragment_contents += "        discard;\n";
+            fragment_contents += "    }\n";
+            
+            // Bottom right corner
+            fragment_contents += "    if (radius > 0 && coords.x > size.x - radius && coords.y > size.y - radius && length(coords - vec2(size.x - radius, size.y - radius)) > radius) {\n";
+            fragment_contents += "        discard;\n";
+            fragment_contents += "    }\n";
+            
+            // Bottom left corner
+            fragment_contents += "    if (radius > 0 && coords.x < radius && coords.y > size.y - radius && length(coords - vec2(radius, size.y - radius)) > radius) {\n";
+            fragment_contents += "        discard;\n";
+            fragment_contents += "    }\n";
+
+            fragment_contents += "    FragColor = vert_color;\n";
+            fragment_contents += "}\n";
 
             defaultUI = new Shader();
             defaultUI->fromString(vertex_contents,   Shader::Vertex);
@@ -260,14 +302,14 @@ namespace sgal
             fragment_contents += "        output_color += vec4(lights[i].color.xyz, 1.0) * max(dot(normalize(light_pos), normalize(n_normal)) * 2.0 - 1.0, 0.0) / max(length(light_pos) / lights[i].intensity, 1.0);\n";
             fragment_contents += "    }\n";
 
-            fragment_contents += "    return vert_color * output_color;\n";
+            fragment_contents += "    return vert_color * vec4(output_color.xyz, 1.0);\n";
             fragment_contents += "}\n";
 
             fragment_contents += "void main() {\n";
             fragment_contents += "    vec4 output_color = (use_lighting)?(getOutputColor()):(vert_color);\n";
 
-            fragment_contents += "    color = vec4(output_color.xyz, 1.0);\n";
-            //fragment_contents += "    color = vec4((normal.xyz + 1) / 2, 1.0);\n";
+            fragment_contents += "    color = output_color;\n";
+            fragment_contents += "    //color = vec4((normal.xyz + 1) / 2, 1.0);\n";
             fragment_contents += "}\n";
             
             default3D = new Shader();
@@ -277,6 +319,41 @@ namespace sgal
         }
 
         return *default3D;
+    }
+
+    Shader& Shader::Default2D()
+    {
+        if (!default2D)
+        {
+            std::string vertex_contents = "#version 330 core\n";
+            vertex_contents += "layout (location = " + std::to_string(GL::Vertices) + ") in vec3 vertex;\n";
+            vertex_contents += "layout (location = " + std::to_string(GL::Colors)   + ") in vec4 in_color;\n";
+
+            vertex_contents += "out vec4 vert_color;\n";
+
+            vertex_contents += "uniform mat4 proj_matrix;\n";
+
+            vertex_contents += "void main() {\n";
+            vertex_contents += "    vert_color   = in_color;\n";
+            vertex_contents += "    gl_Position  = vec4(vertex.xy, 0.0, 1.0) * proj_matrix;\n";
+            vertex_contents += "}\n";
+            
+            std::string fragment_contents = "#version 330 core\n";
+
+            fragment_contents += "in  vec4 vert_color;\n";
+            fragment_contents += "out vec4 color;\n";
+            
+            fragment_contents += "void main() {\n";
+            fragment_contents += "    color = vert_color;\n";
+            fragment_contents += "}\n";
+
+            default2D = new Shader();
+            default2D->fromString(vertex_contents,   Shader::Vertex);
+            default2D->fromString(fragment_contents, Shader::Fragment);
+            default2D->link();
+        }
+
+        return *default2D;
     }
 
 }

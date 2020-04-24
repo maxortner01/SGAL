@@ -34,7 +34,8 @@ namespace GL
 	{
 		Triangles,
 		Lines,
-		Points
+		Points,
+		Polygon
 	};
 
 	class SGAL_API ArrayObject : Object

@@ -80,8 +80,13 @@ namespace sgal
 
         rawModel->setRenderContext(rc);
 
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         glEnable(GL_DEPTH_TEST);
-        glDisable(GL_BLEND);
+        if (rc && !rc->depth_testing)
+            glDisable(GL_DEPTH_TEST);
+
         rawModel->bind();
 
         (*rawModel)[GL::Vertices].bind();
@@ -90,14 +95,12 @@ namespace sgal
         switch (rawModel->getRenderMode())
         {
         case GL::Triangles: type = GL_TRIANGLES;    break;
+        case GL::Polygon:   type = GL_POLYGON;      break;
         case GL::Points:    type = GL_POINTS;       break;
         case GL::Lines:     type = GL_LINES;        break;
         }
 
         glDrawElements(type, rawModel->indexCount(), GL_UNSIGNED_INT, rawModel->indices);
-
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
     }
 
 }

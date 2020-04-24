@@ -2,12 +2,15 @@
 
 #include <GL/glew.h>
 
+
+
+#include <iostream>
 namespace sgal
 {
 
     void Surface::clear(Color color) const
     {
-        glClearColor((float)color.r / 255.f, (float)color.g / 255.f, (float)color.b / 255.f, (float)color.a / 255.f);
+        glClearColor(color.r, color.g, color.b, color.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 
@@ -20,6 +23,7 @@ namespace sgal
         Shader::DefaultUI().bind();
 
         Shader::DefaultUI().setUniform("screen_size", (Vec2f)surface->getSize());
+        Shader::DefaultUI().setUniform("transform_mat", uielem.getTransformMatrix());
 
         uielem.draw(surface);
 

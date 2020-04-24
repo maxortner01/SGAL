@@ -18,7 +18,7 @@ namespace sgal
 
 namespace UI
 {
-	struct Element
+	struct Element : public Transform
 	{
 		virtual void draw(const SizableSurface* surface) const = 0;
 	};

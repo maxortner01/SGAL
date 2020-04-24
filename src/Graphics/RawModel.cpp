@@ -102,6 +102,14 @@ namespace sgal
         loadColors(&colors[0], colors.size());
     }
 
+    void RawModel::setColor(const Color& color) const
+    {
+        std::vector<Color> colors(vertexCount());
+        for (int i = 0; i < colors.size(); i++)
+            colors[i] = color;
+        loadColors(&colors[0], colors.size());
+    }
+
     void RawModel::calculateNormals() const
     {
         Vec3f* const vertices = (Vec3f*)(*this)[GL::Vertices].readData();
@@ -163,15 +171,13 @@ namespace sgal
     
     void RawModel::setRenderContext(const RenderContext* rc, const Shader* default_shader) const
     {
-        if (!rc) return;
+        if (!rc || (rc && !rc->contxt_override)) return;
         
         // Since we are in a RawModel, the default shader should be the built in 3D shader
         const Shader* const shader = (rc->shader)?(rc->shader):( (!default_shader)?(&Shader::Default3D()):(default_shader) );
 
         shader->bind();
-
-        if (default_shader != (Shader* const)Shader::Default3D) return;
-
+        
         shader->setUniform("use_textures", use_textures);
         shader->setUniform("use_lighting", rc->use_lighting);
         shader->setUniform("turn_to_camera", rc->turn_to_camera);

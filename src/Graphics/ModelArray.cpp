@@ -68,9 +68,10 @@ namespace sgal
         unsigned int type;
         switch (rawModel->getRenderMode())
         {
-        case GL::Triangles: type = GL_TRIANGLES; break;
-        case GL::Points:    type = GL_POINTS;    break;
-        case GL::Lines:     type = GL_LINES;     break;
+        case GL::Triangles: type = GL_TRIANGLES;    break;
+        case GL::Polygon:   type = GL_POLYGON;      break;
+        case GL::Points:    type = GL_POINTS;       break;
+        case GL::Lines:     type = GL_LINES;        break;
         };
 
         glDrawElementsInstanced(type, rawModel->indexCount(), GL_UNSIGNED_INT, rawModel->indices, models.size());
