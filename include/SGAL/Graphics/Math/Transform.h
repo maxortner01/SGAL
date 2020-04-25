@@ -20,8 +20,17 @@ namespace sgal
 	{
 		Vec3f position, rotation, scale;
 
+		Transform* parent;
+
 	public:
 		Transform();
+
+		Transform* getParent() const;
+		void setParent(Transform* prnt);
+
+		virtual Vec3f getRelativePosition() const;
+		virtual Vec3f getRelativeRotation() const;
+		virtual Vec3f getRelativeScale() const;
 
 		Vec3f getPosition() const;
 		Vec3f getRotation() const;

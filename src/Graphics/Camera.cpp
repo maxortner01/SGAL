@@ -86,4 +86,40 @@ namespace sgal
         orbit = _orbit;
     }
 
+    void FPSCamera::update(const Window& window, float speed, float sensitivity)
+    {
+        Vec2i mouse_delta = Mouse::getPosition(window) - Vec2i(window.getSize().x / 2, window.getSize().y / 2);
+        addRotation({ (float)mouse_delta.y / sensitivity, (float)mouse_delta.x / sensitivity, 0 });
+
+        Mouse::setPosition({ (int)(window.getSize().x / 2), (int)(window.getSize().y / 2) }, window);
+
+        Vec3f delta;
+
+        if (Keyboard::isKeyPressed(Keyboard::Key_LEFT))
+            addRotation({ 0,  0.008f, 0});
+        if (Keyboard::isKeyPressed(Keyboard::Key_RIGHT))
+            addRotation({ 0, -0.008f, 0});
+        if (Keyboard::isKeyPressed(Keyboard::Key_UP))
+            addRotation({  0.008f, 0, 0});
+        if (Keyboard::isKeyPressed(Keyboard::Key_DOWN))
+            addRotation({ -0.008f, 0, 0});
+
+        if (Keyboard::isKeyPressed(Keyboard::Key_LSHIFT))
+            speed *= 2.f;
+        if (Keyboard::isKeyPressed(Keyboard::Key_A))
+            delta.x -= speed;
+        if (Keyboard::isKeyPressed(Keyboard::Key_D))
+            delta.x += speed;
+        if (Keyboard::isKeyPressed(Keyboard::Key_W))
+            delta.z += speed;
+        if (Keyboard::isKeyPressed(Keyboard::Key_S))
+            delta.z -= speed;
+        if (Keyboard::isKeyPressed(Keyboard::Key_SPACE))
+            delta.y += speed;
+        if (Keyboard::isKeyPressed(Keyboard::Key_LCTRL))
+            delta.y -= speed;
+
+        step(delta);
+    }
+
 }

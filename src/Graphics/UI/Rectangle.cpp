@@ -55,7 +55,12 @@ namespace UI
         Shader::DefaultUI().setUniform("size", size);
         Shader::DefaultUI().setUniform("radius", radius);
 
-        rawModel->setColor(getColor());
+        // Need a better way
+        Color render_color = getColor();
+        if (getParent()) render_color.a *= static_cast<Rectangle*>(getParent())->getColor().a;
+
+        rawModel->setColor(render_color);
+
         surface->draw(*model, &rc);
     }
 
@@ -97,6 +102,11 @@ namespace UI
     Vec2f Rectangle::getRootPosition() const
     {
         return Vec2f(getPosition().x + radius, getPosition().y + radius);
+    }
+
+    Vec3f Rectangle::getRelativePosition() const
+    {
+        return Vec3f(radius, radius, 0.f);
     }
 
 }

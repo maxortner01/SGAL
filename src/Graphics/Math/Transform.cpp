@@ -4,8 +4,33 @@ namespace sgal
 {
 
     Transform::Transform() :
-        scale(1, 1, 1)
+        scale(1, 1, 1), parent(nullptr)
     {   }
+
+    Transform* Transform::getParent() const
+    {
+        return parent;
+    }
+
+    void Transform::setParent(Transform* prnt)
+    {
+        parent = prnt;
+    }
+
+    Vec3f Transform::getRelativePosition() const
+    {
+        return Vec3f(0, 0, 0);
+    }
+
+    Vec3f Transform::getRelativeRotation() const
+    {
+        return Vec3f(0, 0, 0);
+    }
+
+    Vec3f Transform::getRelativeScale() const
+    {
+        return Vec3f(1, 1, 1);
+    }
 
     Vec3f Transform::getPosition() const
     {
@@ -60,9 +85,13 @@ namespace sgal
 
     Mat4f Transform::getTransformMatrix() const
     {
-        return makeTranslationMatrix(getPosition()) *
-            makeRotationMatrix(getRotation()) *
-            makeScaleMatrix(getScale());
+        Vec3f pos = (parent)?(getPosition() + parent->getPosition() + parent->getRelativePosition()):getPosition();
+        Vec3f rot = (parent)?(getPosition() + parent->getRotation() + parent->getRelativeRotation()):getRotation();
+        Vec3f scl = (parent)?(getScale() * parent->getScale() * parent->getRelativeScale()):getScale();
+
+        return makeTranslationMatrix(pos) *
+            makeRotationMatrix(rot) *
+            makeScaleMatrix(scl);
     }
 
 }

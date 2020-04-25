@@ -46,6 +46,8 @@ namespace UI
 		float getRadius() const;
 
 		Vec2f getRootPosition() const;
+		
+		Vec3f getRelativePosition() const override;
 	};
 }
 }

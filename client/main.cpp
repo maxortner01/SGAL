@@ -114,12 +114,37 @@ int main()
 
     DrawWindow window({ 1720, 920, "2D Test" });
 
-    Map map;
+    RawModel chestRawModel;
+    chestRawModel.fromFile("res/models/chest/Chest.obj");
 
-    Camera camera(90.f, window);
+    Model chestModel(&chestRawModel);
+    chestModel.setPosition({ 0, 0, 10 });
+    //chestModel.setScale(0.1f, 0.1f, 0.1f);
+
+    LightArray lightArray;
+    Light main_light;
+    main_light.type     = Light::Directional;
+    main_light.position = Vec3f(1.f, 0.25f, -1.f);
+
+    lightArray.push(main_light);
+
+    FPSCamera camera(90.f, window);
+
     RenderContext rc;
     rc.camera = &camera;
-    rc.shader = &Shader::Default2D();
+    rc.lights = &lightArray;
+    rc.shader = &Shader::Default3D();
+
+    UI::Rectangle rectangle;
+    rectangle.setSize({ 100.f, (float)window.getSize().y - 10.f });
+    rectangle.setColor(Color(255, 0, 0, 120));
+    rectangle.setPosition({ 10.f, 10.f });
+    rectangle.setRadius(10.f);
+
+    UI::Rectangle second;
+    second.setParent(&rectangle);
+    second.setSize({ 10.f, 30.f });
+    second.setColor(Color(0, 255, 0, 255));
 
     unsigned int index = 0;
     while (window.isOpen())
@@ -135,10 +160,17 @@ int main()
                     window.close();
         }
 
+        camera.update(window, 0.25f, 50.f);
+
         window.clear();
 
-        map.update();
-        window.draw(map, &rc);
+        window.draw(chestModel, &rc);
+        chestModel.drawNormals(window, &rc);
+
+        chestModel.addRotation({ 0, 0.001f, 0 });
+
+        window.draw(rectangle);
+        window.draw(second);
 
         window.update();
         index++;

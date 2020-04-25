@@ -18,3 +18,9 @@ client/main - Copy.cpp
 client/SimplexNoise.cpp
 
 client/SimplexNoise.h
+
+client/res/models/chest/Chest.mtl
+
+client/res/models/chest/Chest.obj
+
+client/res/models/chest/CofreTexturizado.spp

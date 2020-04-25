@@ -24,9 +24,20 @@ namespace sgal
         std::vector<shape_t> shapes;
         std::vector<material_t> materials;
 
-        std::string warn, err;
+        std::string warn, err, mtl_dir;
 
-        bool ret = LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str());
+        // get the folder directory of the model
+        std::vector<std::string> path;
+        SplitString(filename, '/', path);
+
+        if (path.size() > 1)
+        {
+            for (int i = 0; i < path.size() - 2; i++)
+                mtl_dir += path[i] + '/';
+            mtl_dir += path[path.size() - 2];
+        }
+        
+        bool ret = LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str(), mtl_dir.c_str());
 
         if (!warn.empty())
             std::cout << "OBJ Warning: " << warn << "\n";

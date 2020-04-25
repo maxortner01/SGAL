@@ -17,6 +17,7 @@
 namespace sgal
 {
 	class Sizable;
+	class Window;
 
 	class SGAL_API Camera : public Transform
 	{
@@ -40,5 +41,11 @@ namespace sgal
 		float getZFar()  const;
 
 		void setOribitTransform(bool _orbit);
+	};
+
+	struct SGAL_API FPSCamera : public Camera
+	{
+		BASE_CONSTRUCTOR(Camera);
+		void update(const Window& window, float speed, float sensitivity);
 	};
 }
