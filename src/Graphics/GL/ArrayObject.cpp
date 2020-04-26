@@ -120,6 +120,15 @@ namespace GL
         vbos[Colors]->loadData(colors, sizeof(Color), count, 4);
         unbind();
     }
+    
+	void ArrayObject::loadTexCoords(const Vec2f* coords, const size_t count = 1) const
+    {
+        if (!count) return;
+
+        bind();
+        vbos[TexCoords]->loadData(coords, sizeof(Vec2f), count, 2);
+        unbind();
+    }
 
     void ArrayObject::setRenderMode(RenderMode mode)
     {

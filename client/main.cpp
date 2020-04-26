@@ -136,15 +136,22 @@ int main()
     rc.shader = &Shader::Default3D();
 
     UI::Rectangle rectangle;
-    rectangle.setSize({ 100.f, (float)window.getSize().y - 10.f });
+    rectangle.setSize({ 100.f, (float)window.getSize().y - 20.f });
     rectangle.setColor(Color(255, 0, 0, 120));
     rectangle.setPosition({ 10.f, 10.f });
     rectangle.setRadius(10.f);
 
     UI::Rectangle second;
     second.setParent(&rectangle);
-    second.setSize({ 10.f, 30.f });
+    second.setSize({ rectangle.getSize().x - rectangle.getRadius() * 2, rectangle.getSize().y - rectangle.getRadius() * 2 });
     second.setColor(Color(0, 255, 0, 255));
+    second.setRadius(20.f);
+
+    UI::Rectangle third;
+    third.setParent(&second);
+    third.setSize({ second.getSize().x - second.getRadius() * 1, second.getSize().y - second.getRadius() * 1 });
+    third.setColor(Color(0, 0, 255, 255));
+    third.setRadius(10.f);
 
     unsigned int index = 0;
     while (window.isOpen())
@@ -170,7 +177,6 @@ int main()
         chestModel.addRotation({ 0, 0.001f, 0 });
 
         window.draw(rectangle);
-        window.draw(second);
 
         window.update();
         index++;

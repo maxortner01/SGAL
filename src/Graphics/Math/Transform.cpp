@@ -14,7 +14,34 @@ namespace sgal
 
     void Transform::setParent(Transform* prnt)
     {
+        /**/ if (prnt && parent != prnt)
+            prnt->addChild(this);
+        else if (!prnt && parent)
+            parent->removeChild(this);
+
         parent = prnt;
+    }
+
+    void Transform::addChild(Transform* transform)
+    {
+        children.push_back(transform);
+    }
+
+    void Transform::removeChild(Transform* transform)
+    {
+        for (int i = 0; i < children.size(); i++)
+            if (children[i] == transform)
+            {
+                children.erase(children.begin() + i);
+                return;
+            }
+        
+        SG_ASSERT(false, "Child does not exist!");
+    }
+
+    Transform::Children Transform::getChildren() const
+    {
+        return { &children[0], children.size() };
     }
 
     Vec3f Transform::getRelativePosition() const
@@ -76,7 +103,7 @@ namespace sgal
         scale += delta;
     }
 
-    void Transform::setScale(float x, float y, float z = 0.f)
+    void Transform::setScale(float x, float y, float z)
     { setScale({ x, y, z }); }
     void Transform::setScale(Vec3f sc)
     {

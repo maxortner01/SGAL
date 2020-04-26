@@ -30,7 +30,7 @@ namespace UI
     }
 
     Rectangle::Rectangle() :
-        size({ 0.f, 0.f }), color(255, 255, 255, 255), radius(0)
+        size({ 0.f, 0.f }), color(255, 255, 255, 255), radius(0), texture(nullptr)
     {
         if (!rawModel) generateRawModel(&rawModel);
 
@@ -54,6 +54,14 @@ namespace UI
 
         Shader::DefaultUI().setUniform("size", size);
         Shader::DefaultUI().setUniform("radius", radius);
+
+        if (texture)
+        {
+            Shader::DefaultUI().setUniform("use_textures", true);
+            Shader::DefaultUI().setUniform("texture", *texture);
+        }
+        else
+            Shader::DefaultUI().setUniform("use_textures", false);
 
         // Need a better way
         Color render_color = getColor();
@@ -106,7 +114,12 @@ namespace UI
 
     Vec3f Rectangle::getRelativePosition() const
     {
-        return Vec3f(radius, radius, 0.f);
+        Vec3f ret = Vec3f(radius, radius, 0.f); 
+
+        if (getParent())
+            ret = ret + getParent()->getPosition();
+
+        return ret;
     }
 
 }

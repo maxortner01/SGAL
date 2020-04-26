@@ -36,6 +36,11 @@ namespace sgal
         setUniform(uniform_name + ".color",     light.color);
         setUniform(uniform_name + ".type",      light.type);
     }
+    
+    void Shader::setUniform(const std::string& name, const Texture& texture) const
+    {
+        setUniform(name, (int)texture.id);
+    }
 
     void Shader::setUniform(const std::string& name, Mat4f value) const
     {
@@ -173,8 +178,9 @@ namespace sgal
         if (!defaultUI)
         {
             std::string vertex_contents = "#version 330 core\n";
-            vertex_contents += "layout (location = " + std::to_string(GL::Vertices)      + ") in vec3 vertex;\n";
-            vertex_contents += "layout (location = " + std::to_string(GL::Colors)        + ") in vec4 in_color;\n";
+            vertex_contents += "layout (location = " + std::to_string(GL::Vertices)  + ") in vec3 vertex;\n";
+            vertex_contents += "layout (location = " + std::to_string(GL::Colors)    + ") in vec4 in_color;\n";
+            vertex_contents += "layout (location = " + std::to_string(GL::TexCoords) + ") in vec2 tex;\n";
             
             vertex_contents += "uniform vec2 screen_size;\n";
             vertex_contents += "uniform vec2 size; // size of the object\n";
@@ -182,6 +188,7 @@ namespace sgal
 
             vertex_contents += "out vec4 vert_color;\n";
             vertex_contents += "out vec2 coords;\n";
+            vertex_contents += "out vec2 tex_coords;\n";
 
             vertex_contents += "void main() {\n";
             vertex_contents += "    vert_color    = in_color;\n";
@@ -190,6 +197,8 @@ namespace sgal
             vertex_contents += "    position.y = position.y * (-size.y);\n";
             vertex_contents += "    coords   = position.xy;\n";
             vertex_contents += "    position = position * transform_mat;\n";
+            
+            vertex_contents += "    tex_coords = tex;\n";
 
             vertex_contents += "    position.x = (position.x / screen_size.x *  2.0) - 1.0;\n";
             vertex_contents += "    position.y = (position.y / screen_size.y * -2.0) + 1.0;\n";
@@ -198,6 +207,10 @@ namespace sgal
             
             std::string fragment_contents = "#version 330 core\n";
             
+            fragment_contents += "uniform sampler2D texture;\n";
+            fragment_contents += "uniform bool    use_textures;\n";
+            fragment_contents += "in  vec2 tex_coords;\n";
+
             fragment_contents += "in  vec2 coords;\n";
             fragment_contents += "in  vec4 vert_color;\n";
             fragment_contents += "out vec4 FragColor;\n";
@@ -227,7 +240,8 @@ namespace sgal
             fragment_contents += "        discard;\n";
             fragment_contents += "    }\n";
 
-            fragment_contents += "    FragColor = vert_color;\n";
+            fragment_contents += "    if (use_textures) FragColor = texture2D(texture, tex_coords) * vert_color;\n";
+            fragment_contents += "    else FragColor = vert_color;\n";
             fragment_contents += "}\n";
 
             defaultUI = new Shader();
