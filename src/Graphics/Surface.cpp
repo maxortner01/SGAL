@@ -10,8 +10,10 @@ namespace sgal
 
     void Surface::clear(Color color) const
     {
+        bindSurface();
         glClearColor(color.r, color.g, color.b, color.a);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        unbindSurface();
     }
 
     void Surface::draw(const UI::Element& uielem) const
@@ -33,7 +35,9 @@ namespace sgal
     void Surface::draw(const Drawable& object, const RenderContext* context) const
     {
         bindSurface();
+
         object.draw(this, context);
+        
         unbindSurface();
     }
 

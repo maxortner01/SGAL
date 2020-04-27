@@ -18,11 +18,11 @@
 
 namespace sgal
 {
-	class SGAL_API DrawTexture : public Surface, public Drawable, public Sizable, GL::Object
+	class SGAL_API DrawTexture : public Surface, public Sizable, GL::Object
 	{
 		Vec2u* last_dimensions;
 
-		Texture* color;
+		Texture color;
 		
 		struct RenderBuffer : GL::Object
 		{
@@ -43,11 +43,11 @@ namespace sgal
 		DrawTexture(const Vec2u& size, bool depth_buffer = true);
 		~DrawTexture();
 
-		Texture& texture() const;
+		const Texture& texture() const;
+
+		void render();
 
 		void create(const Vec2u& size, bool depth_buffer = true);
-
-		void draw(const Surface* surface, const RenderContext* rc = nullptr) const override;
 		
 		SURFACE_BINDS;
 	};

@@ -1,9 +1,6 @@
 #include <SGAL/SGAL.h>
 #include <iostream>
 
-#include "SimplexNoise.h"
-#include "SimplexNoise.cpp"
-
 struct SingleModel : sgal::Drawable
 {
     SingleModel() :
@@ -19,107 +16,18 @@ struct SingleModel : sgal::Drawable
     sgal::Model    model;
 };
 
-struct Map : sgal::Drawable
-{
-    Map()
-    {
-        generate();
-    }
-
-    void update()
-    {
-        for (int i = 0; i < water_points.size(); i++)
-            water_points[i] = water_points[i] + (shore_normals[i].second * -0.0001f);
-
-        waterModel.rawModel.loadVertices(&water_points[0], water_points.size());   
-    }
-
-    void draw(const sgal::Surface* surface, const sgal::RenderContext* rc = nullptr) const override
-    {
-        surface->draw(landModel, rc);
-        surface->draw(normalModel, rc);
-        surface->draw(waterModel, rc);
-    }
-
-private:
-    SingleModel landModel;
-    SingleModel normalModel;
-    SingleModel waterModel;
-
-    std::vector<sgal::Vec3f> water_points;
-
-    std::vector<std::pair<sgal::Vec3f, sgal::Vec3f>> shore_normals;
-
-    void generate()
-    {
-        using namespace sgal;
-
-        SimplexNoise noise;
-
-        const unsigned int resolution = 1000;
-        const float        radius     = 1.f;
-        const float        step       = 3.14159f * 2.f / (float)resolution;
-        std::vector<Vec3f> points;
-
-        for (float angle = 0.f; angle <= 3.14159f * 2.f; angle += step)
-        {
-            const float noise_radius = radius + noise.fractal(5, cos(angle), sin(angle)) / 10.f + noise.fractal(3, cos(angle) / 2.f, sin(angle) / 2.f) / 2.f;
-
-            const Vec3f point = Vec3f(cos(angle) * noise_radius, sin(angle) * noise_radius, 0.f);
-            points.push_back(point);
-        }
-
-        landModel.rawModel.loadVertices(&points[0], points.size());
-        landModel.rawModel.setColor(Color(255, 255, 255));
-        landModel.rawModel.setRenderMode(GL::Lines);
-
-
-        std::vector<Vec3f> normal_lines(points.size() * 2);
-
-        for (int i = 0; i < points.size(); i++)
-        {
-            Vec3f normal = cross(points[i], points[(i + 1) % points.size()]);
-            Vec3f p2 = points[i] - points[(i + 1) % points.size()];
-            Vec3f final_normal = normalize(cross(p2, normal));
-
-            normal_lines.push_back(points[i]);
-            normal_lines.push_back(points[i] + final_normal);
-
-            shore_normals.push_back(std::pair<sgal::Vec3f, sgal::Vec3f>(points[i], final_normal));
-        }
-
-        normalModel.rawModel.loadVertices(&normal_lines[0], normal_lines.size());
-        normalModel.rawModel.setColor(Color(255, 0, 0));
-        normalModel.rawModel.setRenderMode(GL::Lines);
-
-        const float distance = 2.f;
-        for (int i = 0; i < shore_normals.size(); i++)
-        {
-            const Vec3f shore_point = shore_normals[i].first;
-            const Vec3f normal      = shore_normals[i].second;
-
-            const Vec3f start_point = shore_point + normal * distance;
-            water_points.push_back(start_point);
-        }
-        waterModel.rawModel.setDynamic(true);
-        waterModel.rawModel.loadVertices(&water_points[0], water_points.size());
-        waterModel.rawModel.setColor(Color(255, 255, 255));
-        waterModel.rawModel.setRenderMode(GL::Points);
-    }
-};
-
 int main()
 {
     using namespace sgal;
 
-    DrawWindow window({ 1720, 920, "2D Test" });
+    DrawWindow window({ 1920, 1080, "2D Test" });
 
     RawModel chestRawModel;
-    chestRawModel.fromFile("res/models/chest/Chest.obj");
+    chestRawModel.fromFile("res/models/B_NtSrCompC_0_001.obj");
 
     Model chestModel(&chestRawModel);
     chestModel.setPosition({ 0, 0, 10 });
-    //chestModel.setScale(0.1f, 0.1f, 0.1f);
+    chestModel.setScale(10.f, 10.f, 10.f);
 
     LightArray lightArray;
     Light main_light;
@@ -128,7 +36,7 @@ int main()
 
     lightArray.push(main_light);
 
-    FPSCamera camera(90.f, window);
+    FPSCamera camera(3.14159f / 2.f, window);
 
     RenderContext rc;
     rc.camera = &camera;
@@ -136,22 +44,23 @@ int main()
     rc.shader = &Shader::Default3D();
 
     UI::Rectangle rectangle;
-    rectangle.setSize({ 100.f, (float)window.getSize().y - 20.f });
-    rectangle.setColor(Color(255, 0, 0, 120));
+    rectangle.setSize({ 200.f, (float)window.getSize().y - 20.f });
+    rectangle.setColor(Color(255, 0, 0, 255));
     rectangle.setPosition({ 10.f, 10.f });
     rectangle.setRadius(10.f);
+    
+    DrawTexture test(Vec2u{ 180, 180 });
 
-    UI::Rectangle second;
-    second.setParent(&rectangle);
-    second.setSize({ rectangle.getSize().x - rectangle.getRadius() * 2, rectangle.getSize().y - rectangle.getRadius() * 2 });
-    second.setColor(Color(0, 255, 0, 255));
-    second.setRadius(20.f);
+    Texture texture;
+    texture.fromFile("res/textures/test.png");
 
-    UI::Rectangle third;
-    third.setParent(&second);
-    third.setSize({ second.getSize().x - second.getRadius() * 1, second.getSize().y - second.getRadius() * 1 });
-    third.setColor(Color(0, 0, 255, 255));
-    third.setRadius(10.f);
+    UI::Rectangle texture_test;
+    texture_test.setParent(&rectangle);
+    texture_test.setSize(rectangle.getSize() + Vec2f(-rectangle.getRadius() * 2.f, -rectangle.getRadius() * 2.f));
+    texture_test.setSize({ texture_test.getSize().x, texture_test.getSize().x });
+    texture_test.setColor(Color(255, 255, 255, 255));
+    texture_test.setTexture(test.texture());
+    texture_test.setRadius(10.f); 
 
     unsigned int index = 0;
     while (window.isOpen())
@@ -167,16 +76,23 @@ int main()
                     window.close();
         }
 
-        camera.update(window, 0.25f, 50.f);
+        camera.update(window, 1.f, 50.f);
 
-        window.clear();
+        window.clear(Color(75, 75, 75));
 
+        camera.setSurface(window);
         window.draw(chestModel, &rc);
         chestModel.drawNormals(window, &rc);
 
-        chestModel.addRotation({ 0, 0.001f, 0 });
+        camera.setSurface(test);
+        test.clear(Color(255, 0, 0));
+        test.draw(chestModel, &rc);
+        chestModel.drawNormals(test, &rc);
+
+        chestModel.addRotation({ 0, 0.01f, 0 });
 
         window.draw(rectangle);
+        window.draw(texture_test);
 
         window.update();
         index++;

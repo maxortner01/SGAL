@@ -71,6 +71,11 @@ namespace sgal
         near_far.y = _far;
     }
 
+    void Camera::setFOV(float _fov)
+    {
+        FOV = _fov;
+    }
+
     float Camera::getZNear() const
     {
         return near_far.x;
@@ -79,6 +84,21 @@ namespace sgal
     float Camera::getZFar() const
     {
         return near_far.y;
+    }
+
+    float Camera::getFOV() const
+    {
+        return FOV;
+    }
+
+    void Camera::setSurface(const Sizable& surf)
+    {
+        surface = &surf;
+    }
+
+    const Sizable& Camera::getSurface() const
+    {
+        return *surface;
     }
 
     void Camera::setOribitTransform(bool _orbit)
@@ -92,7 +112,7 @@ namespace sgal
         addRotation({ (float)mouse_delta.y / sensitivity, (float)mouse_delta.x / sensitivity, 0 });
 
         Mouse::setPosition({ (int)(window.getSize().x / 2), (int)(window.getSize().y / 2) }, window);
-
+        
         Vec3f delta;
 
         if (Keyboard::isKeyPressed(Keyboard::Key_LEFT))

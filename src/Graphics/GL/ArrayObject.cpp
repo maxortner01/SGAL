@@ -121,7 +121,7 @@ namespace GL
         unbind();
     }
     
-	void ArrayObject::loadTexCoords(const Vec2f* coords, const size_t count = 1) const
+	void ArrayObject::loadTexCoords(const Vec2f* coords, const size_t count) const
     {
         if (!count) return;
 

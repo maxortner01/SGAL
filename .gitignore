@@ -24,3 +24,9 @@ client/res/models/chest/Chest.mtl
 client/res/models/chest/Chest.obj
 
 client/res/models/chest/CofreTexturizado.spp
+
+client/compile.bat
+
+client/res/textures/test.png
+
+client/res/models/tray/Shoshan_Serving_Tray.obj

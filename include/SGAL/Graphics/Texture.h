@@ -36,6 +36,8 @@ namespace sgal
 		void create(Vec2u dimensions, Type type = Color);
 		void fromFile(const std::string& filename);
 
+		Vec2u getSize() const;
+
 		void   bind() const;
 		void unbind() const;
 	};

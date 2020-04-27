@@ -1,5 +1,7 @@
 #include <SGAL/SGAL.h>
 
+#include <iostream>
+
 namespace sgal
 {
 namespace UI
@@ -27,6 +29,13 @@ namespace UI
         points[2] = Vec3f(1, -1, 0);
         points[3] = Vec3f(0, -1, 0);
         rawModel->loadVertices(&points[0], points.size());
+
+        std::vector<Vec2f> texCoords(4);
+        texCoords[0] = Vec2f(0, 1);
+        texCoords[1] = Vec2f(1, 1);
+        texCoords[2] = Vec2f(1, 0);
+        texCoords[3] = Vec2f(0, 0);
+        rawModel->loadTexCoords(&texCoords[0], texCoords.size());
     }
 
     Rectangle::Rectangle() :
@@ -52,16 +61,9 @@ namespace UI
         rc.depth_testing   = false;
         rc.contxt_override = false;
 
+        Shader::DefaultUI().bind();
         Shader::DefaultUI().setUniform("size", size);
         Shader::DefaultUI().setUniform("radius", radius);
-
-        if (texture)
-        {
-            Shader::DefaultUI().setUniform("use_textures", true);
-            Shader::DefaultUI().setUniform("texture", *texture);
-        }
-        else
-            Shader::DefaultUI().setUniform("use_textures", false);
 
         // Need a better way
         Color render_color = getColor();
@@ -69,7 +71,19 @@ namespace UI
 
         rawModel->setColor(render_color);
 
+        if (texture)
+        {
+            Shader::DefaultUI().bind();
+            texture->bind();
+            Shader::DefaultUI().setUniform("use_textures", true);
+            Shader::DefaultUI().setUniform("texture1", 0);
+        }
+        else
+            Shader::DefaultUI().setUniform("use_textures", false);
+
         surface->draw(*model, &rc);
+
+        if (texture) texture->unbind();
     }
 
     void Rectangle::setColor(const Color& color)
@@ -105,6 +119,16 @@ namespace UI
     float Rectangle::getRadius() const
     {
         return radius;
+    }
+
+    void Rectangle::setTexture(const Texture& tex) 
+    {
+        texture = &tex;
+    }
+
+    const Texture& Rectangle::getTexture() const
+    {
+        return *texture;
     }
 
     Vec2f Rectangle::getRootPosition() const

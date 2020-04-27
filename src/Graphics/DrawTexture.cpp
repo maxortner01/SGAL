@@ -61,7 +61,7 @@ namespace sgal
     }
 
     DrawTexture::DrawTexture() :
-        color(nullptr), Sizable({ 0, 0 })
+        Sizable({ 0, 0 })
     {   }
 
     DrawTexture::DrawTexture(const Vec2u& size, bool depth_buffer) :
@@ -83,17 +83,44 @@ namespace sgal
             delete last_dimensions;
             last_dimensions = nullptr;
         }
-
-        if (color) 
-        {
-            delete color;
-            color = nullptr;
-        }
     }
 
-    Texture& DrawTexture::texture() const
+    const Texture& DrawTexture::texture() const
     {
-        return *color;
+        return color;
+    }
+
+    void DrawTexture::render()
+    {
+        unbind();
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDisable(GL_DEPTH_TEST);
+
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, texture().id);
+
+        glBegin(GL_TRIANGLES);
+            glTexCoord2f(0, 0);
+            glVertex2f(-1, -1);
+            glTexCoord2f(0, 1);
+            glVertex2f(-1,  1);
+            glTexCoord2f(1, 0);
+            glVertex2f( 1, -1);
+
+            glTexCoord2f(1, 1);
+            glVertex2f( 1,  1);
+            glTexCoord2f(0, 1);
+            glVertex2f(-1,  1);
+            glTexCoord2f(1, 0);
+            glVertex2f( 1, -1);
+        glEnd(); 
+
+        texture().unbind();
+        
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
     }
 
     void DrawTexture::create(const Vec2u& size, bool depth_buffer)
@@ -106,8 +133,10 @@ namespace sgal
 
         bind();
 
-        color = new Texture(size);
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color->id, 0);
+        color.create(size);
+        color.bind();
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, color.id, 0);
+        color.unbind();
 
         if (depth_buffer)
         {
@@ -119,14 +148,9 @@ namespace sgal
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depth.id);
         }
 
-        SG_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Error, DrawTexture not successfully created!");
+        SG_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "DrawTexture not successfully created!");
 
         unbind();
-    }
-
-    void DrawTexture::draw(const Surface* surface, const RenderContext* rc) const
-    {
-        
     }
 
     void DrawTexture::bindSurface() const

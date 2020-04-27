@@ -18,7 +18,7 @@ namespace GL
 {
 	struct SGAL_API Object
 	{
-		unsigned int id;
+		unsigned int id = 0;
 
 		virtual void   bind() const = 0;
 		virtual void unbind() const = 0;

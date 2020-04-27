@@ -3,10 +3,16 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
 
+#include <iostream>
 #include <GL/glew.h>
 
 namespace sgal
 {
+    static void setParameters()
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    }
 
     Texture::Texture() :
         size(0, 0)
@@ -30,8 +36,10 @@ namespace sgal
         SG_ASSERT(!id, "Texture already created!");
         size = dimensions;
 
+        // Create the texture with OpenGL
         glGenTextures(1, &id);
         bind();
+        setParameters();
 
         switch (type)
         {
@@ -42,9 +50,6 @@ namespace sgal
         case Type::Depth:
             glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, size.x, size.y, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, 0);
             break;
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
         unbind();
         };
@@ -61,17 +66,27 @@ namespace sgal
         create(Vec2u(x, y));
 
         bind();
+        setParameters();
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         unbind();
+
+        stbi_image_free(data);
+    }
+
+    Vec2u Texture::getSize() const
+    {
+        return size;
     }
 
     void Texture::bind() const
     {
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, id);
     }
 
     void Texture::unbind() const
     {
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 

@@ -207,8 +207,8 @@ namespace sgal
             
             std::string fragment_contents = "#version 330 core\n";
             
-            fragment_contents += "uniform sampler2D texture;\n";
-            fragment_contents += "uniform bool    use_textures;\n";
+            fragment_contents += "uniform sampler2D texture1;\n";
+            fragment_contents += "uniform bool      use_textures;\n";
             fragment_contents += "in  vec2 tex_coords;\n";
 
             fragment_contents += "in  vec2 coords;\n";
@@ -240,7 +240,7 @@ namespace sgal
             fragment_contents += "        discard;\n";
             fragment_contents += "    }\n";
 
-            fragment_contents += "    if (use_textures) FragColor = texture2D(texture, tex_coords) * vert_color;\n";
+            fragment_contents += "    if (use_textures) FragColor = texture(texture1, tex_coords);\n";
             fragment_contents += "    else FragColor = vert_color;\n";
             fragment_contents += "}\n";
 

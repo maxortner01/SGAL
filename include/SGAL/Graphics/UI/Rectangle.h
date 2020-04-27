@@ -26,7 +26,7 @@ namespace UI
 		static RawModel* rawModel;
 		/****/ Model*    model;
 
-		Texture* texture;
+		const Texture* texture;
 
 		Color color;
 		Vec2f size;
@@ -47,8 +47,10 @@ namespace UI
 		void  setRadius(float r);
 		float getRadius() const;
 
-		Vec2f getRootPosition() const;
+		/***/ void     setTexture(const Texture& tex);
+		const Texture& getTexture() const;
 
+		Vec2f getRootPosition() const;
 		Vec3f getRelativePosition() const override;
 	};
 }

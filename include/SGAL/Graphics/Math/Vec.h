@@ -40,7 +40,7 @@ namespace sgal
 
 		Vec2<T> operator-(const Vec2<T>& vec) const
 		{
-			return vec + (*this) * -1.f;
+			return vec + ((*this) * -1.f);
 		}
 
 		void operator+=(const Vec2<T>& vec)

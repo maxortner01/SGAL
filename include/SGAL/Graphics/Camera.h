@@ -21,7 +21,8 @@ namespace sgal
 
 	class SGAL_API Camera : public Transform
 	{
-		const Sizable* const surface;
+		const Sizable* surface;
+
 		float FOV;
 		bool  orbit;
 		Vec2f near_far;
@@ -36,9 +37,14 @@ namespace sgal
 
 		void setZNear(float _near);
 		void setZFar (float _far);
+		void setFOV  (float _fov);
 
 		float getZNear() const;
 		float getZFar()  const;
+		float getFOV()   const;
+
+		void setSurface(const Sizable& surf);
+		const Sizable& getSurface() const;
 
 		void setOribitTransform(bool _orbit);
 	};
@@ -46,6 +52,7 @@ namespace sgal
 	struct SGAL_API FPSCamera : public Camera
 	{
 		BASE_CONSTRUCTOR(Camera);
+
 		void update(const Window& window, float speed, float sensitivity);
 	};
 }
