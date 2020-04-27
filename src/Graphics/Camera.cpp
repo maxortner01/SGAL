@@ -6,8 +6,8 @@
 namespace sgal
 {
 
-    Camera::Camera(const float fov, const Sizable& _surface) :
-        surface(&_surface), FOV(fov), orbit(false)
+    Camera::Camera(const float fov) :
+        FOV(fov), orbit(false)
     {
         setZNear(0.001f);
         setZFar(1000.f);
@@ -45,13 +45,13 @@ namespace sgal
         return getTransformMatrix();
     }
 
-    Mat4f Camera::getProjectionMatrix() const
+    Mat4f Camera::getProjectionMatrix(float aspectRatio) const
     {
         const float f = 1.f / tanf(FOV / 2.f);
 
         Mat4f proj;
 
-        proj(0, 0) = 1.0 / surface->aspectRatio() * f;
+        proj(0, 0) = 1.0 / aspectRatio * f;
         proj(1, 1) = f;
         proj(2, 2) = getZFar() / (getZFar() - getZNear());
         proj(2, 3) = (-getZFar() * getZNear()) / (getZFar() - getZNear());
@@ -89,16 +89,6 @@ namespace sgal
     float Camera::getFOV() const
     {
         return FOV;
-    }
-
-    void Camera::setSurface(const Sizable& surf)
-    {
-        surface = &surf;
-    }
-
-    const Sizable& Camera::getSurface() const
-    {
-        return *surface;
     }
 
     void Camera::setOribitTransform(bool _orbit)

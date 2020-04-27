@@ -36,7 +36,7 @@ int main()
 
     lightArray.push(main_light);
 
-    FPSCamera camera(3.14159f / 2.f, window);
+    FPSCamera camera(3.14159f / 2.f);
 
     RenderContext rc;
     rc.camera = &camera;
@@ -80,11 +80,9 @@ int main()
 
         window.clear(Color(75, 75, 75));
 
-        camera.setSurface(window);
         window.draw(chestModel, &rc);
         chestModel.drawNormals(window, &rc);
 
-        camera.setSurface(test);
         test.clear(Color(255, 0, 0));
         test.draw(chestModel, &rc);
         chestModel.drawNormals(test, &rc);

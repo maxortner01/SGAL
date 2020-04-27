@@ -61,16 +61,21 @@ namespace UI
         rc.depth_testing   = false;
         rc.contxt_override = false;
 
+        // Set some default UI uniforms
         Shader::DefaultUI().bind();
         Shader::DefaultUI().setUniform("size", size);
         Shader::DefaultUI().setUniform("radius", radius);
 
-        // Need a better way
         Color render_color = getColor();
-        if (getParent()) render_color.a *= static_cast<Rectangle*>(getParent())->getColor().a;
 
+        // If the parent is a base/derived from Rectangle, grab its color
+        const Rectangle* parent_rect = dynamic_cast<const Rectangle*>(getParent());
+        if (parent_rect) render_color.a = parent_rect->getColor().a;
+
+        // Set the color in the VAO
         rawModel->setColor(render_color);
 
+        // If there's a texture, bind it and set the uniforms
         if (texture)
         {
             Shader::DefaultUI().bind();
@@ -81,8 +86,10 @@ namespace UI
         else
             Shader::DefaultUI().setUniform("use_textures", false);
 
+        // Pass the model over to the surface
         surface->draw(*model, &rc);
 
+        // To prevent weird things from happening, unbind the texture
         if (texture) texture->unbind();
     }
 

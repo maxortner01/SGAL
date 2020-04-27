@@ -57,7 +57,9 @@ namespace sgal
         if (!static_render)
             loadMatrices();
 
-        rawModel->setRenderContext(rc);
+        const Sizable* ss = dynamic_cast<const Sizable*>(surface);
+        SG_ASSERT(ss, "The given surface is not sizable qualified!");
+        rawModel->setRenderContext(rc, ss);
 
         glEnable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);

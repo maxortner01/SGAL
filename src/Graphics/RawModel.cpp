@@ -180,7 +180,7 @@ namespace sgal
         loadNormals(&normals[0], normals.size());
     }
     
-    void RawModel::setRenderContext(const RenderContext* rc, const Shader* default_shader) const
+    void RawModel::setRenderContext(const RenderContext* rc, const Sizable* surface, const Shader* default_shader) const
     {
         if (!rc || (rc && !rc->contxt_override)) return;
         
@@ -195,9 +195,9 @@ namespace sgal
         
         if (rc->camera)
         {
-            shader->setUniform("vp_matrix",   rc->camera->getProjectionMatrix() * rc->camera->getPerspectiveMatrix());
+            shader->setUniform("vp_matrix",   rc->camera->getProjectionMatrix(surface->aspectRatio()) * rc->camera->getPerspectiveMatrix());
             shader->setUniform("view_matrix", rc->camera->getPerspectiveMatrix());
-            shader->setUniform("proj_matrix", rc->camera->getProjectionMatrix());
+            shader->setUniform("proj_matrix", rc->camera->getProjectionMatrix(surface->aspectRatio()));
         }
         else
         {
