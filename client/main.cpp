@@ -44,23 +44,21 @@ int main()
     rc.shader = &Shader::Default3D();
 
     UI::Rectangle rectangle;
-    rectangle.setSize({ 200.f, (float)window.getSize().y - 20.f });
+    rectangle.setSize({ 200.f, 200.f });
     rectangle.setColor(Color(255, 0, 0, 255));
     rectangle.setPosition({ 10.f, 10.f });
     rectangle.setRadius(10.f);
     
     DrawTexture test(Vec2u{ 180, 180 });
 
-    Texture texture;
-    texture.fromFile("res/textures/test.png");
-
     UI::Rectangle texture_test;
     texture_test.setParent(&rectangle);
     texture_test.setSize(rectangle.getSize() + Vec2f(-rectangle.getRadius() * 2.f, -rectangle.getRadius() * 2.f));
-    texture_test.setSize({ texture_test.getSize().x, texture_test.getSize().x });
+    texture_test.setSize({ texture_test.getSize().x + 20.f, texture_test.getSize().x + 20.f });
     texture_test.setColor(Color(255, 255, 255, 255));
     texture_test.setTexture(test.texture());
     texture_test.setRadius(10.f); 
+    texture_test.setPosition({ -10.f, -10.f, 0.f });
 
     unsigned int index = 0;
     while (window.isOpen())
@@ -83,7 +81,7 @@ int main()
         window.draw(chestModel, &rc);
         chestModel.drawNormals(window, &rc);
 
-        test.clear(Color(255, 0, 0));
+        test.clear(Color(0, 0, 0, 0));
         test.draw(chestModel, &rc);
         chestModel.drawNormals(test, &rc);
 

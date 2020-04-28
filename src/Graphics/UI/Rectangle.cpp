@@ -95,11 +95,7 @@ namespace UI
 
     void Rectangle::setColor(const Color& color)
     {
-        std::vector<Color> colors(4);
-        for (int i = 0; i < colors.size(); i++)
-            colors[i] = color;
-        rawModel->loadColors(&colors[0], colors.size());
-
+        rawModel->setColor(color);
         this->color = color;
     }
 
@@ -145,10 +141,10 @@ namespace UI
 
     Vec3f Rectangle::getRelativePosition() const
     {
+        // Should make this an option in case the user wants to ignore the radius
         Vec3f ret = Vec3f(radius, radius, 0.f); 
 
-        if (getParent())
-            ret = ret + getParent()->getPosition();
+        if (getParent()) ret = ret + getParent()->getPosition();
 
         return ret;
     }

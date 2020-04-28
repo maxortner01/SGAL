@@ -112,9 +112,9 @@ namespace sgal
 
     Mat4f Transform::getTransformMatrix() const
     {
-        Vec3f pos = (parent)?(getPosition() + parent->getPosition() + parent->getRelativePosition()):getPosition();
-        Vec3f rot = (parent)?(getPosition() + parent->getRotation() + parent->getRelativeRotation()):getRotation();
-        Vec3f scl = (parent)?(getScale() * parent->getScale() * parent->getRelativeScale()):getScale();
+        const Vec3f pos = (parent)?(getPosition() + parent->getPosition() + parent->getRelativePosition()):getPosition();
+        const Vec3f rot = (parent)?(getRotation() + parent->getRotation() + parent->getRelativeRotation()):getRotation();
+        const Vec3f scl = (parent)?(getScale() * parent->getScale() * parent->getRelativeScale()):getScale();
 
         return makeTranslationMatrix(pos) *
             makeRotationMatrix(rot) *
