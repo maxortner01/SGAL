@@ -28,7 +28,7 @@ namespace GL
 		TexCoords,
 		ModelMatrices,
 		NormalMatrices,
-		Count
+		BufferCount
 	};
 
 	enum RenderMode
@@ -44,7 +44,7 @@ namespace GL
 		unsigned int index_count, vertex_count;
 		RenderMode   _mode;
 
-		BufferObject* vbos[BufferType::Count];
+		BufferObject* vbos[BufferType::BufferCount];
 
 	protected:
 		unsigned int* indices;

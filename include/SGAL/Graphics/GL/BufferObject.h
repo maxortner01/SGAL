@@ -32,6 +32,14 @@ namespace GL
 
 		unsigned int getByteSize() const;
 
+		/**
+		 * @brief 
+		 * 
+		 * @param data    Pointer to the data
+		 * @param size    Byte size of each object
+		 * @param count   Count of objects
+		 * @param members Amount of data members within each object
+		 */
 		void  loadData(const IPTR data, const size_t size, const size_t count, const size_t members);
 		void* readData() const;
 

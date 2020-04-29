@@ -14,7 +14,7 @@ namespace GL
 
         bind();
 
-        for (int i = 0; i < BufferType::Count; i++)
+        for (int i = 0; i < BufferType::BufferCount; i++)
             vbos[i] = new BufferObject(i);
 
         setDynamic(dynamic);
@@ -22,7 +22,7 @@ namespace GL
 
     ArrayObject::~ArrayObject()
     {
-        for (int i = 0; i < BufferType::Count; i++)
+        for (int i = 0; i < BufferType::BufferCount; i++)
         {
             delete vbos[i];
             vbos[i] = nullptr;
@@ -137,7 +137,7 @@ namespace GL
 
     void ArrayObject::setDynamic(bool dynamic) const
     {
-        for (int i = 0; i < BufferType::Count; i++)
+        for (int i = 0; i < BufferType::BufferCount; i++)
             vbos[i]->dynamic = dynamic;
     }
 
