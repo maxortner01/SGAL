@@ -1,79 +1,68 @@
-#include <iostream>
-#include <vector>
-
 #include <SGAL/SGAL.h>
+#include <iostream>
 
-struct Vector
+struct SingleModel : sgal::Drawable
 {
-    float angle, magnitude;
+    SingleModel() :
+        model(&rawModel)
+    {   }
+
+    void draw(const sgal::Surface* surface, const sgal::RenderContext* rc = nullptr) const override
+    {
+        surface->draw(model, rc);
+    }
+
+    sgal::RawModel rawModel;
+    sgal::Model    model;
 };
 
 int main()
 {
     using namespace sgal;
 
-    DrawWindow window({ 1780, 920, "Coolio" });
+    DrawWindow window({ 1920, 1080, "2D Test" });
 
+    RawModel chestRawModel;
+    chestRawModel.fromFile("res/models/B_NtSrCompC_0_001.obj");
+
+    Model chestModel(&chestRawModel);
+    chestModel.setPosition({ 0, 0, 10 });
+    chestModel.setScale(10.f, 10.f, 10.f);
+
+    LightArray lightArray;
     Light main_light;
-    //main_light.position  = Vec3f(0.25f, 1, -1);
-    main_light.position  = Vec3f(1, 0, 0);
-    main_light.color     = Color(255, 255, 255);
-    main_light.type      = Light::Directional;
-    main_light.intensity = 40.f;
+    main_light.type     = Light::Directional;
+    main_light.position = Vec3f(1.f, 0.25f, -1.f);
 
-    LightArray lights;
-    lights.push(main_light);
-    
-    main_light.color     = Color(255, 0, 0, 255);
-    main_light.type      = Light::Point;
-    main_light.intensity = 100.f;
-    //lights.push(main_light);
-    
-    main_light.position  = Vec3f(-100, 100, -50.f);
-    main_light.color     = Color(0, 0, 255, 255);
-    main_light.type      = Light::Point;
-    main_light.intensity = 100.f;
-    //lights.push(main_light);
+    lightArray.push(main_light);
 
-    RawModel rawModel;
-    rawModel.fromFile("res/models/low poly buildings.obj");
-    rawModel.calculateNormals();
+    FPSCamera camera(3.14159f / 2.f);
 
-    Model model(&rawModel);
-
-
-    /*
-    ModelArray model(&rawModel);
-    
-    for (int i = -50; i <= 50; i++)
-    {
-        Model& md = model.makeModel();
-        md.setPosition({ i * 20.f, 0, 0 });
-        md.setRotation({ 0, 3.14159f, 0 });
-    }
-    
-    for (int i = -50; i <= 50; i++)
-    {
-        Model& md = model.makeModel();
-        md.setPosition({ i * 20.f, 0, -100.f });
-    }
-
-    model.loadMatrices();  */
-
-    Camera camera(3.14159f / 2.f, window);
-    
     RenderContext rc;
-    rc.shader = &Shader::Default3D();
     rc.camera = &camera;
-    rc.lights = &lights;
+    rc.lights = &lightArray;
+    rc.shader = &Shader::Default3D();
 
-    unsigned int frame = 0;
+    UI::Rectangle rectangle;
+    rectangle.setSize({ 200.f, 200.f });
+    rectangle.setColor(Color(255, 0, 0, 255));
+    rectangle.setPosition({ 10.f, 10.f });
+    rectangle.setRadius(10.f);
+    
+    DrawTexture test(Vec2u{ 180, 180 });
 
-    Timer clock;
+    UI::Rectangle texture_test;
+    texture_test.setParent(&rectangle);
+    texture_test.setSize(rectangle.getSize() + Vec2f(-rectangle.getRadius() * 2.f, -rectangle.getRadius() * 2.f));
+    texture_test.setSize({ texture_test.getSize().x + 20.f, texture_test.getSize().x + 20.f });
+    texture_test.setColor(Color(255, 255, 255, 255));
+    texture_test.setTexture(test.texture());
+    texture_test.setRadius(10.f); 
+    texture_test.setPosition({ -10.f, -10.f, 0.f });
+
+    unsigned int index = 0;
     while (window.isOpen())
     {
-        Vec3f delta;
-
         Event event;
         while (window.poll(event))
         {
@@ -81,65 +70,27 @@ int main()
                 window.close();
 
             if (event.type == Event::KeyDown)
-            {
-                /**/ if (event.key.code == Keyboard::Key_ESCAPE)
+                if (event.key.code == Keyboard::Key_ESCAPE)
                     window.close();
-                else if (event.key.code == Keyboard::Key_TAB)
-                {
-                    if (rawModel.getRenderMode() == GL::Triangles)
-                        rawModel.setRenderMode(GL::Lines);
-                    else
-                        rawModel.setRenderMode(GL::Triangles);
-                }
-            }       
         }
 
-        Vec2i mouse_delta = Mouse::getPosition(window) - Vec2i(window.getSize().x / 2, window.getSize().y / 2);
-        camera.addRotation({ (float)mouse_delta.y / 50.f, (float)mouse_delta.x / 50.f, 0 });
+        camera.update(window, 1.f, 50.f);
 
-        Mouse::setPosition({ (int)(window.getSize().x / 2), (int)(window.getSize().y / 2) }, window);
+        window.clear(Color(75, 75, 75));
 
-        float speed = 0.5f;
+        window.draw(chestModel, &rc);
+        chestModel.drawNormals(window, &rc);
 
-        if (Keyboard::isKeyPressed(Keyboard::Key_LEFT))
-            camera.addRotation({ 0,  0.008f, 0});
-        if (Keyboard::isKeyPressed(Keyboard::Key_RIGHT))
-            camera.addRotation({ 0, -0.008f, 0});
-        if (Keyboard::isKeyPressed(Keyboard::Key_UP))
-            camera.addRotation({  0.008f, 0, 0});
-        if (Keyboard::isKeyPressed(Keyboard::Key_DOWN))
-            camera.addRotation({ -0.008f, 0, 0});
+        test.clear(Color(0, 0, 0, 0));
+        test.draw(chestModel, &rc);
+        chestModel.drawNormals(test, &rc);
 
-        if (Keyboard::isKeyPressed(Keyboard::Key_LSHIFT))
-            speed *= 2.f;
-        if (Keyboard::isKeyPressed(Keyboard::Key_A))
-            delta.x -= speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_D))
-            delta.x += speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_W))
-            delta.z += speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_S))
-            delta.z -= speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_SPACE))
-            delta.y += speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_LCTRL))
-            delta.y -= speed;
+        chestModel.addRotation({ 0, 0.01f, 0 });
 
-        camera.step(delta);
-
-        //lights[1].position = camera.getPosition();
-
-        window.clear();
-
-        window.draw(model, &rc);
-        model.drawNormals(window, &rc);
+        window.draw(rectangle);
+        window.draw(texture_test);
 
         window.update();
-
-        float fps = 1.f / clock.getElapsed();
-        clock.restart();
-
-        window.setTitle("Coolio     FPS: " + std::to_string((int)fps));
-        frame++;
+        index++;
     }
 }

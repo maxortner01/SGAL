@@ -6,8 +6,8 @@
 namespace sgal
 {
 
-    Camera::Camera(const float fov, const Sizable& _surface) :
-        surface(&_surface), FOV(fov), orbit(false)
+    Camera::Camera(const float fov) :
+        FOV(fov), orbit(false)
     {
         setZNear(0.001f);
         setZFar(1000.f);
@@ -45,13 +45,13 @@ namespace sgal
         return getTransformMatrix();
     }
 
-    Mat4f Camera::getProjectionMatrix() const
+    Mat4f Camera::getProjectionMatrix(float aspectRatio) const
     {
         const float f = 1.f / tanf(FOV / 2.f);
 
         Mat4f proj;
 
-        proj(0, 0) = 1.0 / surface->aspectRatio() * f;
+        proj(0, 0) = 1.0 / aspectRatio * f;
         proj(1, 1) = f;
         proj(2, 2) = getZFar() / (getZFar() - getZNear());
         proj(2, 3) = (-getZFar() * getZNear()) / (getZFar() - getZNear());
@@ -71,6 +71,11 @@ namespace sgal
         near_far.y = _far;
     }
 
+    void Camera::setFOV(float _fov)
+    {
+        FOV = _fov;
+    }
+
     float Camera::getZNear() const
     {
         return near_far.x;
@@ -81,9 +86,50 @@ namespace sgal
         return near_far.y;
     }
 
+    float Camera::getFOV() const
+    {
+        return FOV;
+    }
+
     void Camera::setOribitTransform(bool _orbit)
     {
         orbit = _orbit;
+    }
+
+    void FPSCamera::update(const Window& window, float speed, float sensitivity)
+    {
+        Vec2i mouse_delta = Mouse::getPosition(window) - Vec2i(window.getSize().x / 2, window.getSize().y / 2);
+        addRotation({ (float)mouse_delta.y / sensitivity, (float)mouse_delta.x / sensitivity, 0 });
+
+        Mouse::setPosition({ (int)(window.getSize().x / 2), (int)(window.getSize().y / 2) }, window);
+        
+        Vec3f delta;
+
+        if (Keyboard::isKeyPressed(Keyboard::Key_LEFT))
+            addRotation({ 0,  0.008f, 0});
+        if (Keyboard::isKeyPressed(Keyboard::Key_RIGHT))
+            addRotation({ 0, -0.008f, 0});
+        if (Keyboard::isKeyPressed(Keyboard::Key_UP))
+            addRotation({  0.008f, 0, 0});
+        if (Keyboard::isKeyPressed(Keyboard::Key_DOWN))
+            addRotation({ -0.008f, 0, 0});
+
+        if (Keyboard::isKeyPressed(Keyboard::Key_LSHIFT))
+            speed *= 2.f;
+        if (Keyboard::isKeyPressed(Keyboard::Key_A))
+            delta.x -= speed;
+        if (Keyboard::isKeyPressed(Keyboard::Key_D))
+            delta.x += speed;
+        if (Keyboard::isKeyPressed(Keyboard::Key_W))
+            delta.z += speed;
+        if (Keyboard::isKeyPressed(Keyboard::Key_S))
+            delta.z -= speed;
+        if (Keyboard::isKeyPressed(Keyboard::Key_SPACE))
+            delta.y += speed;
+        if (Keyboard::isKeyPressed(Keyboard::Key_LCTRL))
+            delta.y -= speed;
+
+        step(delta);
     }
 
 }

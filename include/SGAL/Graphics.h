@@ -18,3 +18,5 @@
 #include "./Graphics/Texture.h"
 #include "./Graphics/LightArray.h"
 #include "./Graphics/DrawTexture.h"
+#include "./Graphics/UI.h"
+#include "./Graphics/UI.h"

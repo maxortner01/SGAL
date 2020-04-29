@@ -10,18 +10,40 @@
 
 #pragma once
 
+#include <vector>
 #include <SGAL/decl.h>
 
 #include "Matrix.h"
 
 namespace sgal
 {
+
 	class SGAL_API Transform
 	{
 		Vec3f position, rotation, scale;
 
+		std::vector<Transform*> children;
+		Transform* parent;
+
 	public:
+		struct Children
+		{
+			const Transform* const* children;
+			const unsigned int      count;	
+		};
+
 		Transform();
+
+		Transform* getParent() const;
+		void setParent(Transform* prnt);
+
+		void addChild(Transform* transform);
+		void removeChild(Transform* transform);
+		Children getChildren() const;
+
+		virtual Vec3f getRelativePosition() const;
+		virtual Vec3f getRelativeRotation() const;
+		virtual Vec3f getRelativeScale() const;
 
 		Vec3f getPosition() const;
 		Vec3f getRotation() const;

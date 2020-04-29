@@ -57,7 +57,9 @@ namespace sgal
         if (!static_render)
             loadMatrices();
 
-        rawModel->setRenderContext(rc);
+        const Sizable* ss = dynamic_cast<const Sizable*>(surface);
+        SG_ASSERT(ss, "The given surface is not sizable qualified!");
+        rawModel->setRenderContext(rc, ss);
 
         glEnable(GL_DEPTH_TEST);
         glDisable(GL_BLEND);
@@ -68,9 +70,10 @@ namespace sgal
         unsigned int type;
         switch (rawModel->getRenderMode())
         {
-        case GL::Triangles: type = GL_TRIANGLES; break;
-        case GL::Points:    type = GL_POINTS;    break;
-        case GL::Lines:     type = GL_LINES;     break;
+        case GL::Triangles: type = GL_TRIANGLES;    break;
+        case GL::Polygon:   type = GL_POLYGON;      break;
+        case GL::Points:    type = GL_POINTS;       break;
+        case GL::Lines:     type = GL_LINES;        break;
         };
 
         glDrawElementsInstanced(type, rawModel->indexCount(), GL_UNSIGNED_INT, rawModel->indices, models.size());

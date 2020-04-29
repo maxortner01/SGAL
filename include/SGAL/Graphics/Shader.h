@@ -19,6 +19,8 @@
 
 namespace sgal
 {
+	class Texture;
+
 	class SGAL_API Shader : public GL::Object
 	{
 	public:
@@ -38,6 +40,7 @@ namespace sgal
 
 		void setUniform(const Light* lights, const size_t count = 1) const;
 		void setUniform(const Light& light, const unsigned int index = 0) const;
+        void setUniform(const std::string& name, const Texture& texture) const;
         void setUniform(const std::string& name, Mat4f value) const;
         void setUniform(const std::string& name, Color value) const;
         void setUniform(const std::string& name, Vec3f value) const;
@@ -54,7 +57,10 @@ namespace sgal
 		void unbind() const override;
 
 		static void useDefault();
+
+		static Shader& DefaultUI();
 		static Shader& Default3D();
+		static Shader& Default2D();
 	};
 
 

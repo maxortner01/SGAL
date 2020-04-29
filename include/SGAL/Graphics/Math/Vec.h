@@ -40,12 +40,18 @@ namespace sgal
 
 		Vec2<T> operator-(const Vec2<T>& vec) const
 		{
-			return vec + (*this) * -1.f;
+			return vec + ((*this) * -1.f);
 		}
 
 		void operator+=(const Vec2<T>& vec)
 		{
 			(*this) = (*this) + vec;
+		}
+
+		template<typename F>
+		operator Vec2<F>() const
+		{
+			return Vec2<F>((F)x, (F)y);
 		}
 	};
 
@@ -71,6 +77,11 @@ namespace sgal
 		Vec3<T> operator*(const T scalar) const
 		{
 			return Vec3<T>(x * scalar, y * scalar, z * scalar);
+		}
+		
+		Vec3<T> operator*(const Vec3<T> vec) const
+		{
+			return Vec3<T>(x * vec.x, y * vec.y, z * vec.z);
 		}
 
 		Vec3<T> operator/(const T scalar) const

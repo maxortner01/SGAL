@@ -24,9 +24,20 @@ namespace sgal
         std::vector<shape_t> shapes;
         std::vector<material_t> materials;
 
-        std::string warn, err;
+        std::string warn, err, mtl_dir;
 
-        bool ret = LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str());
+        // get the folder directory of the model
+        std::vector<std::string> path;
+        SplitString(filename, '/', path);
+
+        if (path.size() > 1)
+        {
+            for (int i = 0; i < path.size() - 2; i++)
+                mtl_dir += path[i] + '/';
+            mtl_dir += path[path.size() - 2];
+        }
+        
+        bool ret = LoadObj(&attrib, &shapes, &materials, &warn, &err, filename.c_str(), mtl_dir.c_str());
 
         if (!warn.empty())
             std::cout << "OBJ Warning: " << warn << "\n";
@@ -102,6 +113,14 @@ namespace sgal
         loadColors(&colors[0], colors.size());
     }
 
+    void RawModel::setColor(const Color& color) const
+    {
+        std::vector<Color> colors(vertexCount());
+        for (int i = 0; i < colors.size(); i++)
+            colors[i] = color;
+        loadColors(&colors[0], colors.size());
+    }
+
     void RawModel::calculateNormals() const
     {
         Vec3f* const vertices = (Vec3f*)(*this)[GL::Vertices].readData();
@@ -161,24 +180,24 @@ namespace sgal
         loadNormals(&normals[0], normals.size());
     }
     
-    void RawModel::setRenderContext(const RenderContext* rc) const
+    void RawModel::setRenderContext(const RenderContext* rc, const Sizable* surface, const Shader* default_shader) const
     {
-        if (!rc) return;
+        if (!rc || (rc && !rc->contxt_override)) return;
         
         // Since we are in a RawModel, the default shader should be the built in 3D shader
-        const Shader* const shader = (rc->shader)?(rc->shader):(&Shader::Default3D());
+        const Shader* const shader = (rc->shader)?(rc->shader):( (!default_shader)?(&Shader::Default3D()):(default_shader) );
 
         shader->bind();
-
+        
         shader->setUniform("use_textures", use_textures);
         shader->setUniform("use_lighting", rc->use_lighting);
         shader->setUniform("turn_to_camera", rc->turn_to_camera);
         
         if (rc->camera)
         {
-            shader->setUniform("vp_matrix",   rc->camera->getProjectionMatrix() * rc->camera->getPerspectiveMatrix());
+            shader->setUniform("vp_matrix",   rc->camera->getProjectionMatrix(surface->aspectRatio()) * rc->camera->getPerspectiveMatrix());
             shader->setUniform("view_matrix", rc->camera->getPerspectiveMatrix());
-            shader->setUniform("proj_matrix", rc->camera->getProjectionMatrix());
+            shader->setUniform("proj_matrix", rc->camera->getProjectionMatrix(surface->aspectRatio()));
         }
         else
         {
@@ -189,9 +208,7 @@ namespace sgal
         }
 
         if (rc->lights)
-        {
             shader->setUniform(&(*rc->lights)[0], rc->lights->size());
-        }
         
     }
 

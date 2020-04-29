@@ -37,11 +37,13 @@ namespace sgal
 
 		void fromFile(const std::string& filename);
 
+		void setColor(const Color& color) const;
+
 		void calculateNormals() const;
 		void calculateNormals(const Vec3f* vertices, const size_t vertexCount, const unsigned int* indices = nullptr, const size_t indexCount = 0) const;
 
 		void drawNormals(const Surface* surface, const RenderContext* rc = nullptr);
 
-		void setRenderContext(const RenderContext* rc) const;
+		void setRenderContext(const RenderContext* rc, const Sizable* surface, const Shader* default_shader = nullptr) const;
 	};
 }

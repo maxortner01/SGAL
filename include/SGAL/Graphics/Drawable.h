@@ -21,11 +21,13 @@ namespace sgal
 	// Storage for scene information (camera, shader, etc).
 	struct RenderContext
 	{
-		bool       turn_to_camera = false;
-		bool       use_lighting   = true;
-		Shader     const* shader  = nullptr;
-		Camera     const* camera  = nullptr;
-		LightArray const* lights  = nullptr;
+		bool       contxt_override = true;
+		bool       depth_testing   = true;
+		bool       turn_to_camera  = false;
+		bool       use_lighting    = true;
+		Shader     const* shader   = nullptr;
+		Camera     const* camera   = nullptr;
+		LightArray const* lights   = nullptr;
 	};
 
 	struct Drawable

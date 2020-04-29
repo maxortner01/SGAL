@@ -25,6 +25,7 @@ namespace GL
 		Vertices,
 		Normals,
 		Colors,
+		TexCoords,
 		ModelMatrices,
 		NormalMatrices,
 		Count
@@ -34,7 +35,8 @@ namespace GL
 	{
 		Triangles,
 		Lines,
-		Points
+		Points,
+		Polygon
 	};
 
 	class SGAL_API ArrayObject : Object
@@ -54,10 +56,11 @@ namespace GL
 		void loadNormalMatrices(const Mat4f* matrices, const size_t count = 1) const;
 		void loadModelMatrices (const Mat4f* matrices, const size_t count = 1) const;
 
-		void loadIndices (const unsigned int* _indices, const size_t count = 1);
-		void loadVertices(const Vec3f* vertices, const size_t count = 1);
-		void loadNormals (const Vec3f* normals, const size_t count = 1) const;
-		void loadColors  (const Color* normals, const size_t count = 1) const;
+		void loadIndices  (const unsigned int* _indices, const size_t count = 1);
+		void loadVertices (const Vec3f* vertices, const size_t count = 1);
+		void loadNormals  (const Vec3f* normals, const size_t count = 1) const;
+		void loadColors   (const Color* normals, const size_t count = 1) const;
+		void loadTexCoords(const Vec2f* coords, const size_t count = 1) const;
 
 		void setRenderMode(RenderMode mode);
 		void setDynamic(bool dynamic) const;
