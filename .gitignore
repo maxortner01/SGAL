@@ -30,3 +30,9 @@ client/compile.bat
 client/res/textures/test.png
 
 client/res/models/tray/Shoshan_Serving_Tray.obj
+
+bin-gen/libSGAL.dll
+
+bin-gen/rect.rm
+
+bin-gen/tempgen.exe
