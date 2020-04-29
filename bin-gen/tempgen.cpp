@@ -28,7 +28,7 @@ int main()
     rawModel.loadVertices(&vertices[0], vertices.size());
 
     Serializer::saveToFile("rect.rm", rawModel);
-    return;
+    return 0;
     Serializer::loadFromFile("rect.rm", rawModel);
 
     Vec3f* vertices_f = (Vec3f*)rawModel[GL::Vertices].readData();
