@@ -21,13 +21,20 @@ namespace sgal
 	// Storage for scene information (camera, shader, etc).
 	struct RenderContext
 	{
-		bool       contxt_override = true;
-		bool       depth_testing   = true;
-		bool       turn_to_camera  = false;
-		bool       use_lighting    = true;
-		Shader     const* shader   = nullptr;
-		Camera     const* camera   = nullptr;
-		LightArray const* lights   = nullptr;
+		/// When false: allows RawModel to set the textures
+		/// When true:  RawModel won't set the textures
+		bool       texture_override = false;
+		/// When false: the render context will not be set
+		bool       contxt_override  = true;
+		/// Enables/disables depth testing
+		bool       depth_testing    = true;
+		/// WIP, turns object towards camera
+		bool       turn_to_camera   = false;
+		/// Enables/disables lighting calculations
+		bool       use_lighting     = true;
+		Shader     const* shader    = nullptr;
+		Camera     const* camera    = nullptr;
+		LightArray const* lights    = nullptr;
 	};
 
 	struct Drawable

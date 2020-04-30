@@ -19,6 +19,7 @@ namespace sgal
 {
 	class SGAL_API Texture : public GL::Object
 	{
+		unsigned int* layer;
 		Vec2u size;
 
 	public:
@@ -28,8 +29,8 @@ namespace sgal
 			Depth
 		};
 
-		Texture();
-		Texture(Vec2u dimensions, Type type = Color);
+		Texture(unsigned int _layer = 0);
+		Texture(Vec2u dimensions, Type type = Color, unsigned int _layer = 0);
 
 		~Texture();
 
@@ -40,5 +41,8 @@ namespace sgal
 
 		void   bind() const;
 		void unbind() const;
+
+		unsigned int getLayer() const;
+		void         setLayer(unsigned int _layer) const;
 	};
 }

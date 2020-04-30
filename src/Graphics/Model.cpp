@@ -86,6 +86,9 @@ namespace sgal
         // Set the render context
         rawModel->setRenderContext(rc, ss);
 
+        if (rc && !rc->texture_override)
+            rawModel->bindTextures();
+
         // Redudant GL calls for now
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
@@ -118,6 +121,9 @@ namespace sgal
         glDrawElements(type, rawModel->indexCount(), GL_UNSIGNED_INT, rawModel->indices);
 
         glDisable(GL_CULL_FACE);
+        
+        if (rc && !rc->texture_override)
+            rawModel->unbindTextures();
     }
 
 }

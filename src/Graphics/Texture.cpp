@@ -14,14 +14,14 @@ namespace sgal
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     }
 
-    Texture::Texture() :
-        size(0, 0)
+    Texture::Texture(unsigned int _layer) :
+        size(0, 0), layer(new unsigned int())
     {
-
+        setLayer(_layer);
     }
 
-    Texture::Texture(Vec2u dimensions, Texture::Type type) :
-        Texture()
+    Texture::Texture(Vec2u dimensions, Texture::Type type, unsigned int _layer) :
+        Texture(_layer)
     {
         create(dimensions, type);
     }
@@ -29,6 +29,12 @@ namespace sgal
     Texture::~Texture()
     {
         if (id) { glDeleteTextures(1, &id); id = 0; }
+        
+        if (layer)
+        {
+            delete layer;
+            layer = nullptr;
+        }
     }
 
     void Texture::create(Vec2u dimensions, Texture::Type type)
@@ -80,14 +86,26 @@ namespace sgal
 
     void Texture::bind() const
     {
-        glActiveTexture(GL_TEXTURE0);
+        glActiveTexture(GL_TEXTURE0 + *layer);
         glBindTexture(GL_TEXTURE_2D, id);
     }
 
     void Texture::unbind() const
     {
-        glActiveTexture(GL_TEXTURE0);
+        glActiveTexture(GL_TEXTURE0 + *layer);
         glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    unsigned int Texture::getLayer() const
+    {
+        return *layer;
+    }
+
+    void Texture::setLayer(unsigned int _layer) const
+    {
+        *layer = _layer;
+
+        SG_ASSERT(*layer < SG_TEXTURE_ARRAY_SIZE, "Too many textures bound!");
     }
 
 }

@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include <SGAL/decl.h>
 
 #include "GL.h"
@@ -30,6 +32,7 @@ namespace sgal
 		friend class Model;
 		friend class ModelArray;
 
+		std::vector<const Texture*> textures;
 		bool use_textures;
 
 	public:
@@ -41,9 +44,15 @@ namespace sgal
 
 		void calculateNormals() const;
 		void calculateNormals(const Vec3f* vertices, const size_t vertexCount, const unsigned int* indices = nullptr, const size_t indexCount = 0) const;
-
 		void drawNormals(const Surface* surface, const RenderContext* rc = nullptr);
 
 		void setRenderContext(const RenderContext* rc, const Sizable* surface, const Shader* default_shader = nullptr) const;
+
+		void   bindTextures() const;
+		void unbindTextures() const;
+
+		void removeTexture(const Texture& texture);
+		void attachTexture(const Texture& texture);
+		const std::vector<const Texture*>& getTextures() const;
 	};
 }

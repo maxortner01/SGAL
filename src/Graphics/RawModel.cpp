@@ -11,7 +11,9 @@ namespace sgal
 
     RawModel::RawModel() :
         GL::ArrayObject(GL::Triangles), use_textures(false)
-    {   }
+    {   
+        textures.reserve(SG_TEXTURE_ARRAY_SIZE);
+    }
 
     void RawModel::fromFile(const std::string& filename)
     {
@@ -190,6 +192,9 @@ namespace sgal
         shader->bind();
         
         shader->setUniform("use_textures", use_textures);
+        for (int i = 0; i < textures.size(); i++)
+            shader->setUniform("texture" + std::to_string(i), i);
+
         shader->setUniform("use_lighting", rc->use_lighting);
         shader->setUniform("turn_to_camera", rc->turn_to_camera);
         
@@ -210,6 +215,46 @@ namespace sgal
         if (rc->lights)
             shader->setUniform(&(*rc->lights)[0], rc->lights->size());
         
+    }
+
+    void RawModel::bindTextures() const
+    {
+        for (int i = 0; i < textures.size(); i++)
+        {
+            textures[i]->setLayer(i);
+            textures[i]->bind();
+        }
+    }
+
+    void RawModel::unbindTextures() const
+    {
+        for (int i = 0; i < textures.size(); i++)
+        {
+            textures[i]->setLayer(i);
+            textures[i]->unbind();
+        }
+    }
+
+    void RawModel::removeTexture(const Texture& texture)
+    {
+        for (int i = 0; i < textures.size(); i++)
+            if (textures[i] == &texture)
+            {
+                textures.erase(textures.begin() + i);
+                return;
+            }
+
+        SG_ASSERT(false, "Texture not attatched to RawModel!");
+    }
+
+    void RawModel::attachTexture(const Texture& texture)
+    {
+        textures.push_back(&texture);
+    }
+
+    const std::vector<const Texture*>& RawModel::getTextures() const
+    {
+        return textures;
     }
 
 }

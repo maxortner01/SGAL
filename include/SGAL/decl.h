@@ -59,3 +59,5 @@
 #   define GLRC_PTR  void*
 #   define HWND_PTR  void*
 #endif
+
+#define SG_TEXTURE_ARRAY_SIZE 16
