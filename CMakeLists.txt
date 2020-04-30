@@ -10,11 +10,11 @@ add_subdirectory(src)
 
 if (COMPILE_CLIENT)
     add_subdirectory(client)
-    file(COPY ${PROJECT_SOURCE_DIR}/lib/libSGAL.dll DESTINATION ${PROJECT_SOURCE_DIR}/client)
+    #file(COPY ${PROJECT_SOURCE_DIR}/lib/libSGAL.dll DESTINATION ${PROJECT_SOURCE_DIR}/client)
 endif()
 
 if (COMPILE_TEMPGEN)
     add_subdirectory(bin-gen)
-    file(COPY ${PROJECT_SOURCE_DIR}/lib/libSGAL.dll DESTINATION ${PROJECT_SOURCE_DIR}/bin-gen)
+    #file(COPY ${PROJECT_SOURCE_DIR}/lib/libSGAL.dll DESTINATION ${PROJECT_SOURCE_DIR}/bin-gen)
 endif()
 
