@@ -12,3 +12,7 @@ add_executable(tempgen tempgen.cpp)
 
 target_link_libraries (tempgen LINK_PUBLIC SGAL)
 target_include_directories (tempgen PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/lib)
+
+add_custom_command(TARGET tempgen POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/../lib/libSGAL.dll ${PROJECT_SOURCE_DIR}/libSGAL.dll
+)
