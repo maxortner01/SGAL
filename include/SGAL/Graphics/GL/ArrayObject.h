@@ -35,6 +35,7 @@ namespace GL
 	{
 		Triangles,
 		Lines,
+		LineStrip,
 		Points,
 		Polygon
 	};
@@ -68,6 +69,8 @@ namespace GL
 		void   bind() const override;
 		void unbind() const override;
 
+
+		const unsigned int* getIndices() const;
 		unsigned int vertexCount() const;
 		unsigned int indexCount()  const;
 

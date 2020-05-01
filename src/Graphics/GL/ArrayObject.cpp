@@ -151,6 +151,11 @@ namespace GL
         glBindVertexArray(0);
     }
 
+    const unsigned int* ArrayObject::getIndices() const
+    {
+        return indices;
+    }
+
     unsigned int ArrayObject::vertexCount() const
     {
         return vertex_count;

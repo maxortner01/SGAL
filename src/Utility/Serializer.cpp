@@ -24,6 +24,15 @@ namespace sgal
             file.write((const char*)BUFFER,       BUFFER_SIZE);
         }
 
+        if (rawModel.indexCount())
+        {
+            const unsigned char INDEX_BUFFER = 254;
+            const unsigned int  BUFFER_SIZE  = rawModel.indexCount() * sizeof(unsigned int);
+            file.write((const char*)&INDEX_BUFFER, sizeof(unsigned char));
+            file.write((const char*)&BUFFER_SIZE,  sizeof(unsigned int ));
+            file.write((const char*)rawModel.getIndices(), BUFFER_SIZE);
+        }
+
         file.close();
     }
 
@@ -51,6 +60,9 @@ namespace sgal
             case GL::TexCoords:      rawModel.loadTexCoords((const Vec2f*)data, buffer_size / sizeof(Vec2f)); break;
             case GL::ModelMatrices:  rawModel.loadModelMatrices ((const Mat4f*)data, buffer_size / sizeof(Mat4f)); break;
             case GL::NormalMatrices: rawModel.loadNormalMatrices((const Mat4f*)data, buffer_size / sizeof(Mat4f)); break;
+            case 254: // indices
+                rawModel.loadIndices((const unsigned int*)data, buffer_size / sizeof(unsigned int));
+                break;
             };
 
             std::free(data);

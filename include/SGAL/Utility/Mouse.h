@@ -22,6 +22,7 @@ namespace sgal
 	struct MouseState
 	{
 		bool left, right, middle;
+		int wheel = 0;
 	};
 
 	class SGAL_API Mouse
@@ -36,7 +37,7 @@ namespace sgal
 #		endif
 		};
 
-		static MouseState getState();
+		static MouseState& getState();
 
 		static void showCursor(bool show);
 

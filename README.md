@@ -39,6 +39,11 @@ SGAL uses only the `GLEW` library as a dependancy. For now it pulls from the `cm
 - X11 implementation.
 - Normal maps and more PBR-like lighting calculations.
 
+## Projects
+
+![alt text](images/image1.png)
+Here we're using mesh generation to generate a single RawModel that represents about 505,000 cubes from perlin noise. It generates in a couple of seconds and runs faster than 60 FPS.
+
 ## Author
 
 Max Ortner

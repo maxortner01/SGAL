@@ -7,7 +7,7 @@ namespace sgal
 {
 
     Camera::Camera(const float fov) :
-        FOV(fov), orbit(false)
+        FOV(fov)
     {
         setZNear(0.001f);
         setZFar(1000.f);
@@ -36,13 +36,8 @@ namespace sgal
 
     Mat4f Camera::getPerspectiveMatrix() const
     {
-        if (!orbit)
-        {
-            return makeRotationMatrix(getRotation()) *
-                makeTranslationMatrix(getPosition() * -1);
-        }
-
-        return getTransformMatrix();
+        return makeRotationMatrix(getRotation()) *
+            makeTranslationMatrix(getPosition() * -1);
     }
 
     Mat4f Camera::getProjectionMatrix(float aspectRatio) const
@@ -91,11 +86,6 @@ namespace sgal
         return FOV;
     }
 
-    void Camera::setOribitTransform(bool _orbit)
-    {
-        orbit = _orbit;
-    }
-
     void FPSCamera::update(const Window& window, float speed, float sensitivity)
     {
         Vec2i mouse_delta = Mouse::getPosition(window) - Vec2i(window.getSize().x / 2, window.getSize().y / 2);
@@ -105,31 +95,52 @@ namespace sgal
         
         Vec3f delta;
 
-        if (Keyboard::isKeyPressed(Keyboard::Key_LEFT))
+        if (Keyboard::isKeyPressed(Keyboard::Left))
             addRotation({ 0,  0.008f, 0});
-        if (Keyboard::isKeyPressed(Keyboard::Key_RIGHT))
+        if (Keyboard::isKeyPressed(Keyboard::Right))
             addRotation({ 0, -0.008f, 0});
-        if (Keyboard::isKeyPressed(Keyboard::Key_UP))
+        if (Keyboard::isKeyPressed(Keyboard::Up))
             addRotation({  0.008f, 0, 0});
-        if (Keyboard::isKeyPressed(Keyboard::Key_DOWN))
+        if (Keyboard::isKeyPressed(Keyboard::Down))
             addRotation({ -0.008f, 0, 0});
 
-        if (Keyboard::isKeyPressed(Keyboard::Key_LSHIFT))
+        if (Keyboard::isKeyPressed(Keyboard::LSHIFT))
             speed *= 2.f;
-        if (Keyboard::isKeyPressed(Keyboard::Key_A))
+        if (Keyboard::isKeyPressed(Keyboard::A))
             delta.x -= speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_D))
+        if (Keyboard::isKeyPressed(Keyboard::D))
             delta.x += speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_W))
+        if (Keyboard::isKeyPressed(Keyboard::W))
             delta.z += speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_S))
+        if (Keyboard::isKeyPressed(Keyboard::S))
             delta.z -= speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_SPACE))
+        if (Keyboard::isKeyPressed(Keyboard::Space))
             delta.y += speed;
-        if (Keyboard::isKeyPressed(Keyboard::Key_LCTRL))
+        if (Keyboard::isKeyPressed(Keyboard::LCTRL))
             delta.y -= speed;
 
         step(delta);
+    }
+
+    void OrbitCamera::update(const Window& window, float speed, float sensitivity)
+    {
+        static Vec2i last_pos;
+
+        Vec2i mouse_delta = Mouse::getPosition(window) - last_pos;
+        last_pos = Mouse::getPosition(window);
+        //Mouse::setPosition({ (int)(window.getSize().x / 2), (int)(window.getSize().y / 2) }, window);
+
+        MouseState ms = Mouse::getState();
+        if (ms.middle)
+            addRotation(Vec3f( (float)mouse_delta.y / sensitivity, (float)mouse_delta.x / sensitivity, 0 ));
+
+        setPosition({ 0, 0, (float)ms.wheel * speed });
+    }
+
+    Mat4f OrbitCamera::getPerspectiveMatrix() const
+    {
+        return makeTranslationMatrix(Vec3f(0, 0, getPosition().z * -1)) *
+            makeRotationMatrix(getRotation());
     }
 
 }

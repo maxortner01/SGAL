@@ -107,10 +107,13 @@ namespace sgal
         // Bind the VBO
         (*rawModel)[GL::Vertices].bind();
 
+        glPointSize(2.f);
+
         // Ascertain the rendering method
         unsigned int type;
         switch (rawModel->getRenderMode())
         {
+        case GL::LineStrip: type = GL_LINE_STRIP;   break;
         case GL::Triangles: type = GL_TRIANGLES;    break;
         case GL::Polygon:   type = GL_POLYGON;      break;
         case GL::Points:    type = GL_POINTS;       break;

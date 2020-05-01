@@ -168,8 +168,10 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
     case WM_MOUSEWHEEL:
         {
             INIT_EVENT(sgal::Event::WheelMove);
-            event.wheel.delta = HIWORD(wparam);
+            event.wheel.delta = GET_WHEEL_DELTA_WPARAM(wparam) / WHEEL_DELTA;
             PUSH_EVENT;
+
+            sgal::Mouse::getState().wheel += event.wheel.delta;
         }
         return 0;
         

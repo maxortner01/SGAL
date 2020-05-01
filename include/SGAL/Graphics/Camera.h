@@ -22,7 +22,6 @@ namespace sgal
 	class SGAL_API Camera : public Transform
 	{
 		float FOV;
-		bool  orbit;
 		Vec2f near_far;
 
 	public:
@@ -30,7 +29,7 @@ namespace sgal
 
 		void step(Vec3f direction);
 
-		Mat4f getPerspectiveMatrix() const;
+		virtual Mat4f getPerspectiveMatrix() const;
 		Mat4f getProjectionMatrix(float aspectRatio)  const;
 
 		void setZNear(float _near);
@@ -44,13 +43,22 @@ namespace sgal
 		void setSurface(const Sizable& surf);
 		const Sizable& getSurface() const;
 
-		void setOribitTransform(bool _orbit);
+		virtual void update(const Window& window, float speed, float sensitivity) {}
 	};
 
 	struct SGAL_API FPSCamera : public Camera
 	{
 		BASE_CONSTRUCTOR(Camera);
 
-		void update(const Window& window, float speed, float sensitivity);
+		void update(const Window& window, float speed, float sensitivity) override;
+	};
+
+	struct SGAL_API OrbitCamera : public Camera
+	{
+		BASE_CONSTRUCTOR(Camera);
+
+		void update(const Window& window, float speed, float sensitivity) override;
+
+		Mat4f getPerspectiveMatrix() const override;
 	};
 }

@@ -86,7 +86,9 @@ namespace sgal
 
     void Window::update()
     {
-        SG_ASSERT(events.size() < 200, "Event maximum reached, are you polling?");
+        if (events.size() > 100) while (events.size()) events.pop();
+
+        //SG_ASSERT(events.size() < 200, "Event maximum reached, are you polling?");
 
 #       ifdef WIN32
         UpdateWindow(settings.handle);

@@ -54,5 +54,7 @@ namespace sgal
 		void removeTexture(const Texture& texture);
 		void attachTexture(const Texture& texture);
 		const std::vector<const Texture*>& getTextures() const;
+
+		unsigned int getByteSize() const;
 	};
 }

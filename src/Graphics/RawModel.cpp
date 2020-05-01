@@ -257,4 +257,14 @@ namespace sgal
         return textures;
     }
 
+    unsigned int RawModel::getByteSize() const
+    {
+        unsigned int r = 0;
+
+        for (int i = 0; i < GL::BufferCount; i++)
+            r += (*this)[i].getByteSize();
+
+        return r;
+    }
+
 }

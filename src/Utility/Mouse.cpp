@@ -5,9 +5,9 @@
 namespace sgal
 {
 
-    MouseState Mouse::getState()
+    MouseState& Mouse::getState()
     {
-        MouseState state;
+        static MouseState state;
 
 #       ifdef WIN32
         state.left    = (bool)GetAsyncKeyState(Mouse::Key_LEFT);
