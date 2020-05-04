@@ -15,6 +15,24 @@ namespace sgal
         textures.reserve(SG_TEXTURE_ARRAY_SIZE);
     }
 
+    RawModel::RawModel(const VertexArray& array) :
+        RawModel()
+    {
+        std::vector<Vec3f> vertices  = array.getVertices();
+        std::vector<Vec3f> normals   = array.getNormals();
+        std::vector<Vec2f> tex_coods = array.getTexCoords();
+        std::vector<Color> colors    = array.getColors();
+
+        for (int i = 0; i < vertices.size(); i++)
+            printf("%f, %f, %f\n", vertices[i].x, vertices[i].y, vertices[i].z);
+
+        loadColors   (&array.getColors()[0],    array.size());
+        loadNormals  (&array.getNormals()[0],   array.size());
+        loadVertices (&array.getVertices()[0],  array.size());
+        loadTexCoords(&array.getTexCoords()[0], array.size());
+        
+    }
+
     void RawModel::fromFile(const std::string& filename)
     {
         using namespace tinyobj;
@@ -191,7 +209,7 @@ namespace sgal
 
         shader->bind();
         
-        shader->setUniform("use_textures", use_textures);
+        shader->setUniform("use_textures", (textures.size() > 0));
         for (int i = 0; i < textures.size(); i++)
             shader->setUniform("texture" + std::to_string(i), i);
 
@@ -220,19 +238,13 @@ namespace sgal
     void RawModel::bindTextures() const
     {
         for (int i = 0; i < textures.size(); i++)
-        {
-            textures[i]->setLayer(i);
-            textures[i]->bind();
-        }
+            textures[i]->bindLayer(i);
     }
 
     void RawModel::unbindTextures() const
     {
         for (int i = 0; i < textures.size(); i++)
-        {
-            textures[i]->setLayer(i);
-            textures[i]->unbind();
-        }
+            textures[i]->unbindLayer(i);
     }
 
     void RawModel::removeTexture(const Texture& texture)

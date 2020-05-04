@@ -17,10 +17,13 @@
 namespace sgal
 {
 	class RawModel;
+	class VertexArray;
 
 	struct SGAL_API Serializer
 	{
 		static void saveToFile  (const std::string& filename, const RawModel& rawModel);
-		static void loadFromFile(const std::string& filename,       RawModel& rawModel);
+		
+		static void loadFromFile(const std::string& filename, RawModel& rawModel);
+		static void loadFromFile(const std::string& filename, VertexArray& array);
 	};
 }

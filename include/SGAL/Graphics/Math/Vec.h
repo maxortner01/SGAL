@@ -119,10 +119,16 @@ namespace sgal
 	typedef Vec3<float>        Vec3f;
 	typedef Vec3<int>          Vec3i;
 
-	 template<typename T, typename U = double>
+	template<typename T, typename U = double>
     static U dot(const Vec3<T>& vec1, const Vec3<T>& vec2)
     {
         return vec1.x * vec2.x + vec1.y * vec2.y + vec1.z * vec2.z;
+    }
+	
+	template<typename T, typename U = double>
+    static U dot(const Vec2<T>& vec1, const Vec2<T>& vec2)
+    {
+        return vec1.x * vec2.x + vec1.y * vec2.y;
     }
 
     template<typename T>

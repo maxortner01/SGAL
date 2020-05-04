@@ -19,7 +19,6 @@ namespace sgal
 {
 	class SGAL_API Texture : public GL::Object
 	{
-		unsigned int* layer;
 		Vec2u size;
 
 	public:
@@ -39,10 +38,10 @@ namespace sgal
 
 		Vec2u getSize() const;
 
+		void   bindLayer(const unsigned int layer) const;
+		void unbindLayer(const unsigned int layer) const;
+
 		void   bind() const;
 		void unbind() const;
-
-		unsigned int getLayer() const;
-		void         setLayer(unsigned int _layer) const;
 	};
 }

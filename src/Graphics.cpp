@@ -16,3 +16,4 @@
 #include "./Graphics/DrawTexture.cpp"
 #include "./Graphics/UI.cpp"
 #include "./Graphics/SingleModel.cpp"
+#include "./Graphics/VertexArray.cpp"

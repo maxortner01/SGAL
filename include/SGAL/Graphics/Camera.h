@@ -21,6 +21,7 @@ namespace sgal
 
 	class SGAL_API Camera : public Transform
 	{
+		bool ortho;
 		float FOV;
 		Vec2f near_far;
 
@@ -31,6 +32,8 @@ namespace sgal
 
 		virtual Mat4f getPerspectiveMatrix() const;
 		Mat4f getProjectionMatrix(float aspectRatio)  const;
+
+		void orthographicProjection(bool enabled);
 
 		void setZNear(float _near);
 		void setZFar (float _far);

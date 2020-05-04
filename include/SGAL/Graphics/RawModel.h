@@ -19,6 +19,7 @@
 namespace sgal
 {
 	class Model;
+	class VertexArray;
 
 	/**
 	 * @brief Represents the raw data that makes up a model in the GPU.
@@ -37,6 +38,7 @@ namespace sgal
 
 	public:
 		RawModel();
+		RawModel(const VertexArray& array);
 
 		void fromFile(const std::string& filename);
 

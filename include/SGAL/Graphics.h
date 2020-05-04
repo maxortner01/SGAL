@@ -21,3 +21,4 @@
 #include "./Graphics/UI.h"
 #include "./Graphics/UI.h"
 #include "./Graphics/SingleModel.h"
+#include "./Graphics/VertexArray.h"

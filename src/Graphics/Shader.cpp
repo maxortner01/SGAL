@@ -261,6 +261,7 @@ namespace sgal
             vertex_contents += "layout (location = " + std::to_string(GL::Vertices) + ") in vec3 vertex;\n";
             vertex_contents += "layout (location = " + std::to_string(GL::Normals)  + ") in vec3 in_normal;\n";
             vertex_contents += "layout (location = " + std::to_string(GL::Colors)   + ") in vec4 in_color;\n";
+            vertex_contents += "layout (location = " + std::to_string(GL::TexCoords)     + ") in vec2 tex;\n";
             vertex_contents += "layout (location = " + std::to_string(GL::ModelMatrices) + ") in mat4 modelMatrix;\n";
             vertex_contents += "layout (location = " + std::to_string(GL::ModelMatrices + 4) + ") in mat4 normalMatrix;\n";
             
@@ -269,6 +270,7 @@ namespace sgal
             vertex_contents += "uniform mat4 view_matrix;\n";
             vertex_contents += "uniform mat4 proj_matrix;\n";
             
+            vertex_contents += "out vec2 tex_coords;\n";
             vertex_contents += "out vec4 vert_color;\n";
             vertex_contents += "out vec4 position;\n";
             vertex_contents += "out vec4 normal;\n";
@@ -279,6 +281,7 @@ namespace sgal
             vertex_contents += "    normal       = vec4(in_normal, 1.0) * normalMatrix;\n";
             vertex_contents += "    model_matrix = modelMatrix;\n";
             vertex_contents += "    vert_color   = in_color;\n";
+            vertex_contents += "    tex_coords   = tex;\n";
             vertex_contents += "    gl_Position  = position * vp_matrix;\n";
             vertex_contents += "}\n";
             
@@ -296,8 +299,11 @@ namespace sgal
             fragment_contents += "uniform Light lights[" + std::to_string(SG_MAX_LIGHTS) + "];\n";
             fragment_contents += "uniform int   light_count;\n";
             fragment_contents += "uniform bool  use_lighting;\n";
+            fragment_contents += "uniform bool  use_textures;\n";
+            fragment_contents += "uniform sampler2D texture1;\n";
 
             fragment_contents += "out vec4 color;\n";
+            fragment_contents += "in  vec2 tex_coords;\n";
             fragment_contents += "in  vec4 position;\n";
             fragment_contents += "in  vec4 normal;\n";
             fragment_contents += "in  vec4 vert_color;\n";
@@ -322,6 +328,7 @@ namespace sgal
             fragment_contents += "void main() {\n";
             fragment_contents += "    vec4 output_color = (use_lighting)?(getOutputColor()):(vert_color);\n";
 
+            fragment_contents += "    if (use_textures) { output_color = output_color * texture(texture1, tex_coords); };\n";
             fragment_contents += "    color = output_color;\n";
             fragment_contents += "    //color = vec4((normal.xyz + 1) / 2, 1.0);\n";
             fragment_contents += "}\n";

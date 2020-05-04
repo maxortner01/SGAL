@@ -7,7 +7,7 @@ namespace sgal
 {
 
     Camera::Camera(const float fov) :
-        FOV(fov)
+        FOV(fov), ortho(false)
     {
         setZNear(0.001f);
         setZFar(1000.f);
@@ -46,14 +46,28 @@ namespace sgal
 
         Mat4f proj;
 
-        proj(0, 0) = 1.0 / aspectRatio * f;
-        proj(1, 1) = f;
-        proj(2, 2) = getZFar() / (getZFar() - getZNear());
-        proj(2, 3) = (-getZFar() * getZNear()) / (getZFar() - getZNear());
-        proj(3, 2) = 1.f;
-        proj(3, 3) = 1.f;
+        if (ortho)
+        {
+            proj.toIdentity();
+            proj(0, 0) = 1.0 / aspectRatio;
+            proj(2, 2) = 0;
+        }
+        else
+        {
+            proj(0, 0) = 1.0 / aspectRatio * f;
+            proj(1, 1) = f;
+            proj(2, 2) = getZFar() / (getZFar() - getZNear());
+            proj(2, 3) = (-getZFar() * getZNear()) / (getZFar() - getZNear());
+            proj(3, 2) = 1.f;
+            proj(3, 3) = 1.f;
+        }
 
         return proj;
+    }
+
+    void Camera::orthographicProjection(bool enabled)
+    {
+        ortho = enabled;
     }
 
     void Camera::setZNear(float _near) 

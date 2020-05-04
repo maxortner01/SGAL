@@ -15,9 +15,9 @@ namespace sgal
     }
 
     Texture::Texture(unsigned int _layer) :
-        size(0, 0), layer(new unsigned int())
+        size(0, 0)
     {
-        setLayer(_layer);
+        
     }
 
     Texture::Texture(Vec2u dimensions, Texture::Type type, unsigned int _layer) :
@@ -29,12 +29,6 @@ namespace sgal
     Texture::~Texture()
     {
         if (id) { glDeleteTextures(1, &id); id = 0; }
-        
-        if (layer)
-        {
-            delete layer;
-            layer = nullptr;
-        }
     }
 
     void Texture::create(Vec2u dimensions, Texture::Type type)
@@ -84,28 +78,28 @@ namespace sgal
         return size;
     }
 
+    void Texture::bindLayer(const unsigned int layer) const
+    {
+        glActiveTexture(GL_TEXTURE0 + layer);
+        glBindTexture(GL_TEXTURE_2D, id);
+    }
+
+    void Texture::unbindLayer(const unsigned int layer) const
+    {
+        glActiveTexture(GL_TEXTURE0 + layer);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
     void Texture::bind() const
     {
-        glActiveTexture(GL_TEXTURE0 + *layer);
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, id);
     }
 
     void Texture::unbind() const
     {
-        glActiveTexture(GL_TEXTURE0 + *layer);
+        glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, 0);
-    }
-
-    unsigned int Texture::getLayer() const
-    {
-        return *layer;
-    }
-
-    void Texture::setLayer(unsigned int _layer) const
-    {
-        *layer = _layer;
-
-        SG_ASSERT(*layer < SG_TEXTURE_ARRAY_SIZE, "Too many textures bound!");
     }
 
 }
