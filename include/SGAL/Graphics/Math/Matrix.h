@@ -37,7 +37,7 @@ namespace sgal
         }
 
         template<typename T2, int C2>
-        Matrix<T, R, C2> operator*(const Matrix<T2, C, C2>& in_mat)
+        Matrix<T, R, C2> operator*(const Matrix<T2, C, C2>& in_mat) const
         {
             Matrix<T, R, C2> mat;
 
@@ -114,4 +114,8 @@ namespace sgal
 
         return ret;
     }
+
+    #define sgMatT(...) makeTranslationMatrix(__VA_ARGS__)
+    #define sgMatR(...) makeRotationMatrix(__VA_ARGS__)
+    #define sgMatS(...) makeScaleMatrix(__VA_ARGS__)
 }

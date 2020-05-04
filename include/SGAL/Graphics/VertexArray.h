@@ -31,6 +31,7 @@ namespace sgal
 		uint32_t c_size;
 
 		Vertex* vertices;
+
 	public:
 		VertexArray(const uint32_t _size = 1);
 		~VertexArray();
@@ -41,6 +42,8 @@ namespace sgal
 
 		void append(const VertexArray& array);
 
+		template<typename... Args>
+		VertexArray transform(const Mat4f& first, Args... transformations) const;
 		VertexArray transform(const Mat4f& transformation) const;
 
 		bool typeFilled(GL::BufferType type) const;
@@ -56,4 +59,10 @@ namespace sgal
 		std::vector<Vec3f> getNormals()   const;
 		std::vector<Color> getColors()	  const;
 	};
+
+	template<typename... Args>
+	VertexArray VertexArray::transform(const Mat4f& first, Args... transformations) const
+	{
+		return transform(first).transform(transformations...);
+	}
 }

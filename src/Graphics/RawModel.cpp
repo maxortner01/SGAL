@@ -18,13 +18,10 @@ namespace sgal
     RawModel::RawModel(const VertexArray& array) :
         RawModel()
     {
-        std::vector<Vec3f> vertices  = array.getVertices();
-        std::vector<Vec3f> normals   = array.getNormals();
-        std::vector<Vec2f> tex_coods = array.getTexCoords();
-        std::vector<Color> colors    = array.getColors();
-
-        for (int i = 0; i < vertices.size(); i++)
-            printf("%f, %f, %f\n", vertices[i].x, vertices[i].y, vertices[i].z);
+        //std::vector<Vec3f> vertices  = array.getVertices();
+        //std::vector<Vec3f> normals   = array.getNormals();
+        //std::vector<Vec2f> tex_coods = array.getTexCoords();
+        //std::vector<Color> colors    = array.getColors();
 
         loadColors   (&array.getColors()[0],    array.size());
         loadNormals  (&array.getNormals()[0],   array.size());

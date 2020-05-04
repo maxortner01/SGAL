@@ -45,14 +45,20 @@ int main()
     VertexArray planeArray;
     Serializer::loadFromFile("plane.rm", planeArray);
 
-    std::cout << planeArray.size() << "\n";
+    VertexArray rmArray;
+    rmArray.append(planeArray.transform(sgMatT({ 0, 1.f, 0.f })));
+    rmArray.append(planeArray.transform(sgMatR({ -3.14159 }), sgMatT({ 0, -1.f, 0 })));
+    rmArray.append(planeArray.transform(sgMatR({ -3.14159f / 2.f }), sgMatT({ 0, 0.f, -1.f })));
+    rmArray.append(planeArray.transform(sgMatR({  3.14159f / 2.f }), sgMatT({ 0, 0.f,  1.f })));
+    rmArray.append(planeArray.transform(sgMatR({ 0.f, 0.f,  3.14159f / 2.f }), sgMatT({ -1.f, 0.f, 0.f })));
+    rmArray.append(planeArray.transform(sgMatR({ 0.f, 0.f, -3.14159f / 2.f }), sgMatT({  1.f, 0.f, 0.f })));
 
-    RawModel planeRawModel(planeArray);
+    RawModel planeRawModel(rmArray);
+    planeRawModel.setColor(Color(0, 0, 255));
 
     Model plane(&planeRawModel);
 
     OrbitCamera camera(3.14159f / 2.f);
-    camera.setPosition({ 0, 0, -10 });
     camera.addRotation({ -3.14159f / 4.f, -3.14159f / 4.f, 0 });
 
     RenderContext rc;
@@ -77,6 +83,7 @@ int main()
         window.clear(Color(100, 100, 100));
 
         window.draw(plane, &rc);
+        plane.drawNormals(window, &rc);
 
         window.update();
     }

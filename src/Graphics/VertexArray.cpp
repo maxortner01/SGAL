@@ -34,7 +34,7 @@ namespace sgal
 
         if (vertices)
         {
-            std::memcpy(newptr, vertices, sizeof(Vertex) * (_size < c_size)?c_size:_size);
+            std::memcpy(newptr, vertices, sizeof(Vertex) * c_size);
             std::free(vertices);
         }
 
@@ -66,22 +66,41 @@ namespace sgal
 
     VertexArray VertexArray::transform(const Mat4f& transformation) const
     {
-        VertexArray r(size());
+        VertexArray r;
 
         for (int i = 0; i < size(); i++)
         {
-            Matrix<float, 1, 4> pos, newpos;
+            Matrix<float, 4, 1> pos, norm, newpos, newnorm;
             pos(0, 0) = get(i).position.x;
-            pos(0, 1) = get(i).position.y;
-            pos(0, 2) = get(i).position.z;
-            pos(0, 3) = 1;
+            pos(1, 0) = get(i).position.y;
+            pos(2, 0) = get(i).position.z;
+            pos(3, 0) = 1;
 
-            newpos = pos * transformation;
+            norm(0, 0) = get(i).normal.x;
+            norm(1, 0) = get(i).normal.y;
+            norm(2, 0) = get(i).normal.z;
+            norm(3, 0) = 1;
 
-            r[i] = get(i);
-            r[i].position.x = newpos(0, 0);
-            r[i].position.y = newpos(0, 1);
-            r[i].position.z = newpos(0, 2);
+            // Remove translation from transformation
+            Mat4f normaltransform = transformation;
+            normaltransform(0, 3) = 0;
+            normaltransform(1, 3) = 0;
+            normaltransform(2, 3) = 0;
+
+            newpos  = transformation  * pos;
+            newnorm = normaltransform * norm;
+
+            Vertex newPos = get(i);
+            newPos.position.x = newpos(0, 0);
+            newPos.position.y = newpos(0, 1);
+            newPos.position.z = newpos(0, 2);
+
+            newPos.normal.x = newnorm(0, 0);
+            newPos.normal.y = newnorm(0, 1);
+            newPos.normal.z = newnorm(0, 2);
+            newPos.normal = normalize(newPos.normal);
+
+            r.push(newPos);
         }
 
         return r;
