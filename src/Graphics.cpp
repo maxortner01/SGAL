@@ -17,3 +17,4 @@
 #include "./Graphics/UI.cpp"
 #include "./Graphics/SingleModel.cpp"
 #include "./Graphics/VertexArray.cpp"
+#include "./Graphics/Primitives.cpp"

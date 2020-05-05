@@ -1,5 +1,6 @@
 #include <SGAL/SGAL.h>
 
+#include <sstream>
 #include <cstring>
 #include <fstream>
 
@@ -77,6 +78,21 @@ namespace sgal
         std::ifstream file(filename, std::ios::in | std::ios::binary);
         SG_ASSERT(file, "Error reading from file!");
 
+        // Seek to the end of the file and get size
+        file.seekg(0, std::ios_base::end);
+        const unsigned int size = file.tellg();
+
+        // Go back to the beginning
+        file.seekg(0);
+        unsigned char* const data = (unsigned char*)std::malloc(size);
+        file.read((char* const)data, size);
+        file.close();
+
+        loadFromArray(data, size, array);
+
+        std::free(data);
+
+        /*
         std::vector<unsigned int> indices;
         std::vector<Vec3f> v_vertices, v_normals;
         std::vector<Vec2f> v_texcoords;
@@ -148,6 +164,91 @@ namespace sgal
             vertex.color         = v_colors   [indices[i]];
 
             array.push(vertex);
+        } */
+    }
+    
+	void Serializer::loadFromArray(const unsigned char* array, const uint32_t size, VertexArray& varray)
+    {
+        uint32_t iterator = 0;
+
+        std::vector<unsigned int> indices;
+        std::vector<Vec3f> v_vertices, v_normals;
+        std::vector<Vec2f> v_texcoords;
+        std::vector<Color> v_colors;
+
+        unsigned char buffer_index = 255;
+        while (iterator < size)
+        {
+            unsigned int buffer_size;
+            void* data;
+
+            // Read the buffer identifier
+            std::memcpy(&buffer_index, array + iterator, sizeof(unsigned char));
+            iterator += sizeof(unsigned char);
+
+            // Read the buffer size number
+            std::memcpy(&buffer_size, array + iterator, sizeof(unsigned int));
+            iterator += sizeof(unsigned int);
+
+            data = std::malloc(buffer_size);
+            // Read the data
+            std::memcpy(data, array + iterator, buffer_size);
+            iterator += buffer_size;
+
+            switch (buffer_index)
+            {
+                case GL::Vertices:
+                {
+                    v_vertices.resize(buffer_size / sizeof(Vec3f));
+                    std::memcpy(&v_vertices[0], data, buffer_size);
+                    break;
+                }
+
+                case GL::Normals:
+                {
+                    v_normals.resize(buffer_size / sizeof(Vec3f));
+                    std::memcpy(&v_normals[0], data, buffer_size);
+                    break;
+                }
+
+                case GL::TexCoords:
+                {
+                    v_texcoords.resize(buffer_size / sizeof(Vec2f));
+                    std::memcpy(&v_texcoords[0], data, buffer_size);
+                    break;
+                }
+
+                case GL::Colors:
+                {
+                    v_colors.resize(buffer_size / sizeof(Color));
+                    std::memcpy(&v_colors[0], data, buffer_size);
+                    break;
+                }
+
+                case 254: //indices
+                {
+                    indices.resize(buffer_size / sizeof(unsigned int));
+                    std::memcpy(&indices[0], data, buffer_size);
+                    break;
+                }
+            }
+
+            std::free(data);
+        }
+
+        if (!indices.size())
+            for (int i = 0; i < v_vertices.size(); i++)
+                indices.push_back(i);
+
+        for (int i = 0; i < indices.size(); i++)
+        {
+            Vertex vertex;
+            vertex.texture_coord = v_texcoords[indices[i]];
+            vertex.position      = v_vertices [indices[i]];
+            vertex.normal        = v_normals  [indices[i]];
+            vertex.color         = v_colors   [indices[i]];
+
+            varray.push(vertex);
         }
     }
 

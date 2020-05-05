@@ -19,6 +19,25 @@ set(SOURCES ${PROJECT_SOURCE_DIR}/src/Graphics.cpp
 
 add_library(SGAL SHARED ${SOURCES} "${PROJECT_SOURCE_DIR}/extern/glew/src/glew.c")
 
+# Check if Python is installed on the machine
+find_package(Python COMPONENTS Interpreter)
+if (Python_FOUND)
+    message(STATUS "Python Version ${Python_VERSION} installed")
+
+    # Call the script
+    add_custom_target(
+    run ALL
+    COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/genprims.py ${CMAKE_CURRENT_SOURCE_DIR}
+    BYPRODUCTS Primitives.h
+    COMMENT "Generating primitive files"
+    )
+
+    add_dependencies(SGAL run)
+
+else()
+    message(WARNING "Warning: Python not found, cannot generate primitive header files")
+endif()
+
 if (WIN32)
     if (MSVC)
         message(STATUS "Making SGAL library for Windows MSVC.")

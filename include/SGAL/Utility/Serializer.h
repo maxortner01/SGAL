@@ -25,5 +25,7 @@ namespace sgal
 		
 		static void loadFromFile(const std::string& filename, RawModel& rawModel);
 		static void loadFromFile(const std::string& filename, VertexArray& array);
+		
+		static void loadFromArray(const unsigned char* array, const uint32_t size, VertexArray& varray);
 	};
 }

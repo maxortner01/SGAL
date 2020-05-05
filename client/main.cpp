@@ -42,8 +42,7 @@ int main()
     Texture atlas;
     atlas.fromFile("res/textures/atlas.png");
 
-    VertexArray planeArray;
-    Serializer::loadFromFile("plane.rm", planeArray);
+    VertexArray planeArray = Primitives::getPlane();
 
     VertexArray rmArray;
     rmArray.append(planeArray.transform(sgMatT({ 0, 1.f, 0.f })));
