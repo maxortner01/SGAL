@@ -41,6 +41,4 @@ client/main_old.cpp
 
 client/res/textures/atlas.png
 
-include/SGAL/Graphics/Primitives/Primitives.h
-
 src/Graphics/Primitives/Primitives.cpp

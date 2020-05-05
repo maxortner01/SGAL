@@ -35,6 +35,7 @@ if (Python_FOUND)
     add_dependencies(SGAL run)
 
 else()
+    add_definitions(-DSG_NO_PRIMITIVES)
     message(WARNING "Warning: Python not found, cannot generate primitive header files")
 endif()
 
