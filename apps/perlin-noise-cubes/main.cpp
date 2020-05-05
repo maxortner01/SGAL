@@ -175,8 +175,8 @@ int main()
 
         window.clear(Color(100, 100, 100));
 
-        unsigned int vertices = 0;
-        unsigned int memory = 0;
+        unsigned int vertices   = 0;
+        unsigned int memory     = 0;
         unsigned int generating = 0;
         for (int i = 0; i < chunks.size(); i++)
         {
@@ -189,9 +189,17 @@ int main()
             vertices += chunks[i]->model.rawModel.vertexCount();
         }
 
-        if (generating == 0)
+        if (generating < 2)
             for (int i = 0; i < chunks.size(); i++)
-                if (!chunks[i]->generated && !chunks[i]->generated)
+                if (!chunks[i]->generated && !chunks[i]->generating)
+                {
+                    chunks[i]->start_generation();
+                    break;
+                } 
+        
+        if (generating < 2)
+            for (int i = chunks.size() - 1; i > -1; i--)
+                if (!chunks[i]->generated && !chunks[i]->generating)
                 {
                     chunks[i]->start_generation();
                     break;

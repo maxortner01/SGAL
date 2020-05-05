@@ -13,9 +13,20 @@ namespace sgal
     {
         resize(_size);
     }
+
+    VertexArray::VertexArray(const VertexArray& array) :
+        VertexArray()
+    {
+        clear();
+        resize(array.size());
+        std::memcpy(vertices, array.vertices, sizeof(Vertex) * array.size());
+        iterator = array.size();
+    }
     
     VertexArray::~VertexArray()
     {
+        std::cout << "Deleting array with " << size() << " vertices " << vertices << "\n";
+
         if (vertices)
         {
             std::free(vertices);
@@ -40,9 +51,11 @@ namespace sgal
 
         vertices = (Vertex*)newptr;
         c_size   = _size;
+        
+        std::cout << "Allocated space for new ptr: " << vertices << ". Size: " << c_size << "\n";
     }
 
-    void VertexArray::push(const Vertex& vertex) 
+    void VertexArray::push(Vertex& vertex) 
     {
         if (iterator >= c_size)
             resize(c_size * 2);
@@ -52,7 +65,7 @@ namespace sgal
 
     void VertexArray::fit()
     {
-        resize(iterator);
+        resize(iterator + 1);
     }
 
     void VertexArray::clear()
@@ -64,16 +77,23 @@ namespace sgal
 
     void VertexArray::append(const VertexArray& array)
     {
-        if (iterator + array.size() >= c_size)
+        if (!vertices || iterator + array.size() >= c_size)
             resize(iterator + array.size());
         
         std::memcpy(vertices + iterator, &array[0], sizeof(Vertex) * array.size());
         iterator += array.size();
     }
+    
+    VertexArray& VertexArray::operator=(const VertexArray& va)
+    {
+        clear();
+        append(va);
+        return *this;
+    }
 
     VertexArray VertexArray::transform(const Mat4f& transformation) const
     {
-        VertexArray r;
+        VertexArray r(size());
 
         for (int i = 0; i < size(); i++)
         {
@@ -108,6 +128,19 @@ namespace sgal
             newPos.normal = normalize(newPos.normal);
 
             r.push(newPos);
+        }
+
+        return r;
+    }
+
+    VertexArray VertexArray::index(const unsigned int* indices, const uint32_t size) const
+    {
+        VertexArray r(size);
+
+        for (int i = 0; i < size; i++)
+        {
+            SG_ASSERT(indices[i] < this->size(), "Index out of range!");
+            r.push(get(indices[i]));
         }
 
         return r;
@@ -154,7 +187,7 @@ namespace sgal
         bool used = false;
         for (int i = 0; i < size(); i++)
         {
-            Vec2f& coord = get(i).texture_coord;
+            Vec2f coord = get(i).texture_coord;
             tex.push_back(coord);
 
             if (!used && dot(coord, coord)) used = true;
@@ -172,7 +205,7 @@ namespace sgal
         bool used = false;
         for (int i = 0; i < size(); i++)
         {
-            Vec3f& vertex = get(i).position;
+            Vec3f vertex = get(i).position;
             vertices.push_back(vertex);
 
             if (!used && dot(vertex, vertex)) used = true;
@@ -190,7 +223,7 @@ namespace sgal
         bool used = false;
         for (int i = 0; i < size(); i++)
         {
-            Vec3f& normal = get(i).normal;
+            Vec3f normal = get(i).normal;
             normals.push_back(normal);
 
             if (!used && dot(normal, normal)) used = true;
@@ -208,7 +241,7 @@ namespace sgal
         bool used = false;
         for (int i = 0; i < size(); i++)
         {
-            Color& color = get(i).color;
+            Color color = get(i).color;
             colors.push_back(color);
 
             if (!used && color.r + color.g + color.b + color.a != 0.f) used = true;

@@ -34,18 +34,23 @@ namespace sgal
 
 	public:
 		VertexArray(const uint32_t _size = 1);
+		VertexArray(const VertexArray& va);
 		~VertexArray();
 
 		void resize(const uint32_t _size);
-		void push(const Vertex& vertex);
+		void push(Vertex& vertex);
 		void fit();
 		void clear();
 
 		void append(const VertexArray& array);
 
+		VertexArray& operator=(const VertexArray& va);
+
 		template<typename... Args>
 		VertexArray transform(const Mat4f& first, Args... transformations) const;
 		VertexArray transform(const Mat4f& transformation) const;
+
+		VertexArray index(const unsigned int* indices, const uint32_t size) const;
 
 		bool typeFilled(GL::BufferType type) const;
 

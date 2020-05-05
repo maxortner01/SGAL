@@ -26,13 +26,13 @@ if (Python_FOUND)
 
     # Call the script
     add_custom_target(
-    run ALL
+    primitive-gen ALL
     COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/genprims.py ${CMAKE_CURRENT_SOURCE_DIR}
     BYPRODUCTS Primitives.h
     COMMENT "Generating primitive files"
     )
 
-    add_dependencies(SGAL run)
+    add_dependencies(SGAL primitive-gen)
 
 else()
     add_definitions(-DSG_NO_PRIMITIVES)

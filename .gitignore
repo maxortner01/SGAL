@@ -44,3 +44,15 @@ client/res/textures/atlas.png
 src/Graphics/Primitives/Primitives.cpp
 
 client/Debug/
+
+apps/perlin-noise-cubes/perlin-noise-cubes.exe
+
+apps/perlin-noise-cubes/libstdc\+\+-6.dll
+
+apps/perlin-noise-cubes/libSGAL.dll
+
+apps/marching-cubes/libSGAL.dll
+
+apps/marching-cubes/libstdc\+\+-6.dll
+
+apps/marching-cubes/marching-cubes.exe
