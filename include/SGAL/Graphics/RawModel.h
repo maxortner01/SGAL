@@ -40,6 +40,7 @@ namespace sgal
 		RawModel();
 		RawModel(const VertexArray& array);
 
+		void fromArray(const VertexArray& array);
 		void fromFile(const std::string& filename);
 
 		void setColor(const Color& color) const;

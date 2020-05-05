@@ -55,6 +55,13 @@ namespace sgal
         resize(iterator);
     }
 
+    void VertexArray::clear()
+    {
+        std::memset(vertices, 0, sizeof(Vertex) * c_size);
+        std::free(vertices);
+        vertices = nullptr;
+    }
+
     void VertexArray::append(const VertexArray& array)
     {
         if (iterator + array.size() >= c_size)

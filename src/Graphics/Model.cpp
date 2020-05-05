@@ -9,7 +9,9 @@ namespace sgal
 
     Model::Model(RawModel const* rm) :
         rawModel(rm), normalsModel(nullptr), normalsRawModel(nullptr)
-    {   }
+    {  
+        
+    }
 
     Model::~Model()
     {

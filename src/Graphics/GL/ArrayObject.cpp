@@ -1,5 +1,6 @@
 #include <SGAL/SGAL.h>
 
+#include <iostream>
 #include <vector>
 #include <GL/glew.h>
 
@@ -24,8 +25,11 @@ namespace GL
     {
         for (int i = 0; i < BufferType::BufferCount; i++)
         {
-            delete vbos[i];
-            vbos[i] = nullptr;
+            if (vbos[i])
+            {
+                delete vbos[i];
+                vbos[i] = nullptr;
+            }
         }
 
         glDeleteVertexArrays(1, &id);

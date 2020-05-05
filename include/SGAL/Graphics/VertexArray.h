@@ -39,6 +39,7 @@ namespace sgal
 		void resize(const uint32_t _size);
 		void push(const Vertex& vertex);
 		void fit();
+		void clear();
 
 		void append(const VertexArray& array);
 

@@ -1,7 +1,12 @@
 #include <iostream>
 #include <SGAl/SGAL.h>
 
+#include <thread>
+
 #include <cstring>
+
+#include "SimplexNoise.h"
+#include "SimplexNoise.cpp"
 
 /*
 
@@ -33,37 +38,126 @@
     Serializer::saveToFile("plane.rm", plane.rawModel);
     */
 
+using namespace sgal;
+
+struct Chunk
+{
+    const unsigned int CHUNK_SIZE = 50;
+    const float        BLOCK_SIZE = 2.f;
+    const SimplexNoise noise;
+
+    std::thread* thread;
+
+    bool generating;
+    bool joined;
+    bool generated;
+    SingleModel model;
+    VertexArray array;
+
+    Vec3i _location;
+
+    Chunk(Vec3i location) :
+        generated(false), joined(false), generating(false), _location(location), thread(nullptr)
+    {
+        
+    }
+
+    void start_generation()
+    {
+        generating = true;
+        thread = new std::thread(Chunk::generate, this, _location);
+    }
+
+    void check()
+    {
+        if (generated && !joined)
+        {
+            thread->join();
+            model.rawModel.fromArray(array);
+            joined = true;
+            array.clear();
+
+            delete thread;
+        }
+    }
+
+    static void generate(Chunk* chunk, Vec3i location)
+    {
+        const float THRESHOLD = 0.75f;
+        const Vec3f start_pos = (Vec3f)location * ((float)chunk->CHUNK_SIZE * chunk->BLOCK_SIZE);
+
+        for (int x = 0; x < chunk->CHUNK_SIZE; x++)
+            for (int y = 0; y < chunk->CHUNK_SIZE; y++)
+                for (int z = 0; z < chunk->CHUNK_SIZE; z++)
+                {
+                    Vec3f position = Vec3f(x, y, z) * chunk->BLOCK_SIZE + start_pos;
+
+                    // Get the noise value
+                    const float value = (chunk->noise.fractal(2, position.x / 100.f, position.y / 100.f, position.z / 100.f) + 1.f) / 2.f;
+
+                    if (value < THRESHOLD) continue;
+
+                    const Vec3f directions[] = {
+                        Vec3f(-1, 0, 0),
+                        Vec3f( 1, 0, 0),
+                        Vec3f( 0,-1, 0),
+                        Vec3f( 0, 1, 0),
+                        Vec3f( 0, 0,-1),
+                        Vec3f( 0, 0, 1)
+                    };
+
+                    for (int i = 0; i < 6; i++)
+                    {
+                        const Vec3f adjacent_position = position + (directions[i] * chunk->BLOCK_SIZE);
+                        const float adjacent_value    = (chunk->noise.fractal(2, adjacent_position.x / 100.f, adjacent_position.y / 100.f, adjacent_position.z / 100.f) + 1.f) / 2.f;
+
+                        Vec3f movement = directions[i] * (chunk->BLOCK_SIZE / 2.f);
+                        Mat4f rotation;
+                        rotation.toIdentity();
+
+                        switch (i)
+                        {
+                        case 0: rotation = sgMatR({ 0.f, 0.f,  3.14159f / 2.f }); break;
+                        case 1: rotation = sgMatR({ 0.f, 0.f, -3.14159f / 2.f }); break;
+                        case 2: rotation = sgMatR({  3.14159f, 0.f, 0.f });       break;
+                        case 4: rotation = sgMatR({ -3.14159f / 2.f, 0.f, 0.f }); break;
+                        case 5: rotation = sgMatR({  3.14159f / 2.f, 0.f, 0.f }); break;
+                        };
+
+                        if (adjacent_value < THRESHOLD)
+                            chunk->array.append(Primitives::getPlane().transform(sgMatS({ chunk->BLOCK_SIZE / 2.f, chunk->BLOCK_SIZE / 2.f, chunk->BLOCK_SIZE / 2.f }), rotation, sgMatT(position + movement)));
+                    }
+                }
+
+        chunk->generated = true;
+        chunk->generating = false;
+    }
+};
+
 int main()
 {
-    using namespace sgal;
-
     DrawWindow window(VideoSettings(1920, 1080, "Hello"));
 
-    Texture atlas;
-    atlas.fromFile("res/textures/atlas.png");
+    std::vector<Chunk*> chunks;
+    for (int x = -4; x <= 4; x++)
+        for (int y = -4; y <= 4; y++)
+            for (int z = -4; z <= 4; z++)
+                chunks.push_back(new Chunk(Vec3f( x, y, z )));
 
-    VertexArray planeArray = Primitives::getPlane();
+    FPSCamera camera(3.14159f / 2.f);
 
-    VertexArray rmArray;
-    rmArray.append(planeArray.transform(sgMatT({ 0, 1.f, 0.f })));
-    rmArray.append(planeArray.transform(sgMatR({ -3.14159 }), sgMatT({ 0, -1.f, 0 })));
-    rmArray.append(planeArray.transform(sgMatR({ -3.14159f / 2.f }), sgMatT({ 0, 0.f, -1.f })));
-    rmArray.append(planeArray.transform(sgMatR({  3.14159f / 2.f }), sgMatT({ 0, 0.f,  1.f })));
-    rmArray.append(planeArray.transform(sgMatR({ 0.f, 0.f,  3.14159f / 2.f }), sgMatT({ -1.f, 0.f, 0.f })));
-    rmArray.append(planeArray.transform(sgMatR({ 0.f, 0.f, -3.14159f / 2.f }), sgMatT({  1.f, 0.f, 0.f })));
-
-    RawModel planeRawModel(rmArray);
-    planeRawModel.setColor(Color(0, 0, 255));
-
-    Model plane(&planeRawModel);
-
-    OrbitCamera camera(3.14159f / 2.f);
-    camera.addRotation({ -3.14159f / 4.f, -3.14159f / 4.f, 0 });
+    LightArray lights;
+    Light mainlight;
+    mainlight.type = Light::Directional;
+    mainlight.position = Vec3f(-0.25f, 0.5f, 0.1f);
+    lights.push(mainlight);
 
     RenderContext rc;
     rc.camera = &camera;
-    rc.use_lighting = false;
+    rc.lights = &lights;
+    //rc.use_lighting = false;
 
+    Timer fpstimer;
     while (window.isOpen())
     {
         Event event;
@@ -81,9 +175,31 @@ int main()
 
         window.clear(Color(100, 100, 100));
 
-        window.draw(plane, &rc);
-        plane.drawNormals(window, &rc);
+        unsigned int vertices = 0;
+        unsigned int memory = 0;
+        unsigned int generating = 0;
+        for (int i = 0; i < chunks.size(); i++)
+        {
+            if (chunks[i]->generating) generating++;
+            chunks[i]->check();
+            if (chunks[i]->joined)
+                window.draw(chunks[i]->model, &rc);
+
+            memory += chunks[i]->model.rawModel.getByteSize();
+            vertices += chunks[i]->model.rawModel.vertexCount();
+        }
+
+        if (generating == 0)
+            for (int i = 0; i < chunks.size(); i++)
+                if (!chunks[i]->generated && !chunks[i]->generated)
+                {
+                    chunks[i]->start_generation();
+                    break;
+                } 
 
         window.update();
+
+        window.setTitle("Test  |  FPS: " + std::to_string((int)(1.f / fpstimer.getElapsed())) + "  |  RAM: " + std::to_string((int)((float)memory / 1000000.f)) + " mb  |  Vertices: " + std::to_string(vertices));
+        fpstimer.restart();
     }
 }
