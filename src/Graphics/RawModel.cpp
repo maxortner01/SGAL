@@ -231,8 +231,11 @@ namespace sgal
             shader->setUniform("proj_matrix", identity);
         }
 
-        if (rc->lights)
+        if (rc->lights && rc->lights->size() > 0)
             shader->setUniform(&(*rc->lights)[0], rc->lights->size());
+        else
+            shader->setUniform("light_count", 0);
+        
         
     }
 

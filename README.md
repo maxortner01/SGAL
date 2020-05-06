@@ -1,5 +1,5 @@
-# SGAL V0.1
-The **S**imple **G**raphics and **A**udio **L**ibrary is a straight-forward object-oriented library built in C++ meant to give the user a streamlined way of creating robust 3D graphics through a simple and small API. It uses OpenGL for the low-level rendering operations, and all window handling is done in the library. It is cross platform.
+# SGAL V0.1.1
+The **S**imple **G**raphics and **A**udio **L**ibrary is a straight-forward object-oriented library built in C++ meant to give the user a streamlined way of creating robust 3D graphics through a simple and small API. It uses OpenGL for the low-level rendering operations, and all window handling is done in-framework. It is cross platform.
 
 All dependencies are automatically downloaded and synced when you compile using CMake.
 
@@ -11,6 +11,13 @@ GLEW: [Link](https://github.com/nigels-com/glew)
 
 CMake: [Link](https://cmake.org/download/)
 
+## What's New in `0.1.1`
+![alt text](images/marching-cubes.gif)
+
+This version is powered by the new `VertexArray` object which allows you to generate meshes without pushing anything to the GPU. This means you can generate meshes on another thread in your RAM and when its finished, push it to your graphics card and start rendering. An instance of this can be shown in the new demo project `marching-cubes`.
+
+There's also the introduction of the `Primitives` system. Before you compile, if python is installed, the binary files within the `prims` folder will be converted into byte-arrays into a `primitives.cpp` file which allows you to access these primitives directly from the framework. If python isn't installed, it still compiles, just without the primitives. Now you can render cubes or planes, build meshes out of cubes or planes and never have to load in any files.
+
 ## Compilation
 
 SGAL uses `cmake` to compile. It needs a `build` folder and `lib` folder. Change your directory to the build folder and run `cmake ..` (with your additional parameters if needed) and it should get to work compiling the library. All files needed for linking will be found in the `lib` folder, and if you don't want to compile the client application simply disable the `COMPILE_CLIENT` option in CMake.
@@ -19,6 +26,14 @@ SGAL uses `cmake` to compile. It needs a `build` folder and `lib` folder. Change
 SGAL uses only the `GLEW` library as a dependancy. For now it pulls from the `cmake-glew` repository since it includes the `glew.c` file which is needed for easy compilation until I can figure out the more official repo.
 
 ## Changelog
+
+### Version `0.1.1` 5/6/2020
+
+- Introduced the VertexArray.
+- Created the SingleModel class.
+- Bug fixes.
+- Introduced primitive system and header generation.
+- Made the application folder more robust.
 
 ### Version 0.1 - 4/29/2020
 

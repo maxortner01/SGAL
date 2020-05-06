@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstring>
 #include <thread>
+#include <math.h>
 
 #include "triangulation.cpp"
 
@@ -54,6 +55,7 @@ struct Chunk
 
     float getValue(Vec3f position)
     {
+        return sqrt(dot(position, position)) - 75.f - (pow(noise.fractal(6, position.x / 75.f, position.y / 75.f, position.z / 75.f), 4) * 20.f);
         //return (noise.fractal(3, position.x / 75.f, position.y / 75.f, position.z / 75.f) + 1.f) / 2.f;
         float noise_value =  (noise.fractal(5, position.x / 20.f, position.y / 20.f, position.z / 20.f) + 1.f) / 2.f;
         return sqrt(dot(position, position)) - 75.f + noise_value * 5.f;
@@ -107,6 +109,7 @@ struct Chunk
 
             Vertex vert;
             vert.position = pos * 2.f + position;
+            vert.color = Color(255, 255, 255, 255);
             va.push(vert);
         }
 
@@ -177,16 +180,18 @@ int main()
     LightArray lights;
     Light mainlight;
     mainlight.type = Light::Directional;
-    mainlight.position = Vec3f(025.f, 0.5f, -1.f);
+    mainlight.position = normalize(Vec3f(1.f, 1.f, 0.f));
+    mainlight.color = Color(255, 255, 255, 255);
     lights.push(mainlight);
 
     OrbitCamera camera(3.14159f / 2.f);
     RenderContext rc;
     rc.camera = &camera;
     rc.lights = &lights;
-    //rc.use_lighting = false;
 
     Mouse::setPosition({ (int)window.getSize().x / 2, (int)window.getSize().y / 2 });
+
+    bool draw_normals = false;
 
     Timer fpstimer;
     while (window.isOpen())
@@ -198,8 +203,15 @@ int main()
                 window.close();
 
             if (event.type == Event::KeyDown)
+            {
                 if (event.key.code == Keyboard::Escape)
                     window.close();
+                if (event.key.code == Keyboard::Tab)
+                {
+                    if (draw_normals) draw_normals = false;
+                    else draw_normals = true;
+                }
+            }
         }
 
         camera.update(window, 2.f, 50.f);
@@ -212,7 +224,12 @@ int main()
             chunks[i]->check();
             if (chunks[i]->joined)
             {
+                rc.use_lighting = true;
                 window.draw(chunks[i]->model, &rc);
+
+                if (draw_normals)
+                    chunks[i]->model.model.drawNormals(window, &rc);
+
                 memory   += chunks[i]->model.rawModel.getByteSize();
                 vertices += chunks[i]->model.rawModel.vertexCount();
             }

@@ -317,9 +317,10 @@ namespace sgal
             fragment_contents += "        vec4 light_pos = vec4(lights[i].position, 1);\n";
             fragment_contents += "        if (lights[i].type == 1) { light_pos = light_pos - position; } // If point light\n";
             
-            fragment_contents += "        vec4 n_normal  = (length(normal.xyz) == 0.0)?(normalize(light_pos)):(normalize(normal));\n";
+            //fragment_contents += "        vec4 n_normal  = (length(normal.xyz) == 0.0)?(normalize(light_pos)):(normalize(normal));\n";
 
-            fragment_contents += "        output_color += vec4(lights[i].color.xyz, 1.0) * max(dot(normalize(light_pos), normalize(n_normal)) * 2.0 - 1.0, 0.0) / max(length(light_pos) / lights[i].intensity, 1.0);\n";
+            fragment_contents += "        output_color += vec4(lights[i].color.xyz, 1.0) * max(dot(normalize(light_pos), normalize(normal)), 0.0);\n";
+            fragment_contents += "        if (lights[i].type == 1) { output_color = output_color / max(length(light_pos) / lights[i].intensity, 1.0); }";
             fragment_contents += "    }\n";
 
             fragment_contents += "    return vert_color * vec4(output_color.xyz, 1.0);\n";
@@ -327,7 +328,7 @@ namespace sgal
 
             fragment_contents += "void main() {\n";
             fragment_contents += "    vec4 output_color = (use_lighting)?(getOutputColor()):(vert_color);\n";
-
+            
             fragment_contents += "    if (use_textures) { output_color = output_color * texture(texture1, tex_coords); };\n";
             fragment_contents += "    color = output_color;\n";
             fragment_contents += "    //color = vec4((normal.xyz + 1) / 2, 1.0);\n";
