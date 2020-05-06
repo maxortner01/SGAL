@@ -91,80 +91,6 @@ namespace sgal
         loadFromArray(data, size, array);
 
         std::free(data);
-
-        /*
-        std::vector<unsigned int> indices;
-        std::vector<Vec3f> v_vertices, v_normals;
-        std::vector<Vec2f> v_texcoords;
-        std::vector<Color> v_colors;
-
-        unsigned char buffer_index = 255;
-        while (file.read((char*)&buffer_index, sizeof(unsigned char)))
-        {
-            unsigned int buffer_size;
-            void* data;
-            file.read((char*)&buffer_size, sizeof(unsigned int));
-
-            data = std::malloc(buffer_size);
-            file.read((char*)data, buffer_size);
-
-            switch (buffer_index)
-            {
-                case GL::Vertices:
-                {
-                    v_vertices.resize(buffer_size / sizeof(Vec3f));
-                    std::memcpy(&v_vertices[0], data, buffer_size);
-                    break;
-                }
-
-                case GL::Normals:
-                {
-                    v_normals.resize(buffer_size / sizeof(Vec3f));
-                    std::memcpy(&v_normals[0], data, buffer_size);
-                    break;
-                }
-
-                case GL::TexCoords:
-                {
-                    v_texcoords.resize(buffer_size / sizeof(Vec2f));
-                    std::memcpy(&v_texcoords[0], data, buffer_size);
-                    break;
-                }
-
-                case GL::Colors:
-                {
-                    v_colors.resize(buffer_size / sizeof(Color));
-                    std::memcpy(&v_colors[0], data, buffer_size);
-                    break;
-                }
-
-                case 254: //indices
-                {
-                    indices.resize(buffer_size / sizeof(unsigned int));
-                    std::memcpy(&indices[0], data, buffer_size);
-                    break;
-                }
-            }
-
-            std::free(data);
-        }
-
-        file.close();
-
-        if (!indices.size())
-            for (int i = 0; i < v_vertices.size(); i++)
-                indices.push_back(i);
-
-        for (int i = 0; i < indices.size(); i++)
-        {
-            Vertex vertex;
-            vertex.texture_coord = v_texcoords[indices[i]];
-            vertex.position      = v_vertices [indices[i]];
-            vertex.normal        = v_normals  [indices[i]];
-            vertex.color         = v_colors   [indices[i]];
-
-            array.push(vertex);
-        } */
     }
     
 	void Serializer::loadFromArray(const unsigned char* array, const uint32_t size, VertexArray& varray)
@@ -243,10 +169,17 @@ namespace sgal
         for (int i = 0; i < indices.size(); i++)
         {
             Vertex vertex;
-            vertex.texture_coord = v_texcoords[indices[i]];
-            vertex.position      = v_vertices [indices[i]];
-            vertex.normal        = v_normals  [indices[i]];
-            vertex.color         = v_colors   [indices[i]];
+            if (v_texcoords.size())
+                vertex.texture_coord = v_texcoords[indices[i]];
+
+            if (v_vertices.size())
+                vertex.position      = v_vertices [indices[i]];
+
+            if (v_normals.size())
+                vertex.normal        = v_normals  [indices[i]];
+
+            if (v_colors.size())
+                vertex.color         = v_colors   [indices[i]];
 
             varray.push(vertex);
         }

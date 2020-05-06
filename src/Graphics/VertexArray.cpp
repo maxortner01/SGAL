@@ -25,8 +25,6 @@ namespace sgal
     
     VertexArray::~VertexArray()
     {
-        std::cout << "Deleting array with " << size() << " vertices " << vertices << "\n";
-
         if (vertices)
         {
             std::free(vertices);
@@ -51,8 +49,6 @@ namespace sgal
 
         vertices = (Vertex*)newptr;
         c_size   = _size;
-        
-        std::cout << "Allocated space for new ptr: " << vertices << ". Size: " << c_size << "\n";
     }
 
     void VertexArray::push(Vertex& vertex) 
@@ -161,7 +157,7 @@ namespace sgal
 
     Vertex& VertexArray::get(const uint32_t index) const
     {
-        INDEX_OUT_RANGE;
+        //INDEX_OUT_RANGE;
         return *(vertices + index);
     }
 
