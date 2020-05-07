@@ -59,10 +59,10 @@ vec4 getOutputColor() {
     for (int i = 0; i < light_count; i++)
     {
         vec4 light_pos = vec4(lights[i].position, 1);
-        if (lights[i].type == 1) { light_pos = light_pos - position; } // If point light
+        if (lights[i].type == " + std::to_string(Light::Point) + ") { light_pos = light_pos - position; } // If point light
 
         output_color += vec4(lights[i].color.xyz, 1.0) * max(dot(normalize(light_pos), normalize(normal)), 0.0);
-        if (lights[i].type == 1) { output_color = output_color / max(length(light_pos) / lights[i].intensity, 1.0); }
+        if (lights[i].type == " + std::to_string(Light::Point) + ") { output_color = output_color / max(length(light_pos) / lights[i].intensity, 1.0); }
     }
 
     return vert_color * vec4(output_color.xyz, 1.0);

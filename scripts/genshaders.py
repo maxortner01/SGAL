@@ -7,6 +7,52 @@ shader_files = []
 for f in os.listdir("cgen/shaders"):
     shader_files.append("cgen/shaders/" + f)
 
+dependency_files = []
+for f in os.listdir("build"):
+    if f.split(".")[len(f.split(".")) - 1] == "sdep":
+        dependency_files.append("build/" + f)
+
+if len(shader_files) == len(dependency_files): 
+    newer = False
+    for c, dep in enumerate(dependency_files):
+        shader_file_name = ""
+        for shader in shader_files:
+            shader_name = shader.split("/")[len(shader.split("/")) - 1].split(".")[0].lower()
+            dep_name = shader.split("/")[len(shader.split("/")) - 1].split(".")[0].lower()
+
+            if shader_name == dep_name: 
+                shader_file_name = shader
+                break
+
+        if shader_file_name == "":
+            newer = True
+            break
+
+        if abs(os.stat(dep).st_mtime - os.stat(shader_file_name).st_mtime) > 0.008:
+            newer = True
+            break
+
+    if not newer:
+        print("Shader files haven't been updated.")
+        sys.exit(0)
+        
+    print("Shader files have been updated.")
+
+for shader in shader_files:
+    name = shader.split("/")[len(shader.split("/")) - 1].split(".")[0].lower()
+
+    content = ""
+    with open(shader, "r") as f:
+        content = f.read()
+
+    f = open(shader, "w")
+    f.write(content)
+    f.close()
+
+    f = open("build/" + name + ".sdep", "w")
+    f.write("Built")
+    f.close()
+
 before_header = ""
 after_header  = ""
 before_source = ""
@@ -98,13 +144,12 @@ with open(source_file, 'w') as f:
 
     f.write("}\n")
 
-if len(after_header) == 0 or len(after_source) == 0: sys.exit(0)
-
 with open(header_file, 'w') as f:
     f.write(before_header)
     
+    f.write("\t\t// [SHADER] insert-decl\n")
     for shader in shader_files:
         name = shader.split("/")[len(shader.split("/")) - 1].split(".")[0]
         f.write("\t\tstatic Shader& " + name + "();\n")
 
-    f.write(after_header)
+    f.write("\t};\n}")

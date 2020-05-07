@@ -24,6 +24,8 @@ find_package(Python COMPONENTS Interpreter)
 if (Python_FOUND)
     message(STATUS "Python Version ${Python_VERSION} installed")
 
+    file(GLOB SHADER_FILES "${PROJECT_SOURCE_DIR}/cgen/shaders/*.shader")
+
     # Call the script for generating primitives
     add_custom_target(
     primitive-gen ALL
@@ -34,9 +36,10 @@ if (Python_FOUND)
     
     # Call the script for generating shaders
     add_custom_target(
-    shader-gen ALL
-    COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/genshaders.py ${CMAKE_CURRENT_SOURCE_DIR}
-    BYPRODUCTS Shaders.h
+    shader-gen
+    COMMAND    ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/genshaders.py ${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS    ${SHADER_FILES}
+    BYPRODUCTS Shaders.cpp Shaders.h
     COMMENT "Generating shaders header/source files"
     )
 
