@@ -56,3 +56,5 @@ apps/marching-cubes/libSGAL.dll
 apps/marching-cubes/libstdc\+\+-6.dll
 
 apps/marching-cubes/marching-cubes.exe
+
+include/SGAL/Graphics/Primitives/Primitives.h
