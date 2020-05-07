@@ -24,15 +24,24 @@ find_package(Python COMPONENTS Interpreter)
 if (Python_FOUND)
     message(STATUS "Python Version ${Python_VERSION} installed")
 
-    # Call the script
+    # Call the script for generating primitives
     add_custom_target(
     primitive-gen ALL
     COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/genprims.py ${CMAKE_CURRENT_SOURCE_DIR}
     BYPRODUCTS Primitives.h
     COMMENT "Generating primitive files"
     )
+    
+    # Call the script for generating shaders
+    add_custom_target(
+    shader-gen ALL
+    COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/genshaders.py ${CMAKE_CURRENT_SOURCE_DIR}
+    BYPRODUCTS Shaders.h
+    COMMENT "Generating shaders header/source files"
+    )
 
     add_dependencies(SGAL primitive-gen)
+    add_dependencies(SGAL shader-gen)
 
 else()
     add_definitions(-DSG_NO_PRIMITIVES)

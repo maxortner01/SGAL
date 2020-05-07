@@ -39,6 +39,7 @@ SGAL uses only the `GLEW` library as a dependancy. For now it pulls from the `cm
 
 - [ ] Add assimilate feature to VertexArray where it combines vertices with the same position.
 - [ ] Text rendering.
+- [ ] Orthographic projection.
 
 ### Version `0.1` - 4/29/2020
 

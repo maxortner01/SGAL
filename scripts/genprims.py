@@ -36,8 +36,8 @@ header = open("include/SGAL/Graphics/Primitives/Primitives.h", "w")
 header.write(header_file_top)
 source.write(source_file_top)
 
-for rmFileName in os.listdir("prims"):
-    rmFile = open("prims/" + rmFileName, "rb")
+for rmFileName in os.listdir("cgen/prims"):
+    rmFile = open("cgen/prims/" + rmFileName, "rb")
     data = rmFile.read()
     rmFile.close()
 
@@ -52,8 +52,8 @@ for rmFileName in os.listdir("prims"):
     source.write("\n\t};\n\n")
 
 header.write("\n\tpublic:\n")
-for rmFileName in os.listdir("prims"):
-    rmFile = open("prims/" + rmFileName, "rb")
+for rmFileName in os.listdir("cgen/prims"):
+    rmFile = open("cgen/prims/" + rmFileName, "rb")
     data = rmFile.read()
     rmFile.close()
 
