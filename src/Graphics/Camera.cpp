@@ -48,8 +48,9 @@ namespace sgal
 
         if (ortho)
         {
-            proj.toIdentity();
-            proj(0, 0) = 1.0 / aspectRatio;
+            proj = sgMatS({ 1.f / getPosition().z, 1.f / getPosition().z, 1.f / getPosition().z });
+            proj(0, 0) *= -1.f / aspectRatio;
+            proj(1, 1) *= -1.f;
             proj(2, 2) = 0;
         }
         else
@@ -65,7 +66,7 @@ namespace sgal
         return proj;
     }
 
-    void Camera::orthographicProjection(bool enabled)
+    void Camera::setOrtho(bool enabled)
     {
         ortho = enabled;
     }

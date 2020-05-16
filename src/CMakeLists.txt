@@ -36,7 +36,7 @@ if (Python_FOUND)
     
     # Call the script for generating shaders
     add_custom_target(
-    shader-gen
+    shader-gen ALL
     COMMAND    ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/genshaders.py ${CMAKE_CURRENT_SOURCE_DIR}
     DEPENDS    ${SHADER_FILES}
     BYPRODUCTS Shaders.cpp Shaders.h

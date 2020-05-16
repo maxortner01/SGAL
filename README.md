@@ -54,7 +54,7 @@ SGAL uses only the `GLEW` library as a dependancy. For now it pulls from the `cm
 
 #### Planned Features
 
-- [X] SingleModel class that represents a RawModel and Model in one fell swoop.
+- [X] ~~SingleModel class that represents a RawModel and Model in one fell swoop.~~
 - [ ] Actual documentation.
 - [ ] Vulkan instead of OpenGL.
 - [ ] X11 implementation.

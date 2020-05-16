@@ -18,8 +18,8 @@ namespace sgal
 
 		HWND_PTR handle;
 
-		VideoSettings(unsigned int _width, unsigned int _height, const std::string& t = "") :
-			width(_width), height(_height), title(t), handle(nullptr)
+		VideoSettings(unsigned int _width, unsigned int _height, const std::string& t = " ") :
+			width(_width), height(_height), title((t.length() > 0)?t:" "), handle(nullptr)
 		{   }
 	};
 

@@ -55,16 +55,18 @@ namespace UI
         }
     }
 
-    void Rectangle::draw(const SizableSurface* surface) const
+    void Rectangle::draw(const SizableSurface* surface, const Shader* const shader) const
     {
         RenderContext rc;
         rc.depth_testing   = false;
         rc.contxt_override = false;
 
+        const Shader* const use_shader = (shader)?(shader):(&Shader::DefaultUI());
+
         // Set some default UI uniforms
-        Shader::DefaultUI().bind();
-        Shader::DefaultUI().setUniform("size", size);
-        Shader::DefaultUI().setUniform("radius", radius);
+        use_shader->bind();
+        use_shader->setUniform("size", size);
+        use_shader->setUniform("radius", radius);
 
         Color render_color = getColor();
 
@@ -76,15 +78,15 @@ namespace UI
         rawModel->setColor(render_color);
 
         // If there's a texture, bind it and set the uniforms
+        use_shader->bind();
         if (texture)
         {
-            Shader::DefaultUI().bind();
             texture->bind();
-            Shader::DefaultUI().setUniform("use_textures", true);
-            Shader::DefaultUI().setUniform("texture1", 0);
+            use_shader->setUniform("use_textures", true);
+            use_shader->setUniform("texture1", 0);
         }
         else
-            Shader::DefaultUI().setUniform("use_textures", false);
+            use_shader->setUniform("use_textures", false);
 
         // Pass the model over to the surface
         surface->draw(*model, &rc);

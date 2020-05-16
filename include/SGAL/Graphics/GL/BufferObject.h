@@ -18,6 +18,17 @@ namespace sgal
 {
 namespace GL
 {
+	enum BufferDataType
+	{
+		Float,
+		Int
+	};
+
+	/**
+	 * @brief High-level abstraction of OpenGL's VBO.
+	 * 
+	 * This object is used to communicate informtation to-and-fro the GPU.
+	 */
 	class SGAL_API BufferObject : Object
 	{
 		friend class ArrayObject;
@@ -27,7 +38,7 @@ namespace GL
 		bool         dynamic, data_bound;
 
 	public:
-		BufferObject(const unsigned int _index);
+		BufferObject(const unsigned int _index = 0);
 		~BufferObject();
 
 		unsigned int getByteSize() const;
@@ -40,8 +51,11 @@ namespace GL
 		 * @param count   Count of objects
 		 * @param members Amount of data members within each object
 		 */
-		void  loadData(const IPTR data, const size_t size, const size_t count, const size_t members);
+		void  loadData(const IPTR data, const size_t size, const size_t count, const size_t members, const BufferDataType type = Float);
 		void* readData() const;
+
+		void   bindBase(unsigned int layer) const;
+		void unbindBase(unsigned int layer) const;
 
 		void  bind()  const override;
 		void unbind() const override;

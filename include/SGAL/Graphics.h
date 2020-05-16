@@ -23,3 +23,4 @@
 #include "./Graphics/SingleModel.h"
 #include "./Graphics/VertexArray.h"
 #include "./Graphics/Primitives.h"
+#include "./Graphics/ComputeShader.h"

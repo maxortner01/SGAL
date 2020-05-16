@@ -36,7 +36,7 @@ namespace UI
 		Rectangle();
 		~Rectangle();
 
-		void draw(const SizableSurface* surface) const override;
+		void draw(const SizableSurface* surface, const Shader* const shader = nullptr) const override;
 
 		void  setColor(const Color& color);
 		Color getColor() const;

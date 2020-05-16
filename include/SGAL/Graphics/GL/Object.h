@@ -16,6 +16,9 @@ namespace sgal
 {
 namespace GL
 {
+	/**
+	 * @brief Simple data structure that holds ids used for OpenGL as well as bind/unbind functionality.
+	 */
 	struct SGAL_API Object
 	{
 		unsigned int id = 0;

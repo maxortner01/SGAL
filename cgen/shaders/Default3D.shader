@@ -8,21 +8,16 @@ layout (location = " + std::to_string(GL::TexCoords)     + ") in vec2 tex;
 layout (location = " + std::to_string(GL::ModelMatrices) + ") in mat4 modelMatrix;
 layout (location = " + std::to_string(GL::ModelMatrices + 4) + ") in mat4 normalMatrix;
 
-uniform bool turn_to_camera;
 uniform mat4 vp_matrix;
-uniform mat4 view_matrix;
-uniform mat4 proj_matrix;
 
 out vec2 tex_coords;
 out vec4 vert_color;
 out vec4 position;
 out vec4 normal;
-out mat4 model_matrix;
 
 void main() {
     position     = vec4(vertex, 1.0) * modelMatrix;
     normal       = vec4(in_normal, 1.0) * normalMatrix;
-    model_matrix = modelMatrix;
     vert_color   = in_color;
     tex_coords   = tex;
     gl_Position  = position * vp_matrix;
@@ -38,40 +33,62 @@ struct Light {
     int   type;
 };
 
-uniform mat4 view_matrix;
-
 uniform Light lights[" + std::to_string(SG_MAX_LIGHTS) + "];
 uniform int   light_count;
 uniform bool  use_lighting;
 uniform bool  use_textures;
 uniform sampler2D texture1;
 
-out vec4 color;
 in  vec2 tex_coords;
+in  vec4 vert_color;
 in  vec4 position;
 in  vec4 normal;
-in  vec4 vert_color;
-in  mat4 model_matrix;
+out vec4 color;
 
 vec4 getOutputColor() {
+    // Initialize color to black
     vec4 output_color = vec4(0.0);
 
     for (int i = 0; i < light_count; i++)
     {
-        vec4 light_pos = vec4(lights[i].position, 1);
-        if (lights[i].type == " + std::to_string(Light::Point) + ") { light_pos = light_pos - position; } // If point light
+        // Get the light position
+        vec4 light_pos = vec4(lights[i].position, 1.0);
+        vec4 add_color = vec4(0.0);
+        
+        // If the type is not directional, move its position relative to the camera
+        if (lights[i].type != " + std::to_string(Light::Directional) + ") 
+        {
+            light_pos = light_pos - position;
+        }
 
-        output_color += vec4(lights[i].color.xyz, 1.0) * max(dot(normalize(light_pos), normalize(normal)), 0.0);
-        if (lights[i].type == " + std::to_string(Light::Point) + ") { output_color = output_color / max(length(light_pos) / lights[i].intensity, 1.0); }
+        // Add the normal/light directional dot-product multiplied by the light color to the color
+        add_color += vec4(lights[i].color.xyz, 1.0) * max(dot(normalize(light_pos), normalize(normal)), 0.0);
+
+        // If the type is a point-light, add the fall-off
+        if (lights[i].type == " + std::to_string(Light::Point) + ") 
+        {
+            add_color = add_color / max(length(light_pos) / lights[i].intensity, 1.0);
+        }
+
+        // Add the lights color to the output
+        output_color += add_color;
     }
 
+    // Return the final color
     return vert_color * vec4(output_color.xyz, 1.0);
 }
 
 void main() {
+    // If use_lighting, call the function, otherwise ignore lighting
     vec4 output_color = (use_lighting)?(getOutputColor()):(vert_color);
 
-    if (use_textures) { output_color = output_color * texture(texture1, tex_coords); };
+    // If we're using textures, multiply the color by the texture color
+    if (use_textures) 
+    {
+        output_color = output_color * texture(texture1, tex_coords);
+    }
+
+    // set the final color
     color = output_color;
     //color = vec4((normal.xyz + 1) / 2, 1.0);
 }

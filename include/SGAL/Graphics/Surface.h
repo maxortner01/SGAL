@@ -33,7 +33,7 @@ namespace UI
 	{
 		void clear(Color color = Color(0, 0, 0, 255)) const;
 
-		void draw(const UI::Element& uielem) const;
+		void draw(const UI::Element& uielem, const Shader* const shader = nullptr) const;
 		void draw(const Drawable& object, const RenderContext* context = nullptr) const;
 
 	protected:

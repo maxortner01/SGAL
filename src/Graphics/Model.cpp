@@ -64,11 +64,15 @@ namespace sgal
         normalsModel->setRotation(getRotation());
         normalsModel->setScale(getScale());
 
+        const Shader* const before_shader = rc->shader;
+        rc->shader = &Shader::Default3D();
+
         bool before = rc->use_lighting;
         rc->use_lighting = false;
         surface.draw(*normalsModel, rc);
 
         rc->use_lighting = before;
+        rc->shader = before_shader;
     }
 
     void Model::draw(const Surface* surface, const RenderContext* rc) const

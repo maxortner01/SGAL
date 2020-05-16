@@ -42,6 +42,7 @@ namespace sgal
 		void fit();
 		void clear();
 
+		void calculateNormals();
 		void append(const VertexArray& array);
 
 		VertexArray& operator=(const VertexArray& va);

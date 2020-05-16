@@ -18,7 +18,7 @@ if len(shader_files) == len(dependency_files):
         shader_file_name = ""
         for shader in shader_files:
             shader_name = shader.split("/")[len(shader.split("/")) - 1].split(".")[0].lower()
-            dep_name = shader.split("/")[len(shader.split("/")) - 1].split(".")[0].lower()
+            dep_name = dep.split("/")[len(dep.split("/")) - 1].split(".")[0].lower()
 
             if shader_name == dep_name: 
                 shader_file_name = shader
@@ -28,7 +28,7 @@ if len(shader_files) == len(dependency_files):
             newer = True
             break
 
-        if abs(os.stat(dep).st_mtime - os.stat(shader_file_name).st_mtime) > 0.008:
+        if round(os.stat(dep).st_mtime) != round(os.stat(shader_file_name).st_mtime):
             newer = True
             break
 

@@ -73,6 +73,18 @@ namespace sgal
         stbi_image_free(data);
     }
 
+    void Texture::fromMemory(const void* const data, const Vec2u& size)
+    {
+        bool created = false;
+        if (!id) { create(size); created = true; }
+
+        bind();
+        setParameters();
+        if (created) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        else         glTexSubImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        unbind();
+    }
+
     Vec2u Texture::getSize() const
     {
         return size;

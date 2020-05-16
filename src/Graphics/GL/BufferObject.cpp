@@ -23,12 +23,19 @@ namespace GL
         return byte_size;
     }
 
-    void BufferObject::loadData(const IPTR data, const size_t size, const size_t count, const size_t members) 
+    void BufferObject::loadData(const IPTR data, const size_t size, const size_t count, const size_t members, const BufferDataType type) 
     {
         bind();
 
         byte_size = size * count;
         glBufferData(GL_ARRAY_BUFFER, size * count, data, (dynamic)?GL_DYNAMIC_DRAW:GL_STATIC_DRAW);
+
+        unsigned int gl_type;
+        switch (type)
+        {
+        case Float: gl_type = GL_FLOAT; break;
+        case Int:   gl_type = GL_INT;   break;
+        };
 
         if (data_bound) return;
 
@@ -41,10 +48,10 @@ namespace GL
             glEnableVertexAttribArray(adj_index + 2);
             glEnableVertexAttribArray(adj_index + 3);
 
-            glVertexAttribPointer(adj_index + 0, 4, GL_FLOAT, GL_FALSE, sizeof(Mat4f), (void*)(0));
-            glVertexAttribPointer(adj_index + 1, 4, GL_FLOAT, GL_FALSE, sizeof(Mat4f), (void*)(sizeof(float) * 4));
-            glVertexAttribPointer(adj_index + 2, 4, GL_FLOAT, GL_FALSE, sizeof(Mat4f), (void*)(sizeof(float) * 8));
-            glVertexAttribPointer(adj_index + 3, 4, GL_FLOAT, GL_FALSE, sizeof(Mat4f), (void*)(sizeof(float) * 12));
+            glVertexAttribPointer(adj_index + 0, 4, GL_FLOAT, gl_type, sizeof(Mat4f), (void*)(0));
+            glVertexAttribPointer(adj_index + 1, 4, GL_FLOAT, gl_type, sizeof(Mat4f), (void*)(sizeof(float) * 4));
+            glVertexAttribPointer(adj_index + 2, 4, GL_FLOAT, gl_type, sizeof(Mat4f), (void*)(sizeof(float) * 8));
+            glVertexAttribPointer(adj_index + 3, 4, GL_FLOAT, gl_type, sizeof(Mat4f), (void*)(sizeof(float) * 12));
 
             glVertexAttribDivisor(adj_index + 0, 1);
             glVertexAttribDivisor(adj_index + 1, 1);
@@ -53,7 +60,7 @@ namespace GL
         }
         else
         {
-            glVertexAttribPointer(index, members, GL_FLOAT, false, 0, nullptr);
+            glVertexAttribPointer(index, members, gl_type, false, 0, nullptr);
             glEnableVertexAttribArray(index);
         }
 
@@ -73,6 +80,16 @@ namespace GL
         unbind();
 
         return data_ptr;
+    }
+
+    void BufferObject::bindBase(unsigned int layer) const
+    {
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, layer, id);
+    }
+
+    void BufferObject::unbindBase(unsigned int layer) const
+    {
+        glBindBufferBase(GL_SHADER_STORAGE_BUFFER, layer, 0);
     }
 
     void BufferObject::bind() const

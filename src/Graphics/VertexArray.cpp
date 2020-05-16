@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cstring>
 
-#define INDEX_OUT_RANGE SG_ASSERT(index < c_size, "VertexArray out of range!")
+#define INDEX_OUT_RANGE SG_ASSERT(index <= c_size, "VertexArray out of range!")
 
 namespace sgal
 {
@@ -66,9 +66,40 @@ namespace sgal
 
     void VertexArray::clear()
     {
+        if (!vertices) return;
+        
         std::memset(vertices, 0, sizeof(Vertex) * c_size);
         std::free(vertices);
         vertices = nullptr;
+    }
+
+    void VertexArray::calculateNormals()
+    {
+        if (!size()) return;
+
+        std::vector<Vec3f> normals(size());
+
+        for (int i = 0; i < size(); i += 3)
+        {
+            Vec3f v1, v2, v3;
+
+            v1 = (*this)[i + 0].position;
+            v2 = (*this)[i + 1].position;
+            v3 = (*this)[i + 2].position;
+            
+            Vec3f rel_v2 = v2 - v1;
+            Vec3f rel_v3 = v3 - v1;
+
+            normals[i + 0] += cross(rel_v2, rel_v3);
+            normals[i + 1] += cross(rel_v2, rel_v3);
+            normals[i + 2] += cross(rel_v2, rel_v3);
+        }
+        
+        for (int i = 0; i < size(); i++)
+        {
+            normals[i] = normalize(normals[i]);
+            (*this)[i].normal = normals[i];
+        }
     }
 
     void VertexArray::append(const VertexArray& array)
@@ -157,7 +188,7 @@ namespace sgal
 
     Vertex& VertexArray::get(const uint32_t index) const
     {
-        //INDEX_OUT_RANGE;
+        INDEX_OUT_RANGE;
         return *(vertices + index);
     }
 

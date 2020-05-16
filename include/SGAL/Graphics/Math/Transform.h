@@ -17,7 +17,9 @@
 
 namespace sgal
 {
-
+	/**
+	 * @brief Base class used to extend any class with the tools to represent 3D transformations.
+	 */
 	class SGAL_API Transform
 	{
 		Vec3f position, rotation, scale;

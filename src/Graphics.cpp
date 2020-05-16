@@ -18,3 +18,4 @@
 #include "./Graphics/SingleModel.cpp"
 #include "./Graphics/VertexArray.cpp"
 #include "./Graphics/Primitives.cpp"
+#include "./Graphics/ComputeShader.cpp"

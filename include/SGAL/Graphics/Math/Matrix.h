@@ -17,6 +17,13 @@
 
 namespace sgal
 {
+    /**
+     * @brief Represents a matrix of information used in mathematical transforms.
+     * 
+     * @tparam T Data type
+     * @tparam R Rows
+     * @tparam C Columns
+     */
 	template<typename T, int R, int C>
     class Matrix
     {

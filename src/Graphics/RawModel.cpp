@@ -23,15 +23,17 @@ namespace sgal
     
 	void RawModel::fromArray(const VertexArray& array)
     {
+        if (!array.size()) return;
+        
         std::vector<Vec2f> texcoords = array.getTexCoords();
         std::vector<Vec3f> vertices  = array.getVertices();
         std::vector<Vec3f> normals   = array.getNormals();
         std::vector<Color> colors    = array.getColors();
 
-        loadColors   (&colors[0],    colors.size());
-        loadNormals  (&normals[0],   normals.size());
-        loadVertices (&vertices[0],  vertices.size());
-        loadTexCoords(&texcoords[0], texcoords.size());
+        if (colors.size())    loadColors   (&colors[0],    colors.size());
+        if (normals.size())   loadNormals  (&normals[0],   normals.size());
+        if (vertices.size())  loadVertices (&vertices[0],  vertices.size());
+        if (texcoords.size()) loadTexCoords(&texcoords[0], texcoords.size());
     }
 
     void RawModel::fromFile(const std::string& filename)

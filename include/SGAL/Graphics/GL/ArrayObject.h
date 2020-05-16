@@ -40,6 +40,13 @@ namespace GL
 		Polygon
 	};
 
+	/**
+	 * @brief High-level abstraction of OpenGL's VAO.
+	 * 
+	 * This object contains BufferObjects within it that each hold various
+	 * information which describe a model. There should be one ArrayObject
+	 * per unique model used in the SGAL.
+	 */
 	class SGAL_API ArrayObject : Object
 	{
 		unsigned int index_count, vertex_count;

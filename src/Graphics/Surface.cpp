@@ -16,20 +16,22 @@ namespace sgal
         unbindSurface();
     }
 
-    void Surface::draw(const UI::Element& uielem) const
+    void Surface::draw(const UI::Element& uielem, const Shader* const shader) const
     {
         bindSurface();
 
         // Check to make sure this instance has a Sizable component somewhere
         SG_ASSERT(dynamic_cast<const Sizable*>(this), "This surface is not sizable qualified!");
 
+        const Shader* const use_shader = (shader)?(shader):(&Shader::DefaultUI());
+
         const SizableSurface* surface = (const SizableSurface*)this;
 
-        Shader::DefaultUI().bind();
-        Shader::DefaultUI().setUniform("screen_size", (Vec2f)surface->getSize());
-        Shader::DefaultUI().setUniform("transform_mat", uielem.getTransformMatrix());
+        use_shader->bind();
+        use_shader->setUniform("screen_size", (Vec2f)surface->getSize());
+        use_shader->setUniform("transform_mat", uielem.getTransformMatrix());
 
-        uielem.draw(surface);
+        uielem.draw(surface, shader);
 
         unbindSurface();
     }
