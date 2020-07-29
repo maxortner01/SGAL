@@ -49,7 +49,7 @@ namespace sgal
     Vec2i Mouse::getPosition(const Window& window)
     {
 #       ifdef WIN32
-        return window.getPosition() - getPosition();
+        return Mouse::getPosition() - window.getPosition();
 #       else
         INVALID_OPERATING_SYSTEM;
 #       endif

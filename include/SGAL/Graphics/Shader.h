@@ -64,7 +64,8 @@ namespace sgal
 		static void useDefault();
 
 		// [SHADER] insert-decl
+		static Shader& Default2D();
+		static Shader& Default3D();
+		static Shader& DefaultUI();
 	};
-
-
 }

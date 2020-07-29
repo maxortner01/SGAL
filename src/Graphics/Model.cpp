@@ -98,6 +98,9 @@ namespace sgal
         // Redudant GL calls for now
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
+        
+        if (rc && !rc->enable_culling)
+            glDisable(GL_CULL_FACE);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -113,7 +116,8 @@ namespace sgal
         // Bind the VBO
         (*rawModel)[GL::Vertices].bind();
 
-        glPointSize(2.f);
+        glPointSize(6.f);
+        glLineWidth(3.f);
 
         // Ascertain the rendering method
         unsigned int type;

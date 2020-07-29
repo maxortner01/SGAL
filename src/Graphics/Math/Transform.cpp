@@ -59,6 +59,21 @@ namespace sgal
         return Vec3f(1, 1, 1);
     }
 
+    Vec3f& Transform::getPositionRef()
+    {
+        return position;
+    }
+
+    Vec3f& Transform::getRotationRef()
+    {
+        return rotation;
+    }   
+
+    Vec3f& Transform::getScaleRef()
+    {
+        return scale;
+    }
+
     Vec3f Transform::getPosition() const
     {
         return position;

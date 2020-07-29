@@ -414,7 +414,7 @@ namespace sgal
 			fragment_contents += "        discard;\n";
 			fragment_contents += "    }\n";
 			fragment_contents += "    \n";
-			fragment_contents += "    if (use_textures) FragColor = texture(texture1, tex_coords);\n";
+			fragment_contents += "    if (use_textures) FragColor = texture(texture1, tex_coords) * vert_color;\n";
 			fragment_contents += "    else              FragColor = vert_color;\n";
 			fragment_contents += "}\n";
 

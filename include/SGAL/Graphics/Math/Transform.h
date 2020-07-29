@@ -47,6 +47,10 @@ namespace sgal
 		virtual Vec3f getRelativeRotation() const;
 		virtual Vec3f getRelativeScale() const;
 
+		Vec3f& getPositionRef();
+		Vec3f& getRotationRef();
+		Vec3f& getScaleRef();
+
 		Vec3f getPosition() const;
 		Vec3f getRotation() const;
 		Vec3f getScale()    const;

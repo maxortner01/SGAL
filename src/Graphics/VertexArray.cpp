@@ -141,6 +141,17 @@ namespace sgal
             normaltransform(1, 3) = 0;
             normaltransform(2, 3) = 0;
 
+            // Extract scale
+            double scales[3] = {
+                length(Vec3f(normaltransform(0, 0), normaltransform(1, 0), normaltransform(2, 0))),
+                length(Vec3f(normaltransform(0, 1), normaltransform(1, 1), normaltransform(2, 1))),
+                length(Vec3f(normaltransform(0, 2), normaltransform(1, 2), normaltransform(2, 2)))
+            };
+
+            for (int r = 0; r < 3; r++)
+                for (int c = 0; c < 3; c++)
+                    normaltransform(r, c) /= scales[c];
+
             newpos  = transformation  * pos;
             newnorm = normaltransform * norm;
 

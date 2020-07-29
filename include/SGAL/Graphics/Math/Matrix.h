@@ -13,6 +13,7 @@
 #include <math.h>
 #include <SGAL/decl.h>
 
+#include "Instrins.h"
 #include "Vec.h"
 
 namespace sgal
@@ -47,11 +48,12 @@ namespace sgal
         Matrix<T, R, C2> operator*(const Matrix<T2, C, C2>& in_mat) const
         {
             Matrix<T, R, C2> mat;
-
+            
             for (int r = 0; r < R; r++)
                 for (int c = 0; c < C2; c++)
                     for (int j = 0; j < C; j++)
                         mat(r, c) += (*this)(r, j) * in_mat(j, c);
+
 
             return mat;
         }
@@ -70,8 +72,11 @@ namespace sgal
         unsigned int getColumns() const { return C; }
     };
 
-    typedef Matrix<float, 4, 4> Mat4f;
-    typedef Matrix<float, 3, 3> Mat3f;
+    typedef Matrix<float,  4, 4> Mat4f;
+    typedef Matrix<float,  3, 3> Mat3f;
+    
+    typedef Matrix<float,  2, 2> Mat2f;
+    typedef Matrix<double, 2, 2> Mat2d;
 
 	static Mat4f makeTranslationMatrix(Vec3f position)
     {
@@ -84,6 +89,7 @@ namespace sgal
 
         return ret;
     }
+    VA_FUNCTION(makeTranslationMatrix, static Mat4f, Vec3f);
 
     static Mat4f makeRotationMatrix(Vec3f rotation)
     {
@@ -109,6 +115,7 @@ namespace sgal
 
         return rot_x * rot_y * rot_z;
     }
+    VA_FUNCTION(makeRotationMatrix, static Mat4f, Vec3f);
 
     static Mat4f makeScaleMatrix(Vec3f scale)
     {
@@ -121,6 +128,7 @@ namespace sgal
 
         return ret;
     }
+    VA_FUNCTION(makeScaleMatrix, static Mat4f, Vec3f);
 
     #define sgMatT(...) makeTranslationMatrix(__VA_ARGS__)
     #define sgMatR(...) makeRotationMatrix(__VA_ARGS__)

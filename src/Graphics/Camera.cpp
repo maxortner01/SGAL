@@ -104,7 +104,7 @@ namespace sgal
     void FPSCamera::update(const Window& window, float speed, float sensitivity)
     {
         Vec2i mouse_delta = Mouse::getPosition(window) - Vec2i(window.getSize().x / 2, window.getSize().y / 2);
-        addRotation({ (float)mouse_delta.y / sensitivity, (float)mouse_delta.x / sensitivity, 0 });
+        addRotation({ (float)mouse_delta.y / -sensitivity, (float)mouse_delta.x / -sensitivity, 0 });
 
         Mouse::setPosition({ (int)(window.getSize().x / 2), (int)(window.getSize().y / 2) }, window);
         
@@ -146,16 +146,20 @@ namespace sgal
         //Mouse::setPosition({ (int)(window.getSize().x / 2), (int)(window.getSize().y / 2) }, window);
 
         MouseState ms = Mouse::getState();
-        if (ms.middle)
-            addRotation(Vec3f( (float)mouse_delta.y / sensitivity, (float)mouse_delta.x / sensitivity, 0 ));
+        if (ms.left)
+            addRotation(Vec3f( (float)mouse_delta.y / -sensitivity, (float)mouse_delta.x / -sensitivity, 0 ));
+
+        if (ms.right)
+            step(Vec3f((float)mouse_delta.x, (float)mouse_delta.y, 0.f));
 
         setPosition({ 0, 0, (float)ms.wheel * speed });
     }
 
     Mat4f OrbitCamera::getPerspectiveMatrix() const
     {
-        return makeTranslationMatrix(Vec3f(0, 0, getPosition().z * -1)) *
-            makeRotationMatrix(getRotation());
+        return makeTranslationMatrix(Vec3f(0, 0, -getPosition().z)) *
+            makeRotationMatrix(getRotation()) *
+            makeTranslationMatrix(Vec3f(-getPosition().x, -getPosition().y));
     }
 
 }

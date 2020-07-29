@@ -65,6 +65,6 @@ void main() {
         discard;
     }
     
-    if (use_textures) FragColor = texture(texture1, tex_coords);
+    if (use_textures) FragColor = texture(texture1, tex_coords) * vert_color;
     else              FragColor = vert_color;
 }

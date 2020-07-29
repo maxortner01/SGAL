@@ -44,6 +44,11 @@ namespace sgal
     {
         return models[index];
     }
+    
+	Model& ModelArray::operator [] (const unsigned int index)
+    {
+        return get(index);
+    }
 
     unsigned int ModelArray::size() const
     {

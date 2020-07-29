@@ -14,6 +14,9 @@ add_definitions(-DGLEW_STATIC)
 add_definitions(-DSGAL_BUILD)
 add_definitions(-DSGAL_SHARED)
 
+# For SIMD
+add_definitions(-mssse3)
+
 set(SOURCES ${PROJECT_SOURCE_DIR}/src/Graphics.cpp
             ${PROJECT_SOURCE_DIR}/src/Utility.cpp)
 

@@ -1,6 +1,7 @@
 #include <SGAL/SGAL.h>
 #include <GL/glew.h>
 
+
 static bool OPENGL_INITIALIZED = false;
 
 void makeWindow(unsigned int width, unsigned int height, std::string title, void*& handle, void* window);

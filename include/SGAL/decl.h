@@ -14,6 +14,11 @@
 #pragma once
 
 #include <cstdlib>
+#include <cstring>
+
+#ifndef SGAL_INTRINS
+#   define SGAL_INTRINS
+#endif
 
 // DLL declspect import/export definition
 #if defined(WIN32) || defined(_WIN32)
@@ -61,3 +66,11 @@
 #endif
 
 #define SG_TEXTURE_ARRAY_SIZE 16
+
+#define VA_METHOD(class_name, method_name, return_type, conv_type)\
+    template<typename... Args>\
+    return_type class_name::method_name(Args... args) { return method_name(conv_type(args...)); }
+
+#define VA_FUNCTION(function_name, return_type, conv_type)\
+    template<typename... Args>\
+    return_type function_name(Args... args) { return function_name(conv_type(args...)); }

@@ -32,6 +32,8 @@ namespace sgal
 		bool       turn_to_camera   = false;
 		/// Enables/disables lighting calculations
 		bool       use_lighting     = true;
+
+		bool       enable_culling   = true;
 		Shader     const* shader    = nullptr;
 		Camera     const* camera    = nullptr;
 		LightArray const* lights    = nullptr;
