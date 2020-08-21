@@ -45,26 +45,4 @@ src/Graphics/Primitives/Primitives.cpp
 
 client/Debug/
 
-apps/perlin-noise-cubes/perlin-noise-cubes.exe
-
-apps/perlin-noise-cubes/libstdc\+\+-6.dll
-
-apps/perlin-noise-cubes/libSGAL.dll
-
-apps/marching-cubes/libSGAL.dll
-
-apps/marching-cubes/libstdc\+\+-6.dll
-
-apps/marching-cubes/marching-cubes.exe
-
-apps/marching-cubes/Debug/
-
-apps/ray-trace/libSGAL.dll
-
-apps/ray-trace/libstdc\+\+-6.dll
-
-apps/ray-trace/oldmain.cpp
-
-apps/ray-trace/plane.shader
-
-apps/ray-trace/ray-trace.exe
+apps/.**

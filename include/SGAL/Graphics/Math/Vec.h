@@ -66,6 +66,12 @@ namespace sgal
 		}
 
 		template<typename F>
+		bool operator==(const Vec2<F>& vec) const
+		{
+			return (x == vec.x && y == vec.y);
+		}
+
+		template<typename F>
 		operator Vec2<F>() const
 		{
 			return Vec2<F>((F)x, (F)y);

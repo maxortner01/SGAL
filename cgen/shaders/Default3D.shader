@@ -62,7 +62,7 @@ vec4 getOutputColor() {
         }
 
         // Add the normal/light directional dot-product multiplied by the light color to the color
-        add_color += vec4(lights[i].color.xyz, 1.0) * max(dot(normalize(light_pos), normalize(normal)), 0.0);
+        add_color += vec4(lights[i].color.xyz, 1.0) * ((max(dot(normalize(light_pos), normalize(normal)), 0.5) - 0.5) * 2.0);
 
         // If the type is a point-light, add the fall-off
         if (lights[i].type == " + std::to_string(Light::Point) + ") 

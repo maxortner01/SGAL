@@ -48,12 +48,11 @@ namespace sgal
         Matrix<T, R, C2> operator*(const Matrix<T2, C, C2>& in_mat) const
         {
             Matrix<T, R, C2> mat;
-            
+
             for (int r = 0; r < R; r++)
                 for (int c = 0; c < C2; c++)
                     for (int j = 0; j < C; j++)
                         mat(r, c) += (*this)(r, j) * in_mat(j, c);
-
 
             return mat;
         }

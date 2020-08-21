@@ -2,11 +2,11 @@
 #version 330 core
 
 layout (location = " + std::to_string(GL::Vertices)  + ") in vec3 vertex;
-layout (location = " + std::to_string(GL::Colors)    + ") in vec4 in_color;
 layout (location = " + std::to_string(GL::TexCoords) + ") in vec2 tex;
 
 uniform vec2 screen_size;
 uniform vec2 size; // size of the object
+uniform vec4 render_color;
 uniform mat4 transform_mat;
 
 out vec4 vert_color;
@@ -14,7 +14,7 @@ out vec2 coords;
 out vec2 tex_coords;
 
 void main() {
-    vert_color    = in_color;
+    vert_color    = render_color;
     vec4 position = vec4(vertex, 1.0);
 
     position.x = position.x * (size.x);

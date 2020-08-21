@@ -9,7 +9,7 @@ namespace sgal
 {
 
     VertexArray::VertexArray(const uint32_t _size) :
-        vertices(nullptr), iterator(0)
+        vertices(nullptr), iterator(0), c_size(0)
     {
         resize(_size);
     }
@@ -17,10 +17,17 @@ namespace sgal
     VertexArray::VertexArray(const VertexArray& array) :
         VertexArray()
     {
-        clear();
         resize(array.size());
         std::memcpy(vertices, array.vertices, sizeof(Vertex) * array.size());
         iterator = array.size();
+    }
+    
+    VertexArray::VertexArray(VertexArray&& va)
+    {
+        this->vertices = va.vertices;
+        this->c_size   = va.c_size;
+        this->iterator = va.iterator;
+        va.vertices = nullptr;
     }
     
     VertexArray::~VertexArray()
@@ -31,19 +38,44 @@ namespace sgal
             vertices = nullptr;
         }
     }
+    
+    VertexArray& VertexArray::operator=(const VertexArray& va)
+    {
+        resize(va.size());
+        std::memcpy(vertices, va.vertices, sizeof(Vertex) * va.size());
+        return *this;
+    }
 
     void VertexArray::resize(const uint32_t _size)
     {
-        if (!_size) return;
+        if (_size == c_size) return;
+
+        if (!_size) 
+        {
+            if (vertices)
+                std::free(vertices);
+            
+            vertices = nullptr;
+            return;
+        }
 
         void* newptr = std::malloc(sizeof(Vertex) * _size);
         SG_ASSERT(newptr, "Error resizing array!");
         
+        allocations++;
+
         std::memset(newptr, 0, sizeof(Vertex) * _size);
 
         if (vertices)
         {
-            std::memcpy(newptr, vertices, sizeof(Vertex) * c_size);
+            if (c_size < _size)
+                std::memcpy(newptr, vertices, sizeof(Vertex) * c_size);
+            else
+            {
+                std::memcpy(newptr, vertices, sizeof(Vertex) * _size);
+                if (iterator > _size) iterator = _size - 1;
+            }
+
             std::free(vertices);
         }
 
@@ -54,7 +86,7 @@ namespace sgal
     void VertexArray::push(Vertex& vertex) 
     {
         if (iterator >= c_size)
-            resize(c_size * 2);
+            resize((c_size + 1) * 2);
         
         std::memcpy(vertices + iterator++, &vertex, sizeof(Vertex));
     }
@@ -70,7 +102,10 @@ namespace sgal
         
         std::memset(vertices, 0, sizeof(Vertex) * c_size);
         std::free(vertices);
+
         vertices = nullptr;
+        c_size   = 0;
+        iterator = 0;
     }
 
     void VertexArray::calculateNormals()
@@ -109,13 +144,6 @@ namespace sgal
         
         std::memcpy(vertices + iterator, &array[0], sizeof(Vertex) * array.size());
         iterator += array.size();
-    }
-    
-    VertexArray& VertexArray::operator=(const VertexArray& va)
-    {
-        clear();
-        append(va);
-        return *this;
     }
 
     VertexArray VertexArray::transform(const Mat4f& transformation) const
@@ -182,6 +210,37 @@ namespace sgal
         }
 
         return r;
+    }
+
+    void VertexArray::assimilate() 
+    {
+        VertexArray new_array;
+        new_array.resize(size());
+
+        printf("Size:  %i\n", new_array.allocated());
+        printf("Size2: %i\n", size());
+
+        for (int i = 0; i < size(); i++)
+        {
+            bool found = false;
+            for (int j = 0; j < new_array.size(); j++)
+                if (new_array[j].position == get(i).position)
+                {
+                    found = true;
+                    break;
+                }
+
+            if (found) continue;
+
+            new_array.push(get(i));
+        }
+
+        printf("SIZE:  %i\n", new_array.size());
+        printf("SIZE2: %i\n", size());
+
+        resize(new_array.size());
+        std::memcpy(vertices, new_array.vertices, sizeof(Vertex) * new_array.size());
+        new_array.clear();
     }
 
     bool VertexArray::typeFilled(GL::BufferType type) const

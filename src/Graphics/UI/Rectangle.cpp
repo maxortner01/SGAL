@@ -75,7 +75,7 @@ namespace UI
         if (parent_rect) render_color.a = parent_rect->getColor().a;
 
         // Set the color in the VAO
-        rawModel->setColor(render_color);
+        use_shader->setUniform("render_color", render_color);
 
         // If there's a texture, bind it and set the uniforms
         use_shader->bind();
@@ -97,7 +97,6 @@ namespace UI
 
     void Rectangle::setColor(const Color& color)
     {
-        rawModel->setColor(color);
         this->color = color;
     }
 

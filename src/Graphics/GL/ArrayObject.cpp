@@ -61,6 +61,12 @@ namespace GL
 
     void ArrayObject::loadIndices(const unsigned int* _indices, const size_t count)
     {
+        if (!count && !_indices)
+        {
+            std::free(indices); indices = nullptr;
+            return;
+        }
+        
         if (!count) return;
 
         // If there are already indices in place, free the memory
@@ -83,10 +89,11 @@ namespace GL
     {
         if (!count) return;
 
+        /*
         std::vector<Color> colors(count);
 
         for (int i = 0; i < colors.size(); i++)
-            colors[i] = Color(255, 255, 255, 255);
+            colors[i] = Color(255, 255, 255, 255); */
 
         // Bind the buffer and load the data into the GPU
         bind();

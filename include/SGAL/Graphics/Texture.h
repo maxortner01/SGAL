@@ -19,8 +19,7 @@ namespace sgal
 {
 	class SGAL_API Texture : public GL::Object
 	{
-		Vec2u size;
-
+		// Texture Types
 	public:
 		enum Type
 		{
@@ -28,14 +27,49 @@ namespace sgal
 			Depth
 		};
 
+		enum FilterType
+		{
+			Nearest,
+			Smooth
+		};
+
+		enum WrapType
+		{
+			ClampToEdge,
+			Repeat,
+			MirroredRepeat
+		};
+
+		struct Parameters
+		{
+			FilterType filter;
+			WrapType   wrap;
+
+			// Since gcc struggles with default parameters
+			Parameters(FilterType f = FilterType::Nearest, WrapType w = WrapType::ClampToEdge) :
+				filter(f), wrap(w)
+			{	}
+		};
+
+		// Private variables
+	private:
+		Vec2u      size;
+		Parameters parameters;
+
+		// Methods
+	public:
 		Texture(unsigned int _layer = 0);
-		Texture(Vec2u dimensions, Type type = Color, unsigned int _layer = 0);
+		Texture(Vec2u dimensions, Type type = Type::Color, const Parameters& param = Parameters(), unsigned int _layer = 0);
+		Texture(Vec2u dimensions, const Parameters& param, unsigned int _layer = 0);
 
 		~Texture();
 
-		void create(Vec2u dimensions, Type type = Color);
+		void create(Vec2u dimensions, const Parameters& param);
+		void create(Vec2u dimensions, Type type = Color, const Parameters& param = Parameters());
 		void fromFile(const std::string& filename);
 		void fromMemory(const void* const data, const Vec2u& size);
+
+		Parameters getParameters() const;
 
 		Vec2u getSize() const;
 

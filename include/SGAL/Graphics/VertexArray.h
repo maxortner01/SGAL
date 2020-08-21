@@ -33,11 +33,16 @@ namespace sgal
 		Vertex* vertices;
 
 	public:
+		uint32_t allocations = 0;
+
 		VertexArray(const uint32_t _size = 1);
 		VertexArray(const VertexArray& va);
+		VertexArray(VertexArray&& va);
 		~VertexArray();
 
-		void resize(const uint32_t _size);
+		VertexArray& operator=(const VertexArray& va);
+
+		void resize(const uint32_t _size); 
 		void push(Vertex& vertex);
 		void fit();
 		void clear();
@@ -45,13 +50,13 @@ namespace sgal
 		void calculateNormals();
 		void append(const VertexArray& array);
 
-		VertexArray& operator=(const VertexArray& va);
-
 		template<typename... Args>
 		VertexArray transform(const Mat4f& first, Args... transformations) const;
 		VertexArray transform(const Mat4f& transformation) const;
 
 		VertexArray index(const unsigned int* indices, const uint32_t size) const;
+
+		void assimilate();
 
 		bool typeFilled(GL::BufferType type) const;
 

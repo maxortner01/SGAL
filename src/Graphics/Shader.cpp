@@ -302,7 +302,7 @@ namespace sgal
 			fragment_contents += "        }\n";
 			fragment_contents += "\n";
 			fragment_contents += "        // Add the normal/light directional dot-product multiplied by the light color to the color\n";
-			fragment_contents += "        add_color += vec4(lights[i].color.xyz, 1.0) * max(dot(normalize(light_pos), normalize(normal)), 0.0);\n";
+			fragment_contents += "        add_color += vec4(lights[i].color.xyz, 1.0) * ((max(dot(normalize(light_pos), normalize(normal)), 0.5) - 0.5) * 2.0);\n";
 			fragment_contents += "\n";
 			fragment_contents += "        // If the type is a point-light, add the fall-off\n";
 			fragment_contents += "        if (lights[i].type == " + std::to_string(Light::Point) + ") \n";
@@ -350,11 +350,11 @@ namespace sgal
 			vertex_contents += "#version 330 core\n";
 			vertex_contents += "\n";
 			vertex_contents += "layout (location = " + std::to_string(GL::Vertices)  + ") in vec3 vertex;\n";
-			vertex_contents += "layout (location = " + std::to_string(GL::Colors)    + ") in vec4 in_color;\n";
 			vertex_contents += "layout (location = " + std::to_string(GL::TexCoords) + ") in vec2 tex;\n";
 			vertex_contents += "\n";
 			vertex_contents += "uniform vec2 screen_size;\n";
 			vertex_contents += "uniform vec2 size; // size of the object\n";
+			vertex_contents += "uniform vec4 render_color;\n";
 			vertex_contents += "uniform mat4 transform_mat;\n";
 			vertex_contents += "\n";
 			vertex_contents += "out vec4 vert_color;\n";
@@ -362,7 +362,7 @@ namespace sgal
 			vertex_contents += "out vec2 tex_coords;\n";
 			vertex_contents += "\n";
 			vertex_contents += "void main() {\n";
-			vertex_contents += "    vert_color    = in_color;\n";
+			vertex_contents += "    vert_color    = render_color;\n";
 			vertex_contents += "    vec4 position = vec4(vertex, 1.0);\n";
 			vertex_contents += "\n";
 			vertex_contents += "    position.x = position.x * (size.x);\n";
