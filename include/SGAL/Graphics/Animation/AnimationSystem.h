@@ -17,7 +17,7 @@ namespace sgal
 	class SGAL_API AnimationSystem : Anim::Interface
     {
         std::vector<Anim::BasicAnimation*> continuous_animations;
-        std::stack<Anim::BasicAnimation*>  animations;
+        std::queue<Anim::BasicAnimation*>  animations;
 
     public:
         ~AnimationSystem();

@@ -18,7 +18,7 @@ namespace sgal
 {
 	class SGAL_API AnimationSequence : public Anim::BasicAnimation
 	{
-        std::stack<Anim::BasicAnimation*> animations;
+        std::queue<Anim::BasicAnimation*> animations;
 
     public:
         ~AnimationSequence();

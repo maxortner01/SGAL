@@ -46,3 +46,5 @@ src/Graphics/Primitives/Primitives.cpp
 client/Debug/
 
 apps/
+
+include/SGAL/Graphics/Primitives/Primitives.h

@@ -33,7 +33,7 @@ namespace sgal
 
         Timer timer;
 
-        bool started = false;
+        bool started;
         bool finished;
 
         Interpolation interp = Cosine;
@@ -42,7 +42,7 @@ namespace sgal
 
         Animation(T* _value, T _first, T _last, float _duration) :
             value(_value), first(_first), last(_last), duration(_duration)
-        { finished = false; }
+        { finished = false; started = false; }
 
         void setInterpolation(Interpolation i)
         {

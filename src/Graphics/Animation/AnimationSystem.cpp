@@ -7,7 +7,7 @@ namespace sgal
     {
         while (animations.size())
         {
-            delete animations.top();
+            delete animations.front();
             animations.pop();
         }
 
@@ -29,10 +29,10 @@ namespace sgal
     {
         if (animations.size())
         {
-            animations.top()->update();
-            if (animations.top()->done())
+            animations.front()->update();
+            if (animations.front()->done())
             {
-                delete animations.top();
+                delete animations.front();
                 animations.pop();
             }
         }

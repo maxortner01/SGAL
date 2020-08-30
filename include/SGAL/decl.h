@@ -15,6 +15,7 @@
 
 #include <cstdlib>
 #include <cstring>
+#include <queue>
 
 #ifndef SGAL_INTRINS
 #   define SGAL_INTRINS
