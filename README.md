@@ -1,4 +1,4 @@
-# SGAL V0.1.1
+# SGAL V0.1.2
 The **S**imple **G**raphics and **A**udio **L**ibrary is a straight-forward object-oriented library built in C++ meant to give the user a streamlined way of creating robust 3D graphics through a simple and small API. It uses OpenGL for the low-level rendering operations, and all window handling is done in-framework. It is cross platform.
 
 All dependencies are automatically downloaded and synced when you compile using CMake.
