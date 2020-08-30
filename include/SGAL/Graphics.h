@@ -25,3 +25,4 @@
 #include "./Graphics/Primitives.h"
 #include "./Graphics/ComputeShader.h"
 #include "./Graphics/Math.h"
+#include "./Graphics/Animation.h"

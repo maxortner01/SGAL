@@ -26,7 +26,6 @@ namespace sgal
 	 * 
 	 * For each unique model there should exist only one RawModel, while any instance that should
 	 * be rendered into the scene should be a Model.
-	 * 
 	 */
 	class SGAL_API RawModel : public GL::ArrayObject
 	{

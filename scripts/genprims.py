@@ -29,6 +29,9 @@ source_file_bottom = """
 # Go to SGAL directory
 os.chdir("../../")
 
+if not os.path.exists("src/Graphics/Primitives"):          os.mkdir("src/Graphics/Primitives")
+if not os.path.exists("include/SGAL/Graphics/Primitives"): os.mkdir("include/SGAL/Graphics/Primitives")
+
 if (os.path.exists("src/Graphics/Primitives/Primitives.cpp") and os.path.exists("include/SGAL/Graphics/Primitives/Primitives.h")): sys.exit(0)
 
 source = open("src/Graphics/Primitives/Primitives.cpp", "w")

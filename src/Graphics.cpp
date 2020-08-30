@@ -19,3 +19,4 @@
 #include "./Graphics/VertexArray.cpp"
 #include "./Graphics/Primitives.cpp"
 #include "./Graphics/ComputeShader.cpp"
+#include "./Graphics/Animation.cpp"
