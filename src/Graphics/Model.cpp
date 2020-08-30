@@ -9,7 +9,9 @@ namespace sgal
 
     Model::Model(RawModel const* rm) :
         rawModel(rm), normalsModel(nullptr), normalsRawModel(nullptr)
-    {   }
+    {  
+        
+    }
 
     Model::~Model()
     {
@@ -62,11 +64,15 @@ namespace sgal
         normalsModel->setRotation(getRotation());
         normalsModel->setScale(getScale());
 
+        const Shader* const before_shader = rc->shader;
+        rc->shader = &Shader::Default3D();
+
         bool before = rc->use_lighting;
         rc->use_lighting = false;
         surface.draw(*normalsModel, rc);
 
         rc->use_lighting = before;
+        rc->shader = before_shader;
     }
 
     void Model::draw(const Surface* surface, const RenderContext* rc) const
@@ -86,9 +92,15 @@ namespace sgal
         // Set the render context
         rawModel->setRenderContext(rc, ss);
 
+        if (rc && !rc->texture_override)
+            rawModel->bindTextures();
+
         // Redudant GL calls for now
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
+        
+        if (rc && !rc->enable_culling)
+            glDisable(GL_CULL_FACE);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -104,10 +116,14 @@ namespace sgal
         // Bind the VBO
         (*rawModel)[GL::Vertices].bind();
 
+        glPointSize(6.f);
+        glLineWidth(3.f);
+
         // Ascertain the rendering method
         unsigned int type;
         switch (rawModel->getRenderMode())
         {
+        case GL::LineStrip: type = GL_LINE_STRIP;   break;
         case GL::Triangles: type = GL_TRIANGLES;    break;
         case GL::Polygon:   type = GL_POLYGON;      break;
         case GL::Points:    type = GL_POINTS;       break;
@@ -118,6 +134,9 @@ namespace sgal
         glDrawElements(type, rawModel->indexCount(), GL_UNSIGNED_INT, rawModel->indices);
 
         glDisable(GL_CULL_FACE);
+        
+        if (rc && !rc->texture_override)
+            rawModel->unbindTextures();
     }
 
 }

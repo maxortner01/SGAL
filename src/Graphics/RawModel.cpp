@@ -11,7 +11,30 @@ namespace sgal
 
     RawModel::RawModel() :
         GL::ArrayObject(GL::Triangles), use_textures(false)
-    {   }
+    {   
+        textures.reserve(SG_TEXTURE_ARRAY_SIZE);
+    }
+
+    RawModel::RawModel(const VertexArray& array) :
+        RawModel()
+    {
+        fromArray(array);
+    }
+    
+	void RawModel::fromArray(const VertexArray& array)
+    {
+        if (!array.size()) return;
+        
+        std::vector<Vec2f> texcoords = array.getTexCoords();
+        std::vector<Vec3f> vertices  = array.getVertices();
+        std::vector<Vec3f> normals   = array.getNormals();
+        std::vector<Color> colors    = array.getColors();
+
+        if (colors.size())    loadColors   (&colors[0],    colors.size());
+        if (normals.size())   loadNormals  (&normals[0],   normals.size());
+        if (vertices.size())  loadVertices (&vertices[0],  vertices.size());
+        if (texcoords.size()) loadTexCoords(&texcoords[0], texcoords.size());
+    }
 
     void RawModel::fromFile(const std::string& filename)
     {
@@ -189,7 +212,10 @@ namespace sgal
 
         shader->bind();
         
-        shader->setUniform("use_textures", use_textures);
+        shader->setUniform("use_textures", (textures.size() > 0));
+        for (int i = 0; i < textures.size(); i++)
+            shader->setUniform("texture" + std::to_string(i), i);
+
         shader->setUniform("use_lighting", rc->use_lighting);
         shader->setUniform("turn_to_camera", rc->turn_to_camera);
         
@@ -207,9 +233,56 @@ namespace sgal
             shader->setUniform("proj_matrix", identity);
         }
 
-        if (rc->lights)
+        if (rc->lights && rc->lights->size() > 0)
             shader->setUniform(&(*rc->lights)[0], rc->lights->size());
+        else
+            shader->setUniform("light_count", 0);
         
+        
+    }
+
+    void RawModel::bindTextures() const
+    {
+        for (int i = 0; i < textures.size(); i++)
+            textures[i]->bindLayer(i);
+    }
+
+    void RawModel::unbindTextures() const
+    {
+        for (int i = 0; i < textures.size(); i++)
+            textures[i]->unbindLayer(i);
+    }
+
+    void RawModel::removeTexture(const Texture& texture)
+    {
+        for (int i = 0; i < textures.size(); i++)
+            if (textures[i] == &texture)
+            {
+                textures.erase(textures.begin() + i);
+                return;
+            }
+
+        SG_ASSERT(false, "Texture not attatched to RawModel!");
+    }
+
+    void RawModel::attachTexture(const Texture& texture)
+    {
+        textures.push_back(&texture);
+    }
+
+    const std::vector<const Texture*>& RawModel::getTextures() const
+    {
+        return textures;
+    }
+
+    unsigned int RawModel::getByteSize() const
+    {
+        unsigned int r = 0;
+
+        for (int i = 0; i < GL::BufferCount; i++)
+            r += (*this)[i].getByteSize();
+
+        return r;
     }
 
 }

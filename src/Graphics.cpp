@@ -15,3 +15,8 @@
 #include "./Graphics/LightArray.cpp"
 #include "./Graphics/DrawTexture.cpp"
 #include "./Graphics/UI.cpp"
+#include "./Graphics/SingleModel.cpp"
+#include "./Graphics/VertexArray.cpp"
+#include "./Graphics/Primitives.cpp"
+#include "./Graphics/ComputeShader.cpp"
+#include "./Graphics/Animation.cpp"

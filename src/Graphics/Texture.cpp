@@ -8,38 +8,67 @@
 
 namespace sgal
 {
-    static void setParameters()
+    static void setParameters(const Texture::Parameters& parameter)
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        GLenum type;
+
+        // Set the filter parameters
+        switch (parameter.filter)
+        {
+        case Texture::FilterType::Nearest: type = GL_NEAREST; break;
+        case Texture::FilterType::Smooth:  type = GL_SMOOTH;  break;
+        }
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, type);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, type);
+
+        // Set the wrap parameters
+        switch (parameter.wrap)
+        {
+        case Texture::WrapType::MirroredRepeat: type = GL_MIRRORED_REPEAT;  break;
+        case Texture::WrapType::ClampToEdge:    type = GL_CLAMP_TO_EDGE;    break;
+        case Texture::WrapType::Repeat:         type = GL_REPEAT;           break;
+        }
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, type);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, type);
+
     }
 
-    Texture::Texture() :
+    Texture::Texture(unsigned int _layer) :
         size(0, 0)
-    {
+    {   }
 
-    }
-
-    Texture::Texture(Vec2u dimensions, Texture::Type type) :
-        Texture()
+    Texture::Texture(Vec2u dimensions, Texture::Type type, const Parameters& param, unsigned int _layer) :
+        Texture(_layer)
     {
-        create(dimensions, type);
+        create(dimensions, type, param);
     }
+    
+	Texture::Texture(Vec2u dimensions, const Parameters& param, unsigned int _layer) :
+        Texture(dimensions, Type::Color, param, _layer)
+    {   }
 
     Texture::~Texture()
     {
         if (id) { glDeleteTextures(1, &id); id = 0; }
     }
 
-    void Texture::create(Vec2u dimensions, Texture::Type type)
+    void Texture::create(Vec2u dimensions, const Parameters& param)
+    {
+        create(dimensions, Type::Color, param);
+    }
+
+    void Texture::create(Vec2u dimensions, Texture::Type type, const Parameters& param)
     {
         SG_ASSERT(!id, "Texture already created!");
-        size = dimensions;
+        size       = dimensions;
+        parameters = param;
 
         // Create the texture with OpenGL
         glGenTextures(1, &id);
         bind();
-        setParameters();
+        setParameters(param);
 
         switch (type)
         {
@@ -66,16 +95,45 @@ namespace sgal
         create(Vec2u(x, y));
 
         bind();
-        setParameters();
+        setParameters(parameters);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         unbind();
 
         stbi_image_free(data);
     }
 
+    void Texture::fromMemory(const void* const data, const Vec2u& size)
+    {
+        bool created = false;
+        if (!id) { create(size); created = true; }
+
+        bind();
+        setParameters(parameters);
+        if (created) glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        else         glTexSubImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        unbind();
+    }
+
+    Texture::Parameters Texture::getParameters() const
+    {
+        return parameters;
+    }
+
     Vec2u Texture::getSize() const
     {
         return size;
+    }
+
+    void Texture::bindLayer(const unsigned int layer) const
+    {
+        glActiveTexture(GL_TEXTURE0 + layer);
+        glBindTexture(GL_TEXTURE_2D, id);
+    }
+
+    void Texture::unbindLayer(const unsigned int layer) const
+    {
+        glActiveTexture(GL_TEXTURE0 + layer);
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     void Texture::bind() const

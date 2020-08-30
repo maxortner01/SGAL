@@ -14,13 +14,14 @@
 
 namespace sgal
 {
+	class  Shader;
 	struct SizableSurface;
 
 namespace UI
 {
 	struct Element : public Transform
 	{
-		virtual void draw(const SizableSurface* surface) const = 0;
+		virtual void draw(const SizableSurface* surface, const Shader* const shader = nullptr) const = 0;
 	};
 }
 }

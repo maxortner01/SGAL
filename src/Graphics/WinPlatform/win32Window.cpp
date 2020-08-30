@@ -168,8 +168,10 @@ LRESULT CALLBACK WindowProc(HWND handle, UINT message, WPARAM wparam, LPARAM lpa
     case WM_MOUSEWHEEL:
         {
             INIT_EVENT(sgal::Event::WheelMove);
-            event.wheel.delta = HIWORD(wparam);
+            event.wheel.delta = GET_WHEEL_DELTA_WPARAM(wparam) / WHEEL_DELTA;
             PUSH_EVENT;
+
+            sgal::Mouse::getState().wheel += event.wheel.delta;
         }
         return 0;
         
@@ -287,7 +289,9 @@ void makeWindow(unsigned int width, unsigned int height, std::string title, void
             // Wait for the thread to open the window,
             // if it never opens an assertion will have failed
             // and this will break.
-            while (!WINDOWS[i]);
+
+            // Yeah, it gets hung unless I call the print.
+            while (!WINDOWS[i]) printf("");
             handle = WINDOWS[i];
 
             // Set the window position to the current position on the screen

@@ -1,5 +1,6 @@
 #include <SGAL/SGAL.h>
 
+#include <iostream>
 #include <vector>
 #include <GL/glew.h>
 
@@ -24,8 +25,11 @@ namespace GL
     {
         for (int i = 0; i < BufferType::BufferCount; i++)
         {
-            delete vbos[i];
-            vbos[i] = nullptr;
+            if (vbos[i])
+            {
+                delete vbos[i];
+                vbos[i] = nullptr;
+            }
         }
 
         glDeleteVertexArrays(1, &id);
@@ -57,6 +61,12 @@ namespace GL
 
     void ArrayObject::loadIndices(const unsigned int* _indices, const size_t count)
     {
+        if (!count && !_indices)
+        {
+            std::free(indices); indices = nullptr;
+            return;
+        }
+        
         if (!count) return;
 
         // If there are already indices in place, free the memory
@@ -79,10 +89,11 @@ namespace GL
     {
         if (!count) return;
 
+        /*
         std::vector<Color> colors(count);
 
         for (int i = 0; i < colors.size(); i++)
-            colors[i] = Color(255, 255, 255, 255);
+            colors[i] = Color(255, 255, 255, 255); */
 
         // Bind the buffer and load the data into the GPU
         bind();
@@ -149,6 +160,11 @@ namespace GL
     void ArrayObject::unbind() const
     {
         glBindVertexArray(0);
+    }
+
+    const unsigned int* ArrayObject::getIndices() const
+    {
+        return indices;
     }
 
     unsigned int ArrayObject::vertexCount() const

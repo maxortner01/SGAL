@@ -37,6 +37,8 @@ namespace sgal
 		void   remove(const unsigned int index);
 		Model& get(const unsigned int index);
 
+		Model& operator [] (const unsigned int index);
+
 		unsigned int size() const;
 
 		void draw(const Surface* surface, const RenderContext* rc) const override;

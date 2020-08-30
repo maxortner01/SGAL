@@ -1,5 +1,7 @@
 #include <SGAL/SGAL.h>
 
+#include <iostream>
+
 namespace sgal
 {
 

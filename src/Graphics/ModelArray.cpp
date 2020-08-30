@@ -44,6 +44,11 @@ namespace sgal
     {
         return models[index];
     }
+    
+	Model& ModelArray::operator [] (const unsigned int index)
+    {
+        return get(index);
+    }
 
     unsigned int ModelArray::size() const
     {
@@ -54,32 +59,57 @@ namespace sgal
     {
         if (rawModel->vertexCount() == 0) return;
 
-        if (!static_render)
-            loadMatrices();
+        // First step, load the model matrices into the buffer
+        loadMatrices();
 
+        // Next step, assert whether the surface is derived from sizable
         const Sizable* ss = dynamic_cast<const Sizable*>(surface);
         SG_ASSERT(ss, "The given surface is not sizable qualified!");
+
+        // Set the render context
         rawModel->setRenderContext(rc, ss);
 
+        if (rc && !rc->texture_override)
+            rawModel->bindTextures();
+
+        // Redudant GL calls for now
+        glEnable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        // Depth testing unless otherwise specified
         glEnable(GL_DEPTH_TEST);
-        glDisable(GL_BLEND);
+        if (rc && !rc->depth_testing)
+            glDisable(GL_DEPTH_TEST);
+
+        // Bind the VAO
         rawModel->bind();
 
+        // Bind the VBO
         (*rawModel)[GL::Vertices].bind();
 
+        glPointSize(2.f);
+
+        // Ascertain the rendering method
         unsigned int type;
         switch (rawModel->getRenderMode())
         {
+        case GL::LineStrip: type = GL_LINE_STRIP;   break;
         case GL::Triangles: type = GL_TRIANGLES;    break;
         case GL::Polygon:   type = GL_POLYGON;      break;
         case GL::Points:    type = GL_POINTS;       break;
         case GL::Lines:     type = GL_LINES;        break;
-        };
+        }
 
+        // Draw the buffer to the bound buffer
         glDrawElementsInstanced(type, rawModel->indexCount(), GL_UNSIGNED_INT, rawModel->indices, models.size());
 
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
+        glDisable(GL_CULL_FACE);
+        
+        if (rc && !rc->texture_override)
+            rawModel->unbindTextures();
     }
 
 }

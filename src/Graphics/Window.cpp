@@ -1,12 +1,15 @@
 #include <SGAL/SGAL.h>
 #include <GL/glew.h>
 
+
 static bool OPENGL_INITIALIZED = false;
 
 void makeWindow(unsigned int width, unsigned int height, std::string title, void*& handle, void* window);
 
 #if defined(WIN32) || defined(__WIN32)
 #   include "WinPlatform/win32Window.cpp"
+#else
+#   error Non-Windows platforms currently not supported!
 #endif
 
 namespace sgal
@@ -50,7 +53,9 @@ namespace sgal
         context.create(hdc);
 
 #       else // Linux Platforms
+
         INVALID_OPERATING_SYSTEM;
+
 #       endif
 
         context.makeCurrent();
@@ -86,7 +91,7 @@ namespace sgal
 
     void Window::update()
     {
-        SG_ASSERT(events.size() < 200, "Event maximum reached, are you polling?");
+        if (events.size() > 100) while (events.size()) events.pop();
 
 #       ifdef WIN32
         UpdateWindow(settings.handle);

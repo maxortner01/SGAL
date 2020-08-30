@@ -36,3 +36,15 @@ bin-gen/libSGAL.dll
 bin-gen/rect.rm
 
 bin-gen/tempgen.exe
+
+client/main_old.cpp
+
+client/res/textures/atlas.png
+
+src/Graphics/Primitives/Primitives.cpp
+
+client/Debug/
+
+apps/
+
+include/SGAL/Graphics/Primitives/Primitives.h

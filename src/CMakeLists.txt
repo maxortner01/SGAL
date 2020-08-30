@@ -14,10 +14,45 @@ add_definitions(-DGLEW_STATIC)
 add_definitions(-DSGAL_BUILD)
 add_definitions(-DSGAL_SHARED)
 
+# For SIMD
+add_definitions(-mssse3)
+
 set(SOURCES ${PROJECT_SOURCE_DIR}/src/Graphics.cpp
             ${PROJECT_SOURCE_DIR}/src/Utility.cpp)
 
 add_library(SGAL SHARED ${SOURCES} "${PROJECT_SOURCE_DIR}/extern/glew/src/glew.c")
+
+# Check if Python is installed on the machine
+find_package(Python COMPONENTS Interpreter)
+if (Python_FOUND)
+    message(STATUS "Python Version ${Python_VERSION} installed")
+
+    file(GLOB SHADER_FILES "${PROJECT_SOURCE_DIR}/cgen/shaders/*.shader")
+
+    # Call the script for generating primitives
+    add_custom_target(
+    primitive-gen ALL
+    COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/genprims.py ${CMAKE_CURRENT_SOURCE_DIR}
+    BYPRODUCTS Primitives.h
+    COMMENT "Generating primitive files"
+    )
+    
+    # Call the script for generating shaders
+    add_custom_target(
+    shader-gen ALL
+    COMMAND    ${Python_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../scripts/genshaders.py ${CMAKE_CURRENT_SOURCE_DIR}
+    DEPENDS    ${SHADER_FILES}
+    BYPRODUCTS Shaders.cpp Shaders.h
+    COMMENT "Generating shaders header/source files"
+    )
+
+    add_dependencies(SGAL primitive-gen)
+    add_dependencies(SGAL shader-gen)
+
+else()
+    add_definitions(-DSG_NO_PRIMITIVES)
+    message(WARNING "Warning: Python not found, cannot generate primitive header files")
+endif()
 
 if (WIN32)
     if (MSVC)

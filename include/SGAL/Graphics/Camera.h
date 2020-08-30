@@ -19,19 +19,27 @@ namespace sgal
 	class Sizable;
 	class Window;
 
+	/**
+	 * @brief Container for transform information as well as matrix generation that describes a camera.
+	 * 
+	 * By default the camera uses a projection matrix with the given parameters. 
+	 * It is passed through to the shaders through the RenderContext object.
+	 */
 	class SGAL_API Camera : public Transform
 	{
+		bool ortho;
 		float FOV;
-		bool  orbit;
 		Vec2f near_far;
 
 	public:
-		Camera(const float fov);
+		Camera(const float fov = 3.14159f / 2.f);
 
 		void step(Vec3f direction);
 
-		Mat4f getPerspectiveMatrix() const;
+		virtual Mat4f getPerspectiveMatrix() const;
 		Mat4f getProjectionMatrix(float aspectRatio)  const;
+
+		void setOrtho(bool enabled);
 
 		void setZNear(float _near);
 		void setZFar (float _far);
@@ -44,13 +52,22 @@ namespace sgal
 		void setSurface(const Sizable& surf);
 		const Sizable& getSurface() const;
 
-		void setOribitTransform(bool _orbit);
+		virtual void update(const Window& window, float speed, float sensitivity) {}
 	};
 
 	struct SGAL_API FPSCamera : public Camera
 	{
 		BASE_CONSTRUCTOR(Camera);
 
-		void update(const Window& window, float speed, float sensitivity);
+		void update(const Window& window, float speed, float sensitivity) override;
+	};
+
+	struct SGAL_API OrbitCamera : public Camera
+	{
+		BASE_CONSTRUCTOR(Camera);
+
+		void update(const Window& window, float speed, float sensitivity) override;
+
+		Mat4f getPerspectiveMatrix() const override;
 	};
 }

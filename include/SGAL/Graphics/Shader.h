@@ -28,11 +28,14 @@ namespace sgal
 		{
 			Vertex,
 			Fragment,
+			Compute,
+			SG_GLSL,
 			Count	
 		};
 
 	private:
 		unsigned int ids[ShaderType::Count];
+		std::string  source[ShaderType::Count];
 
 	public:
 		Shader();
@@ -49,6 +52,8 @@ namespace sgal
         void setUniform(const std::string& name, bool  value) const;
         void setUniform(const std::string& name, int   value) const;
 
+		const std::string& getSource(ShaderType type) const;
+
 		void fromFile  (const std::string& filename, ShaderType type);
 		void fromString(const std::string& contents, ShaderType type);
 		void link() const;
@@ -58,10 +63,9 @@ namespace sgal
 
 		static void useDefault();
 
-		static Shader& DefaultUI();
-		static Shader& Default3D();
+		// [SHADER] insert-decl
 		static Shader& Default2D();
+		static Shader& Default3D();
+		static Shader& DefaultUI();
 	};
-
-
 }
