@@ -27,6 +27,11 @@ SGAL uses only the `GLEW` library as a dependancy. For now it pulls from the `cm
 
 ## Changelog
 
+### Version `0.1.2` - 8/30/2020
+
+ - Implemented Animation, AnimationSequence, and AnimationSystem
+ - Fixed small bugs
+
 ### Version `0.1.1` - 5/6/2020
 
 - Introduced the VertexArray.
